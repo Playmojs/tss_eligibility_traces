@@ -4,7 +4,9 @@ class Symbol():
     def __init__(self, coord, nscales=1):
         self.coord = coord
         self.activated = False
+        self.activated_at = None
         self.spike_delay_ms = 10
+        self.tag = False
 
 def getAvailableTransitions(symbols, self_id, range):
         transitions = np.empty(0,dtype = int)
@@ -23,6 +25,7 @@ class Transition():
 class TimedEvent():
      def __init__(self):
           self.try_activate = np.empty(0, dtype = int)
+          self.catch_frame = False
 
 class EventSeries():
      def __init_(self):

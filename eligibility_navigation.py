@@ -1,43 +1,95 @@
+#%%
 import numpy as np
 from matplotlib import pyplot as plt
 import utils
 import modules
+import recorder as rec
 
 #%%
-def control_schedule_time(event_series, time):
+def controlScheduleTime(event_series, time):
      if time not in event_series:
         event_series[time] = modules.TimedEvent()
 
-def schedule_activate(event_series, time, transition_ids):
-    control_schedule_time(event_series, time)
+def scheduleActivate(event_series, time, transition_ids):
+    controlScheduleTime(event_series, time)
     event_series[time].try_activate = np.append(event_series[time].try_activate, transition_ids)
 
-#%%
-def eligibility_navigation(symbols, start, goal, distance):
+def scheduleFrame(event_series, time):
+    controlScheduleTime(event_series, time)
+    event_series[time].catch_frame = True
+
+def addTrace(symbols, ids):
+    for id in ids:
+        if symbols[id].activated:
+            symbols[id].tag = True
+            symbols[id].spike_delay_ms *= 0.7
+
+def catchFrame(symbols, time, recorder):
+    plot_data = np.empty((2,0))
+    for symbol in symbols:
+        if symbol.activated_at is None:
+            continue 
+        if time-symbol.activated_at < 10:
+            plot_data = np.hstack((plot_data, symbol.coord))
+    frame = plt.scatter(plot_data[0], plot_data[1])
+    plt.xlim(0,10)
+    plt.ylim(0,10)
+    plt.show()
+    recorder.plots.append([frame])
+
+
+def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame):
     valid_transitions = utils.findAllTransitions(symbols,distance)
     current_time = 0
     goal_found = False
     event_series = {}
-    
-    symbols[start].activated = True
-    schedule_activate(event_series, symbols[start].spike_delay_ms, valid_transitions[start].transition_ids)
-    
-    while not goal_found:
-        current_time = min(event_series)
-        print(current_time)
-        print(event_series[current_time].try_activate)
-        for activate_id in event_series[current_time].try_activate:
-            if ~symbols[activate_id].activated:
+    recorder = rec.Recorder()
+
+    for frame in range(0,1000, ms_per_frame):
+        scheduleFrame(event_series, frame)
+
+    symbols[goal].tag = True
+    i = 0
+    while i < 5:
+        i += 1
+
+        for symbol in symbols:
+            symbol.activated = False
+            symbol.activated_at = None
+
+        symbols[start].activated = True
+        symbols[start].activated_at = 0
+
+        scheduleActivate(event_series, symbols[start].spike_delay_ms, valid_transitions[start].transition_ids)
+
+        while not goal_found:
+            current_time = min(event_series)
+            print(current_time,"ms")
+            for activate_id in event_series[current_time].try_activate:
+                if symbols[activate_id].activated:
+                    continue
                 if activate_id == goal:
                     goal_found = True
+                if symbols[activate_id].tag:
+                    addTrace(symbols, valid_transitions[activate_id].transition_ids)
                 symbols[activate_id].activated = True
-                schedule_activate(event_series, 
+                symbols[activate_id].activated_at = current_time
+                scheduleActivate(event_series, 
                                 current_time + symbols[activate_id].spike_delay_ms, 
                                 valid_transitions[activate_id].transition_ids)
-        if current_time > 100:
-            raise Exception("Too much time passed, out of bounds")
-        del event_series[current_time]
-    print("The goal was found after", current_time, "ms!")
+
+            if event_series[current_time].catch_frame:
+                catchFrame(symbols, current_time, recorder)
+
+
+
+            if current_time > 100:
+                raise Exception("Too much time passed, out of bounds")
+            del event_series[current_time]
+        print("The goal was found after", current_time, "ms!")
+        
+    print(recorder.plots)
+    recorder.createAnimation()
     return
 
 #%%
@@ -55,5 +107,5 @@ print ("at ", symbols[start].coord, "and", symbols[goal].coord)
 
 # %%
 
-eligibility_navigation(symbols, start, goal, 2)
+eligibilityNavigation(symbols, start, goal, 2, 5)
 # %%
