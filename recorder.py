@@ -6,5 +6,11 @@ class Recorder:
         self.plots = []
     def createAnimation(self):
         fig = plt.figure()
-        ani = animation.ArtistAnimation(fig, self.plots, interval = 50, blit = True)
+        ax = plt.axes(xlim = (0,10), ylim = (0,10))
+        scat = ax.scatter(self.plots[0][:][0], self.plots[0][:][1])
+
+        def update(frame):
+            scat.set_offsets(self.plots[frame])
+
+        ani = animation.FuncAnimation(fig, func = update, frames = len(self.plots), interval = 50)
         plt.show()

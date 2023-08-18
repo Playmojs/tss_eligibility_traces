@@ -1,6 +1,7 @@
 #%%
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib import animation
 import utils
 import modules
 import recorder as rec
@@ -30,12 +31,12 @@ def catchFrame(symbols, time, recorder):
         if symbol.activated_at is None:
             continue 
         if time-symbol.activated_at < 10:
-            plot_data = np.hstack((plot_data, symbol.coord))
-    frame = plt.scatter(plot_data[0], plot_data[1])
+            plot_data = np.hstack((plot_data, np.reshape(symbol.coord,(2,1))))
+    frame = plt.scatter(plot_data[:][0], plot_data[:][1])
     plt.xlim(0,10)
     plt.ylim(0,10)
     plt.show()
-    recorder.plots.append([frame])
+    recorder.plots.append(plot_data)
 
 
 def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame):
@@ -49,9 +50,8 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame):
         scheduleFrame(event_series, frame)
 
     symbols[goal].tag = True
-    i = 0
-    while i < 5:
-        i += 1
+    
+    for i in range(5):
 
         for symbol in symbols:
             symbol.activated = False
@@ -59,8 +59,9 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame):
 
         symbols[start].activated = True
         symbols[start].activated_at = 0
+        goal_found = False
 
-        scheduleActivate(event_series, symbols[start].spike_delay_ms, valid_transitions[start].transition_ids)
+        scheduleActivate(event_series, current_time + symbols[start].spike_delay_ms, valid_transitions[start].transition_ids)
 
         while not goal_found:
             current_time = min(event_series)
@@ -87,7 +88,8 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame):
                 raise Exception("Too much time passed, out of bounds")
             del event_series[current_time]
         print("The goal was found after", current_time, "ms!")
-        
+        event_series.clear()
+
     print(recorder.plots)
     recorder.createAnimation()
     return
@@ -108,4 +110,21 @@ print ("at ", symbols[start].coord, "and", symbols[goal].coord)
 # %%
 
 eligibilityNavigation(symbols, start, goal, 2, 5)
+# %%
+fig, ax = plt.subplots()
+rng = np.random.default_rng(19680801)
+data = np.array([20, 20, 20, 20])
+x = np.array([1, 2, 3, 4])
+
+artists = []
+colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple']
+for i in range(20):
+    data += rng.integers(low=0, high=10, size=data.shape)
+    container = ax.barh(x, data, color=colors)
+    artists.append(container)
+
+
+ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=400)
+plt.show()
+ani.save("test.gif")
 # %%
