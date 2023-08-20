@@ -1,13 +1,13 @@
 #%%
 import numpy as np
 from matplotlib import pyplot as plt
-import utils
+import module_utils
 
 
 #%%
-symbols = utils.generateRandomSymbols(100, [0,10], [0,10], 1)
+symbols = module_utils.generateRandomSymbols(100, [0,10], [0,10], 1)
 plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in symbols], 'o')
-transitions = utils.findAllTransitions(symbols, 2)
+transitions = module_utils.findAllTransitions(symbols, 2)
 
 
 #%%
@@ -22,7 +22,7 @@ plt.plot(symbols[start_neuron].coord[0], symbols[start_neuron].coord[1], 'go')
 #%%
 def dijkstra_with_transition(symbols, start_id, goal_id, range):
     n_symbols = len(symbols)
-    valid_vertices = utils.findAllTransitions(symbols, range)
+    valid_vertices = module_utils.findAllTransitions(symbols, range)
 
     available_symbols = np.ones(n_symbols, dtype = bool)
     dist = np.inf * np.ones(n_symbols)

@@ -1,7 +1,7 @@
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
-import utils
+import module_utils
             
 # %%
 
@@ -47,7 +47,7 @@ def back_track_dijkstra(prev, goal):
 #%%
 #Generate symbols
 
-symbols = utils.generateRandomSymbols(100, [0, 10], [0,10], 1)
+symbols = module_utils.generateRandomSymbols(100, [0, 10], [0,10], 1)
 
 plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in symbols], 'o')
 

@@ -7,6 +7,7 @@ class Symbol():
         self.activated_at = None
         self.spike_delay_ms = 10
         self.tag = False
+        self.layer = np.inf
 
 def getAvailableTransitions(symbols, self_id, range):
         transitions = np.empty(0,dtype = int)
