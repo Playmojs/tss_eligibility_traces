@@ -30,8 +30,8 @@ long_exploration = True
 save_tick = 1000
 
 # Visualize
-visualize = False
-visualize_tick = 2000
+visualize = True
+visualize_tick = 5000
 
 
 def getCoords(f5):
@@ -210,7 +210,7 @@ grid_cells = [GridCell(i, Ndendrites, sigma) for i in range(Ng)]
 spatialns = CoordinateSamplers(Ndendrites, sigma)
 
 # Read file to get positions and velocities:
-X, speed = getCoords(h5py.File("grid_simulation/trajectory_square_2d.hdf5", "r"))
+X, speed = getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.01dt.hdf5", "r"))
 mean_speed = np.mean(speed)
 tMax = len(X)
 
@@ -246,7 +246,7 @@ if visualize:
 
 wins = []
 print ("Commence")
-for t in range (1000):
+for t in range (tMax):
     # Current coordinate
     x = X[t, :]
 
@@ -280,7 +280,7 @@ for t in range (1000):
         w = grid_cells[grid_cell].w.copy()
         
         # I have yet to figure out why this line is here, but it seems to punish high weights more than low weights
-        baseline = (1/Ng) * (-2 / Ndendrites * (1-w)) * (D>0)
+        baseline = (1/Ng) * (-2 / Ndendrites2 * (1-w)) * (D>0)
 
         # Punish cells that were highly active in this location:
         coact = 0
@@ -289,13 +289,14 @@ for t in range (1000):
                 coact += gact[j] * gact[grid_cell]
         coact /= (Ng-1)
 
-        # However, if this cell is the winning cell, strengthen its weights here. Also, weaken weighs in the surround area
+        # However, if this cell is the winning cell, strengthen its weights in this location. 
+        # Also, weaken weighs in the surround area
         # This creates an ON-center OFF-surround mechanic
         on = 0
         off = 0
         if grid_cell == win:
-            mu0 = (Ng-1)/Ng * np.sum(B>0) #Sum of activation of all active input
-            mu1 = (Ng-1)/Ng * np.sum(C>0) #Sum of activation of all mid-active input
+            mu0 = (Ng-1)/Ng * np.sum(B>0) #Sum of activation of all active input?
+            mu1 = (Ng-1)/Ng * np.sum(C>0) #Sum of activation of all mid-active input?
             on  = mu0 * (B > 0) * (-4/Ndendrites2 * w) # correlation
             off = mu1 * (C > 0) * (+4/Ndendrites2 * w) # decorrelation
 
@@ -373,6 +374,7 @@ for t in range (1000):
         ax[6].set_title(grid_cells[0].w.max())
 
         plt.pause(0.1)
-#plt.show()
+if visualize:
+    plt.show()
 
-print(wins)
+#print(wins)
