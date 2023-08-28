@@ -1,10 +1,7 @@
-#%%
 import numpy as np
 import matplotlib.pyplot as plt
 import module_utils
             
-# %%
-
 def dijkstra(symbols, start, goal, max_dist):
     n_vertices = len(symbols)
 
@@ -44,7 +41,6 @@ def back_track_dijkstra(prev, goal):
             u = prev[u]
     return sequence
 
-#%%
 #Generate symbols
 
 symbols = module_utils.generateRandomSymbols(100, [0, 10], [0,10], 1)
@@ -57,17 +53,14 @@ plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in
 [start, goal] = np.random.choice(len(symbols), 2, False)
 print("From:", start, "to", goal)
 print ("at ", symbols[start].coord, "and", symbols[goal].coord)
-#%%
+
 #Find path
 dist, prev = dijkstra(symbols, start, goal, 1.435)
 nodes = back_track_dijkstra(prev, goal)
 print("These nodes were visited:", nodes)
 
 
-# %%
 #Plot path
 plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in symbols], 'o')
 plt.plot([symbols[i].coord[0] for i in nodes], [symbols[i].coord[1] for i in nodes], 'ro')
 plt.show()
-
-# %%
