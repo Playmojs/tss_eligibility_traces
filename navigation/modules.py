@@ -11,6 +11,7 @@ class Symbol():
     def reset(self):
         self.tag = False
         self.spike_delay_ms = 8 + np.random.rand()*4
+
         
 
 def getAvailableTransitions(symbols, self_id, range):
@@ -30,6 +31,7 @@ class Transition():
 class TimedEvent():
      def __init__(self):
           self.try_activate = np.empty(0, dtype = int)
+          self.global_inhibition = False
           self.catch_frame = False
 
 class EventSeries():
