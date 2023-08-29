@@ -116,14 +116,14 @@ for t in range (tMax):
         # This creates an ON-center OFF-surround mechanic
         on = 0
         off = 0
-        if grid_cell == win_id:
-            mu0 = (Ng-1)/Ng * np.sum(B>0) #Sum of activation of all active input?
-            mu1 = (Ng-1)/Ng * np.sum(C>0) #Sum of activation of all mid-active input?
+        if grid_cell == win:
+            mu0 = (Ng-1)/Ng * np.sum(B>0) #Number of center cells
+            mu1 = (Ng-1)/Ng * np.sum(C>0) #Number of surround cells
             on  = mu0 * (B > 0) * (-4/Ndendrites2 * w) # correlation
             off = mu1 * (C > 0) * (+4/Ndendrites2 * w) # decorrelation
 
         # Combine all the weight changes:
-        w = w - eta * (baseline + coact + (on + off)) / 3
+        w = w - eta * (baseline + coact + on + off) / 3
 
         # Non-linear weight modification and clamping
         w = w[D > 0]

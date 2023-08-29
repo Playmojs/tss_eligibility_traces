@@ -5,9 +5,13 @@ class Symbol():
         self.coord = coord
         self.activated = False
         self.activated_at = None
-        self.spike_delay_ms = 10
+        self.spike_delay_ms = 8 + np.random.rand()*4
         self.tag = False
         self.layer = np.inf
+    def reset(self):
+        self.tag = False
+        self.spike_delay_ms = 8 + np.random.rand()*4
+        
 
 def getAvailableTransitions(symbols, self_id, range):
         transitions = np.empty(0,dtype = int)
@@ -30,4 +34,4 @@ class TimedEvent():
 
 class EventSeries():
      def __init_(self):
-          scheduled_events = {}
+          self.scheduled_events = {}
