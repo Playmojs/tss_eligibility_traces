@@ -12,7 +12,7 @@ from timeit import default_timer as timer
 Ndendrites = 48
 
 # Total number of grid cells to simulate
-Ng = 5
+Ng = 3
 
 # Dendritic tree overlap
 sigma = 0.05
@@ -90,11 +90,18 @@ for t in range (tMax):
 
     # The activation of each grid cell, using only place cells in B:
     gact = np.array([grid_cells[i].activity(B) / np.sum(B).sum() for i in range(Ng)])
+    
+    #print(gact)
+    
     #TODO: remove the instant win/lose - dynamics, introducing delay
     win_id = np.argmax(gact)
     wins.append(win_id)
+
     #Learning speed, based on the animal's speed of movement:
-    eta = 1.0 # * np.exp(-1/mean_speed * speed[t]**2)
+    eta = 1.0 * np.exp(-1/mean_speed * speed[t]**2)
+    
+    mu0 = (Ng-1)/Ng * np.sum(B>0) #Sum of activation of all active input?
+    mu1 = (Ng-1)/Ng * np.sum(C>0) #Sum of activation of all mid-active input?
 
     # Update weights:
     for grid_cell in range(Ng):
@@ -114,13 +121,9 @@ for t in range (tMax):
         # However, if this cell is the winning cell, strengthen its weights in this location. 
         # Also, weaken weighs in the surround area
         # This creates an ON-center OFF-surround mechanic
-        on = 0
-        off = 0
-        if grid_cell == win_id:
-            mu0 = (Ng-1)/Ng * np.sum(B>0) #Sum of activation of all active input?
-            mu1 = (Ng-1)/Ng * np.sum(C>0) #Sum of activation of all mid-active input?
-            on  = mu0 * (B > 0) * (-4/Ndendrites2 * w) # correlation
-            off = mu1 * (C > 0) * (+4/Ndendrites2 * w) # decorrelation
+
+        on  = mu0 * (B > 0) * (-4/Ndendrites2 * w) * np.exp((gact[win_id]-gact[grid_cell])*10/gact[win_id]) # correlation
+        off = mu1 * (C > 0) * (+4/Ndendrites2 * w) * np.exp((gact[win_id]-gact[grid_cell])*10/gact[win_id]) # decorrelation
 
         # Combine all the weight changes:
         w = w - eta * (baseline + coact + (on + off)) / 3
