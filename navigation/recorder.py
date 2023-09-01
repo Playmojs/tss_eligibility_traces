@@ -6,7 +6,7 @@ class Recorder:
         self.plots = []
         self.alphas = []
         self.color_codes = []
-    def createAnimation(self):
+    def createAnimation(self, gif_name = "test"):
         fig = plt.figure()
         ax = plt.axes()
 
@@ -15,14 +15,14 @@ class Recorder:
 
         def update(frame):
             
-          
+            alphas = self.alphas[frame] if len(self.alphas[frame]) > 0 else 1
             ax.clear()
-            ax.scatter(self.plots[frame][:][0],self.plots[frame][:][1], alpha=self.alphas[frame], 
+            ax.scatter(self.plots[frame][:][0],self.plots[frame][:][1], alpha=alphas, 
                        c = self.color_codes[frame], 
                        linewidths=0)
             ax.set_xlim(0,10)
             ax.set_ylim(0,10)
 
-        ani = animation.FuncAnimation(fig, func = update, init_func = init, frames = len(self.plots), interval = 100)
+        ani = animation.FuncAnimation(fig, func = update, init_func = init, frames = len(self.plots), interval = 1)
         #fig.show()
-        ani.save("test.gif")
+        ani.save(f"navigation/gifs/{gif_name}.gif")

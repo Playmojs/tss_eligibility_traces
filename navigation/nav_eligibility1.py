@@ -13,7 +13,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
     recorder = rec.Recorder()
     inhibit_until = 0
     will_inhibit = False
-    trigger_delay = 3
+
 
     # Reset symbols
     for symbol in symbols:
@@ -23,7 +23,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
     
     for i in range(10):
         print("Start from start")
-        for frame in range(0,500, ms_per_frame):
+        for frame in range(0,100, ms_per_frame):
             sim_utils.scheduleFrame(event_series, current_time + frame)
 
         # Reset symbol to restart wave
@@ -31,14 +31,13 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
         for symbol in symbols:
             symbol.activated = False
             symbol.activated_at = None
-            symbol.tagable = False
+            symbol.has_sped_up = False
 
         goal_found = False
         final_time = np.inf
 
         # Activate start to initiate wave propagation:
-        sim_utils.scheduleOutput(event_series, current_time + symbols[start].spike_delay_ms, start)
-        symbols[start].activated = True
+        sim_utils.activate(symbols, start, valid_transitions[start].transition_ids, event_series, current_time, f)
 
         while final_time + 15 > current_time: # Keeps running until at least 15 ms after goal is found, or exception
             
@@ -53,45 +52,36 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
                 current_time = min(event_series)
                 #print(current_time,"ms")
 
-            # Neurons spike at this time if conditions are met, and receive speed-up:
-            for spike_id in event_series[current_time].try_spike_ids:
-                if inhibit_until > current_time or symbols[spike_id].activated or goal_found:
-                    continue
-                # if spike_id == goal:
-                #     goal_found = True
-                #     final_time = current_time
-                #     print("Goal found at", final_time)
-                if symbols[spike_id].tag: 
-                    symbols[spike_id].spike_delay_ms = f + (symbols[spike_id].spike_delay_ms-f)*0.5 # Speed up
-                symbols[spike_id].activated = True
-                sim_utils.scheduleOutput(event_series, current_time + trigger_delay, spike_id)
+            for activate_id in event_series[current_time].try_activate:
 
-            # Output after spike:
-            for output_id in event_series[current_time].output_ids:
-                if inhibit_until > current_time or goal_found:
+                if symbols[activate_id].activated or goal_found or inhibit_until > current_time:
                     continue
-                for transition_id in valid_transitions[output_id].transition_ids:
-                    sim_utils.scheduleSpike(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
-                if output_id == goal:
-                    goal_found = True
-                    final_time = current_time
-                    print("Goal found at", final_time)
-                symbols[output_id].tagable = True
-                symbols[output_id].activated_at = current_time
-                if symbols[output_id].tag: # Add tags and inhibit
-                    sim_utils.addTrace(symbols, valid_transitions[output_id].transition_ids)
+                
+                if symbols[activate_id].tag:
+                    sim_utils.addTrace(symbols, valid_transitions[activate_id].transition_ids)
                     will_inhibit = True
 
-            # Set inhibition duriation
+                if activate_id == goal:
+                    goal_found = True
+                    final_time = current_time
+                    print("The goal was found after", final_time, "ms!")
+
+                # Activates symbol, and schedule activate for all valid transitions:
+                #TODO: Make spike delay recover gradually with time
+                sim_utils.activate(symbols, activate_id,
+                                valid_transitions[activate_id].transition_ids, event_series, current_time,  goal_found, f)
+            
+            # Set inhibit from now until f milliseconds forward
+            #TODO: Add inhibition delay
             if will_inhibit:
                 inhibit_until = current_time + f
-                will_inhibit = False          
+                will_inhibit = False
 
             # Record the current state if desired
             if event_series[current_time].catch_frame:
                 sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
 
-            # Delete the entries at current time, to let the flow of time be in a strictly forward direction
+            # Delete the entries at current time, to let the flow of time be strictly in a forward direction
             del event_series[current_time]
         
         event_series.clear()
@@ -104,4 +94,4 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
 symbols = module_utils.generateRandomSymbols(100, [0,10], [0,10], 1)
 [start, goal] = np.random.choice(len(symbols), 2, False)
-eligibilityNavigation(symbols, start, goal, 2, 1, 3)
+eligibilityNavigation(symbols, start, goal, 2, 1, 6)

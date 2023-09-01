@@ -5,8 +5,10 @@ class Symbol():
         self.coord = coord
         self.activated = False
         self.activated_at = None
-        self.spike_delay_ms = 8 + np.random.rand()*4
+        self.spike_delay_ms = 5 + np.random.rand()*2
         self.tag = False
+        self.tagable = False
+        self.has_sped_up = False
         self.layer = np.inf
     def reset(self):
         self.tag = False
@@ -31,8 +33,11 @@ class Transition():
 class TimedEvent():
      def __init__(self):
           self.try_activate = np.empty(0, dtype = int)
+          self.output_ids = np.empty(0, dtype=int)
+          self.try_spike_ids = np.empty(0, dtype = int)
           self.global_inhibition = False
           self.catch_frame = False
+
 
 class EventSeries():
      def __init_(self):

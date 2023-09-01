@@ -9,31 +9,38 @@ def scheduleActivate(event_series, time, transition_ids):
     controlScheduleTime(event_series, time)
     event_series[time].try_activate = np.append(event_series[time].try_activate, transition_ids)
 
-def activate(symbols, activate_id, transition_ids, event_series, current_time):
+def activate(symbols, activate_id, transition_ids, event_series, current_time, goal_found, f = 3):
     symbols[activate_id].activated = True
     symbols[activate_id].activated_at = current_time
-    speed_up = True if symbols[activate_id].tag else False
-
     for transition_id in transition_ids:
+        if symbols[transition_id].tag and not symbols[transition_id].has_sped_up and not goal_found:
+            print(transition_id)
+            print("Prior delay:", symbols[transition_id].spike_delay_ms)
+            symbols[transition_id].spike_delay_ms = f + (symbols[transition_id].spike_delay_ms-f)*0.5
+            print("Latter delay:", symbols[transition_id].spike_delay_ms)
+            symbols[transition_id].has_sped_up = True
         scheduleActivate(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
-        if symbols[transition_id].tag and not symbols[transition_id].activated:
-            speed_up = True
-    
-    if speed_up:
-        symbols[activate_id].spike_delay_ms = 3 + (symbols[activate_id].spike_delay_ms-3)*0.5
-
+       
 def scheduleFrame(event_series, time):
     controlScheduleTime(event_series, time)
     event_series[time].catch_frame = True
 
+def scheduleOutput(event_series, time, id):
+    controlScheduleTime(event_series, time)
+    event_series[time].output_ids = np.append(event_series[time].output_ids, id)
+
+def scheduleSpike(event_series, time, ids):
+    controlScheduleTime(event_series, time)
+    event_series[time].try_spike_ids = np.append(event_series[time].try_spike_ids, ids)
+
+
 def addTrace(symbols, ids):
     for id in ids:
-        if not symbols[id].activated:
+        if not symbols[id].tagable:
             continue
         if not symbols[id].tag:
-            print("New symbol tagged")
+            print("New symbol tagged:", id)
         symbols[id].tag = True
-
 
 def catchFrame(symbols, time,  start, goal, recorder):
     plot_data = np.empty((2,0))
