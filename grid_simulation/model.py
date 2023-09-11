@@ -12,10 +12,10 @@ from timeit import default_timer as timer
 Ndendrites = 48
 
 # Total number of grid cells to simulate
-Ng = 5
+Ng = 1
 
 # Dendritic tree overlap
-sigma = 0.05
+sigma = 0.09
 
 # Exploration length
 long_exploration = True
@@ -35,7 +35,7 @@ grid_cells = [utils.GridCell(i, Ndendrites, sigma) for i in range(Ng)]
 spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 
 # Read file to get positions and velocities
-X, speed = utils.getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.01dt.hdf5", "r"))
+X, speed = utils.getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.01dt_long.hdf5", "r"))
 mean_speed = np.mean(speed)
 tMax = len(X)
 
@@ -56,7 +56,7 @@ if visualize:
 
     # suppress deprecation warning from matplotlib.
     import warnings
-    warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
+    warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 
     fig = plt.figure()
     ax = []
@@ -65,6 +65,8 @@ if visualize:
         ax.append(plt.subplot2grid((2,Ng+1),(0,z)))
     for z in range(1,Ng+1):
         ax.append(plt.subplot2grid((2,Ng+1),(1,z)))
+
+print(speed[0:100])
 
 # Simulate
 wins = []
@@ -90,26 +92,28 @@ for t in range (tMax):
 
     # The activation of each grid cell, using only place cells in B:
     gact = np.array([grid_cells[i].activity(B) / np.sum(B).sum() for i in range(Ng)])
+
     #TODO: remove the instant win/lose - dynamics, introducing delay
     win_id = np.argmax(gact)
     wins.append(win_id)
-    #Learning speed, based on the animal's speed of movement:
-    eta = 1.0 # * np.exp(-1/mean_speed * speed[t]**2)
+    
+    # Learning speed, based on the animal's speed of movement:
+    eta = 1.0 #* np.exp(-1/mean_speed * speed[t]**2)
 
     # Update weights:
     for grid_cell in range(Ng):
         # Probably smart to treat the actual weights with care, and mess around with the copies instead:
         w = grid_cells[grid_cell].w.copy()
         
-        # I have yet to figure out why this line is here, but it seems to punish high weights more than low weights
+        # Raise low weights to encourage repeated activity
         baseline = (1/Ng) * (-2 / Ndendrites2 * (1-w)) * (D>0)
 
         # Punish cells that were highly active in this location:
-        coact = 0
-        for j in range(Ng):
-            if not j == grid_cell:
-                coact += gact[j] * gact[grid_cell]
-        coact /= (Ng-1)
+        # coact = 0
+        # for j in range(Ng):
+        #     if not j == grid_cell:
+        #         coact += gact[j] * gact[grid_cell]
+        # coact /= (Ng-1)
 
         # However, if this cell is the winning cell, strengthen its weights in this location. 
         # Also, weaken weighs in the surround area
@@ -117,13 +121,14 @@ for t in range (tMax):
         on = 0
         off = 0
         if grid_cell == win_id:
-            mu0 = (Ng-1)/Ng * np.sum(B>0) #Number of center cells
-            mu1 = (Ng-1)/Ng * np.sum(C>0) #Number of surround cells
+            mu0 = np.sum(B>0)# * (Ng-1)/Ng  #Number of center cells
+            mu1 = np.sum(C>0)# * (Ng-1)/Ng   #Number of surround cells
             on  = mu0 * (B > 0) * (-4/Ndendrites2 * w) # correlation
             off = mu1 * (C > 0) * (+4/Ndendrites2 * w) # decorrelation
 
         # Combine all the weight changes:
-        w = w - eta * (baseline + coact + on + off) / 3
+        w = w - eta * (0.93*baseline + # + 
+                       0.07*(on + off))
 
         # Non-linear weight modification and clamping
         w = w[D > 0]

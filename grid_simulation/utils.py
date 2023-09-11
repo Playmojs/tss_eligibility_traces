@@ -11,7 +11,6 @@ def getCoords(f5):
     velocity = f5['agent/velocity']
     speed = np.linalg.norm(velocity, axis = 1)
     speed = np.append(speed, 0)
-    print(len(speed))
     return positions, speed
 
 def gauss(D, sig):
@@ -20,6 +19,13 @@ def gauss(D, sig):
 
 def gaussNonnorm(D, sig):
     return np.exp(- (D)**2 / (2 * sig**2))
+
+def generateSpikeTrainFromGaussian(A):
+    S = np.empty(0)
+    n_spikes = np.random.poisson(A*10)
+    times = np.random.rand(n_spikes)*10
+    S = np.append(S, times)
+    return S
 
 
 # The three functions below are simply copied
@@ -169,3 +175,7 @@ class CoordinateSamplers():
         i99 = (D > 2.0*self.tuning_width) & (D < 3.0*self.tuning_width)
         # return self.mask_to_flattened_index(i68), self.mask_to_flattened_index(i95)
         return i68, i95, i99
+    
+    def spike_act(self, X):
+        A = self.act(X)
+        S = generateSpikeTrainFromGaussian(A)
