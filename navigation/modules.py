@@ -6,13 +6,15 @@ class Symbol():
         self.activated = False
         self.activated_at = None
         self.spike_delay_ms = 5 + np.random.rand()*2
+        self.original_spike_delay_ms = self.spike_delay_ms
         self.tag = False
         self.tagable = False
         self.has_sped_up = False
         self.layer = np.inf
     def reset(self):
         self.tag = False
-        self.spike_delay_ms = 8 + np.random.rand()*4
+        self.spike_delay_ms = 5 + np.random.rand()*2
+        self.original_spike_delay_ms = self.spike_delay_ms
 
         
 

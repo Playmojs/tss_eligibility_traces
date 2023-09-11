@@ -34,9 +34,9 @@ def scheduleSpike(event_series, time, ids):
     event_series[time].try_spike_ids = np.append(event_series[time].try_spike_ids, ids)
 
 
-def addTrace(symbols, ids):
+def addTrace(symbols, current_time, ids):
     for id in ids:
-        if not symbols[id].tagable:
+        if symbols[id].activated_at is None or symbols[id].activated_at < current_time - 18:
             continue
         if not symbols[id].tag:
             print("New symbol tagged:", id)
