@@ -50,27 +50,37 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
         # Neurons spike at this time if conditions are met, and receive speed-up:
         for spike_id in event_series[current_time].try_spike_ids:
-            if inhibit_until > current_time or (symbols[spike_id].activated_at is not None and symbols[spike_id].activated_at > current_time - (refraction_time+6)):
+            symbol = symbols[spike_id]
+            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time+6)):
                 continue
 
-            if symbols[spike_id].tag and not symbols[spike_id].activated:
-                symbols[spike_id].spike_delay_ms = f + (symbols[spike_id].spike_delay_ms-f)*0.5 # Speed up
-                symbols[spike_id].activated = True
+            if symbol.tag:
+                if symbol.activated_at is None:
+                    recovery = 0
+                else:
+                    recovery = (symbol.original_spike_delay_ms - symbol.spike_delay_ms)*(1-np.exp(-(current_time - symbol.activated_at)/500))
+                symbol.spike_delay_ms = symbol.spike_delay_ms + recovery
+                if not symbol.activated:
+                    symbol.spike_delay_ms = f + (symbol.spike_delay_ms-f)*0.5 # Speed up
+                    symbol.activated = True
+                    print("Recovery:", recovery)
+                    print("Delay:", spike_id, symbol.spike_delay_ms)
             sim_utils.scheduleOutput(event_series, current_time + trigger_delay, spike_id)
 
         # Output after spike:
         for output_id in event_series[current_time].output_ids:
-            if inhibit_until > current_time or (symbols[output_id].activated_at is not None and symbols[output_id].activated_at > current_time - (refraction_time+6)):
+            symbol = symbols[output_id]
+            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time+6)):
                 continue
             
-            symbols[output_id].activated = False
+            symbol.activated = False
             # Activate next layer:
-            symbols[output_id].activated_at = current_time
+            symbol.activated_at = current_time
             for transition_id in valid_transitions[output_id].transition_ids:
                 sim_utils.scheduleSpike(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
 
             # Add tag:
-            if symbols[output_id].tag: # Add tags and inhibit
+            if symbol.tag: # Add tags and inhibit
                 sim_utils.addTrace(symbols, current_time, valid_transitions[output_id].transition_ids)
                 will_inhibit = True
 
@@ -92,7 +102,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
                 
                 if i >= 3:
                     path_found = True
-                    print("Success, path succesively found!")
+                    print("Success, path successfully found!")
 
                 # Initiate next iteration after a long inhibition to reset symbols:
                 start_time = current_time + refraction_time
@@ -102,7 +112,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
         # Set inhibition duriation
         if will_inhibit:
-            inhibit_until = max(current_time + f, inhibit_until)
+            inhibit_until = max(current_time + f + 0.17, inhibit_until)
             will_inhibit = False          
 
         # Record the current state if desired
@@ -114,6 +124,10 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
 
     event_series.clear()
+    for time in range(20):
+        current_time += 1
+        sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
+
     print ("From ", symbols[start].coord, "to ", symbols[goal].coord)
     print("Total time: ", current_time)
     recorder.createAnimation(gif_name)
