@@ -38,8 +38,8 @@ def addTrace(symbols, current_time, ids):
     for id in ids:
         if symbols[id].activated_at is None or symbols[id].activated_at < current_time - 18:
             continue
-        if not symbols[id].tag:
-            print("New symbol tagged:", id)
+        #if not symbols[id].tag:
+            #print("New symbol tagged:", id)
         symbols[id].tag = True
 
 def catchFrame(symbols, time,  start, goal, recorder):
