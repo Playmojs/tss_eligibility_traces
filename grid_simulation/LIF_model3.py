@@ -18,8 +18,7 @@ sigma = 0.08
 spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 
 # Prepare plot
-spike_plot = False
-visualize = False
+visualize = True
 spike_plot = not visualize
 visualize_tick = 10000
 
@@ -47,27 +46,27 @@ mean_speed = np.mean(speed)
 tMax = len(X)
 
 # Layer setup
-tau = 10*ms 
-sig = 0.0001
+tau_i = 50*ms 
+sig = 0.003
 
 input_eq = '''
-dv/dt = (v0-v)/tau  + sig*xi*tau**-0.5: 1 (unless refractory)
+dv/dt = (v0-v)/tau_i  + sig*xi*tau_i**-0.5: 1 (unless refractory)
 v0 : 1
 '''
+tau_g = 10*ms
+grid_eq = '''dv/dt = - v / tau_g : 1 (unless refractory)'''
 
-grid_eq = '''dv/dt = - v / tau : 1 (unless refractory)'''
-
-input_layer = NeuronGroup(Ndendrites2, input_eq, threshold = 'v > 0.165', reset = 'v = -0.1', refractory = 13*ms, method = 'euler')
-grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', reset = 'v = -0.1', refractory= 13*ms, method = 'exact')
+input_layer = NeuronGroup(Ndendrites2, input_eq, threshold = 'v > 0.165', reset = 'v = -0.1', refractory = 20*ms, method = 'euler')
+grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.9', reset = 'v = -0.1', refractory= 20*ms, method = 'exact')
 inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
 
 # Set up synapses from input to grid layer with STDP learning rule and randomized start weights
 
-taupre = 35*ms
+taupre = 20*ms
 taupost = 80*ms
 wmax_i = 0.2
-Apre = 0.0115 
-Apost = -0.005
+Apre = 0.013 
+Apost = -0.0055
 input_weights = Synapses(input_layer, grid_layer, '''
             w : 1
             l_speed : 1
@@ -82,16 +81,16 @@ input_weights = Synapses(input_layer, grid_layer, '''
             on_post='''
             apost += Apost
             w = clip(w+apre*l_speed, 0, wmax_i)
-            ''', delay = 3*ms)
+            ''', delay = 7*ms)
 input_weights.connect()
 
-weights = np.random.rand(Ndendrites2 * Ng)
-weights[weights<0.9] = 0
-weights[weights>0] = 0.1
+weights = np.random.rand(Ndendrites2 * Ng)*0.1
+# weights[weights<0.85] = 0
+# weights[weights>0] = 0.1
 input_weights.w = weights
 
 # Set up recurrent synapses for center-surround dynamics
-taupre_r = 35 *ms
+taupre_r = 20*ms
 taupost_r = 80 * ms
 wmax_r = 0.1
 Apre_r = 0.01
@@ -111,10 +110,10 @@ recurrent_weights = Synapses(grid_layer, input_layer, '''
             apost += Apost_r
             w = clip(w+apre*l_speed, 0, wmax_r)
             ''', 
-            delay = 3*ms)
+            delay = 7*ms)
 recurrent_weights.connect()
 
-weights = np.random.rand(Ndendrites2*Ng)*0.1
+weights = np.random.rand(Ndendrites2*Ng)*0.08
 recurrent_weights.w = weights
 
 # Set up inhibitory layer:
@@ -126,7 +125,7 @@ inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post 
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 
-inhibit_to_input = Synapses(inhibit_layer, input_layer, 'w : 1', on_pre = 'v_post = -0.1', delay = 5*ms)
+inhibit_to_input = Synapses(inhibit_layer, input_layer, 'w : 1', on_pre = 'v_post = -0.1', delay = 10*ms)
 inhibit_to_input.connect()
 inhibit_to_input.w = 0.2
 
@@ -136,15 +135,15 @@ def update(t):
     # Update position and speed-based learning rate
     time = t/second * 1000
 
-    x = X[0,:]  if time < 5000 else X[0, :] + [sigma, sigma]
-    learning_speed = 1
+    # x = X[0,:] if time < 1000 else X[0, :] + [sigma, sigma]
+    # learning_speed = 1
 
-    # x = X[int(time/delta_t), :]
-    # current_speed = speed[int(time/delta_t)]
-    # learning_speed = np.exp(-1/mean_speed*current_speed**2)
+    x = X[int(time/delta_t), :]
+    current_speed = speed[int(time/delta_t)]
+    learning_speed = 2.5*np.exp(-1/mean_speed*current_speed**2)
     
     activity = spatialns.act(x)
-    input_layer.v0 = np.ndarray.flatten(activity)/2.5
+    input_layer.v0 = np.ndarray.flatten(activity)/1.8
     
     input_weights.l_speed = learning_speed
     recurrent_weights.l_speed = learning_speed
@@ -197,7 +196,7 @@ if spike_plot:
     R = SpikeMonitor(inhibit_layer)
     S = StateMonitor(grid_layer, 'v', record = [0,1,2])
 
-run(10000*ms)
+run(1000000*ms)
 
 if visualize:
     plt.show()
