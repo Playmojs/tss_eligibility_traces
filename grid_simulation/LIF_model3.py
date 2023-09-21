@@ -2,6 +2,7 @@ from brian2 import *
 import matplotlib.pyplot as plt
 import numpy as np
 import utils
+from scipy.ndimage import gaussian_filter
 import h5py
 
 # Total number of dendrites
@@ -12,15 +13,19 @@ Ndendrites2 = Ndendrites**2
 Ng = 3
 
 # Dendritic tree overlap
-sigma = 0.08
+sigma = 0.10
 
 # Set up input locations
 spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 
-# Prepare plot
+# Simulation variables
+duration = 200000
+stationary = False
 visualize = True
 spike_plot = not visualize
 visualize_tick = 10000
+
+# Prepare plot
 
 if visualize:
     import matplotlib
@@ -29,19 +34,19 @@ if visualize:
     # suppress deprecation warning from matplotlib.
     import warnings
     warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
-
+    n_rows = 4
     fig = plt.figure()
     ax = []
-    ax.append(plt.subplot2grid((2,Ng+1), (0,0)))
-    for z in range(1,Ng+1):
-        ax.append(plt.subplot2grid((2,Ng+1),(0,z)))
-    for z in range(1,Ng+1):
-        ax.append(plt.subplot2grid((2,Ng+1),(1,z)))
+    ax.append(plt.subplot2grid((n_rows,Ng+1), (0,0)))
+    for y in range (n_rows):
+        for z in range(1,Ng+1):
+            ax.append(plt.subplot2grid((n_rows,Ng+1),(y,z)))
 
 
-# Read file to get positions and velocities
-X, speed = utils.getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.01dt_long.hdf5", "r"))
-delta_t = 10
+
+# Read file to get trajectory and speed
+X, speed = utils.getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.001dt.hdf5", "r"))
+delta_t = 1
 mean_speed = np.mean(speed)
 tMax = len(X)
 
@@ -56,8 +61,8 @@ v0 : 1
 tau_g = 10*ms
 grid_eq = '''dv/dt = - v / tau_g : 1 (unless refractory)'''
 
-input_layer = NeuronGroup(Ndendrites2, input_eq, threshold = 'v > 0.165', reset = 'v = -0.1', refractory = 20*ms, method = 'euler')
-grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.9', reset = 'v = -0.1', refractory= 20*ms, method = 'exact')
+input_layer = NeuronGroup(Ndendrites2, input_eq, threshold = 'v > 0.165', reset = 'v = -0.1', refractory = 30*ms, method = 'euler')
+grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 1.0', reset = 'v = -0.1', refractory= 30*ms, method = 'exact')
 inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
 
 # Set up synapses from input to grid layer with STDP learning rule and randomized start weights
@@ -65,7 +70,7 @@ inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', m
 taupre = 20*ms
 taupost = 80*ms
 wmax_i = 0.2
-Apre = 0.013 
+Apre = 0.0115 
 Apost = -0.0055
 input_weights = Synapses(input_layer, grid_layer, '''
             w : 1
@@ -81,7 +86,7 @@ input_weights = Synapses(input_layer, grid_layer, '''
             on_post='''
             apost += Apost
             w = clip(w+apre*l_speed, 0, wmax_i)
-            ''', delay = 7*ms)
+            ''', delay = 4*ms)
 input_weights.connect()
 
 weights = np.random.rand(Ndendrites2 * Ng)*0.1
@@ -110,7 +115,7 @@ recurrent_weights = Synapses(grid_layer, input_layer, '''
             apost += Apost_r
             w = clip(w+apre*l_speed, 0, wmax_r)
             ''', 
-            delay = 7*ms)
+            delay = 13*ms)
 recurrent_weights.connect()
 
 weights = np.random.rand(Ndendrites2*Ng)*0.08
@@ -125,7 +130,7 @@ inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post 
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 
-inhibit_to_input = Synapses(inhibit_layer, input_layer, 'w : 1', on_pre = 'v_post = -0.1', delay = 10*ms)
+inhibit_to_input = Synapses(inhibit_layer, input_layer, 'w : 1', on_pre = 'v_post = -0.1', delay = 15*ms)
 inhibit_to_input.connect()
 inhibit_to_input.w = 0.2
 
@@ -135,26 +140,26 @@ def update(t):
     # Update position and speed-based learning rate
     time = t/second * 1000
 
-    # x = X[0,:] if time < 1000 else X[0, :] + [sigma, sigma]
-    # learning_speed = 1
-
-    x = X[int(time/delta_t), :]
-    current_speed = speed[int(time/delta_t)]
-    learning_speed = 2.5*np.exp(-1/mean_speed*current_speed**2)
+    if stationary:
+        x = X[0,:] if time < 1000 else X[0, :] + [sigma/2, sigma/2]
+        learning_speed = 1
+    else:
+        x = X[int(time/delta_t), :]
+        current_speed = speed[int(time/delta_t)]
+        learning_speed = 2*np.exp(-current_speed**2/mean_speed)
+        
     
     activity = spatialns.act(x)
-    input_layer.v0 = np.ndarray.flatten(activity)/1.8
+    input_layer.v0 = np.ndarray.flatten(activity)/2
     
     input_weights.l_speed = learning_speed
     recurrent_weights.l_speed = learning_speed
  
 
     # Visualize grid weights if wanted
-
     if not visualize or time % visualize_tick != 0:
         return
     
-
     i68, i95, i99 = spatialns.get68_95(x)
     ax[0].cla()
     ax[0].imshow(activity * i68, interpolation='none', origin='lower')
@@ -165,6 +170,7 @@ def update(t):
     for z in range(Ng):
         
         weight2d = np.reshape(grid_weights[:, z], (Ndendrites, Ndendrites))
+        rec_weight2d = np.reshape(recurrent_weights.w[z*Ndendrites2:(z+1)*Ndendrites2], (Ndendrites, Ndendrites))
  
         # compute gridness score
         corr_w = utils.normcorr2d(weight2d)
@@ -183,12 +189,20 @@ def update(t):
         ax[z+1].imshow(weight2d, interpolation='none', origin='lower')
         ax[z+1].set_title("%3.4f, %4.2f" % (gscore, orientation))
 
+        # show gaussian filtered weights
+        ax[1+Ng+z].imshow(gaussian_filter(weight2d, 1.5), interpolation='none', origin = 'lower')
+
         # show auto-correlation and nearest blod tracker
-        ax[1+Ng+z].cla()
-        ax[1+Ng+z].imshow(corr_w, interpolation='none', origin='lower')
-        ax[1+Ng+z].autoscale(False)
-        ax[1+Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
-    plt.pause(1)
+        ax[1+2*Ng+z].cla()
+        ax[1+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
+        ax[1+2*Ng+z].autoscale(False)
+        ax[1+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+
+        # show recurrent weights
+        ax[1+3*Ng+z].imshow(rec_weight2d, interpolation='none', origin='lower')
+
+
+    plt.pause(3)
 
 if spike_plot:
     M = SpikeMonitor(input_layer)
@@ -196,7 +210,7 @@ if spike_plot:
     R = SpikeMonitor(inhibit_layer)
     S = StateMonitor(grid_layer, 'v', record = [0,1,2])
 
-run(1000000*ms)
+run(duration*ms)
 
 if visualize:
     plt.show()
