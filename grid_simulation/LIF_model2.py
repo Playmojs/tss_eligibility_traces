@@ -21,7 +21,7 @@ spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 spike_plot = False
 visualize = True
 spike_plot = not visualize
-visualize_tick = 1000
+visualize_tick = 10000
 
 if visualize:
     import matplotlib
@@ -33,11 +33,13 @@ if visualize:
 
     fig = plt.figure()
     ax = []
-    ax.append(plt.subplot2grid((2,Ng+1), (0,0)))
+    ax.append(plt.subplot2grid((3,Ng+1), (0,0)))
     for z in range(1,Ng+1):
-        ax.append(plt.subplot2grid((2,Ng+1),(0,z)))
+        ax.append(plt.subplot2grid((3,Ng+1),(0,z)))
     for z in range(1,Ng+1):
-        ax.append(plt.subplot2grid((2,Ng+1),(1,z)))
+        ax.append(plt.subplot2grid((3,Ng+1),(1,z)))
+    for z in range(1, Ng+1):
+        ax.append(plt.subplot2grid((3,Ng+1), (2,z)))
 
 
 # Read file to get positions and velocities
@@ -141,6 +143,7 @@ def update(t):
         return
     
     weight2d = np.reshape(input_weights.w, [Ndendrites, Ndendrites])
+    rec_weight2d = np.reshape(recurrent_weights.w, [Ndendrites, Ndendrites])
 
     i68, i95, i99 = spatialns.get68_95(x)
     ax[0].cla()
@@ -170,6 +173,8 @@ def update(t):
         ax[1+Ng+z].imshow(corr_w, interpolation='none', origin='lower')
         ax[1+Ng+z].autoscale(False)
         ax[1+Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+
+        ax[1+2*Ng + z].imshow(rec_weight2d, interpolation = 'none', origin = 'lower')
     plt.pause(1)
 
 if spike_plot:
