@@ -1,6 +1,6 @@
 import numpy as np
 
-x = 7
-y = np.nan
+ran = np.arange(0,10)
 
-print(y > x)
+rand = np.random.exponential(ran, len(ran))
+print(ran, rand)

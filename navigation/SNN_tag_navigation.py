@@ -41,7 +41,7 @@ for i, transitions in enumerate(transition_ids):
 
 # Set up synapses within symbol layer
 transition_synapses = Synapses(symbol_layer, symbol_layer, model = 'neuron_delay = delays_pre : second', on_pre = '''v += 2
-                               epsilon_pre = 2
+                               epsilon_pre = 1
                                delays_post = (min_delay + (delays_post/ms-min_delay) * (1 - epsilon_post * inhibitE_post))*ms''')
 transition_synapses.connect(i = pre_post_ids[0,:], j = pre_post_ids[1,:])
 
@@ -49,19 +49,19 @@ transition_synapses.connect(i = pre_post_ids[0,:], j = pre_post_ids[1,:])
 inhibitory_layer = NeuronGroup(n_symbols, '''dv/dt = (y-v)/ms : 1
                                dy/dt = -y/(tau*ms) : 1
                                tau : 1''', method = 'exact', threshold = 'v > 1', reset = 'v = 0')
-inhibitory_layer.tau = min_delay
-inhibitory_layer[goal].tau += 4
+inhibitory_layer.tau = min_delay-2
+inhibitory_layer[goal].tau += 6
 
 inhibitory_synapses = Synapses(symbol_layer, inhibitory_layer, on_pre = 'y_post = inhibitPower_pre')
 inhibitory_synapses.connect(i = 'j')
 
 inhibit_synapses = Synapses(inhibitory_layer, symbol_layer, on_pre = '''v_post = -5
-                            inhibitE_post = 1.5''')
+                            inhibitE_post = 0.3''')
 inhibit_synapses.connect()
 
 # Set up unique goal-start connection to restart the wave
 restart_synapse = Synapses(symbol_layer, symbol_layer, on_pre = '''v = 1.2
-                           delays_pre = 7*ms
+                           delays_pre = 6*ms
                            halt_pre = True''', delay = 30*ms)
 restart_synapse.connect(i = goal, j = start)
 
