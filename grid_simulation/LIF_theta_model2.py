@@ -10,7 +10,7 @@ Ndendrites = 48
 Ndendrites2 = Ndendrites**2
 
 # Total number of grid cells to simulate
-Ng = 23
+Ng = 13
 
 # Dendritic tree overlap
 sigma = 0.1
@@ -22,11 +22,11 @@ spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 theta_rate = 1/10 # denominator is theta frequency used
 
 # Simulation variables
-duration = 400 # NB: in this model, duration is in seconds, for convenience of implementation
+duration = 1000 # NB: in this model, duration is in seconds, for convenience of implementation
 stationary = False
 visualize = True
 spike_plot = not visualize
-visualize_tick = 10000
+visualize_tick = 20000
 
 # Prepare plot
 
@@ -40,9 +40,8 @@ if visualize:
     n_rows = 3
     fig = plt.figure()
     ax = []
-    ax.append(plt.subplot2grid((n_rows,Ng+1), (0,0)))
     for y in range (n_rows):
-        for z in range(1,Ng+1):
+        for z in range(Ng+1):
             ax.append(plt.subplot2grid((n_rows,Ng+1),(y,z)))
 
 
@@ -110,12 +109,12 @@ input_weights = Synapses(input_layer, grid_layer, '''
 input_weights.connect()
 
 weights = np.random.rand(Ndendrites2 * Ng)*0.06
-# weights[weights<0.85] = 0
+# weights[weights<0.95] = 0
 # weights[weights>0] = 0.1
 input_weights.w = weights
 
 # # Set up inhibitory layer:
-grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 1*ms)
+grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 0.6*ms)
 grid_to_inhibit.connect(condition = 'i==j')
 grid_to_inhibit.w = 0.7
 
@@ -144,7 +143,19 @@ def update_plot(t):
     ax[0].imshow(spatialns.act(x) * i68, interpolation='none', origin='lower')
     ax[0].set_title("%d" % time_ms)
 
+
     grid_weights = np.reshape(input_weights.w, (Ndendrites2, Ng))
+    
+    mean_weights = np.reshape(np.mean(grid_weights, axis = 1 ), (Ndendrites, Ndendrites))
+    ax[Ng+1].cla()
+    ax[Ng+1].imshow(mean_weights, interpolation = 'none', origin = 'lower')
+    ax[Ng+1].set_title("mean")
+
+    position_hist, _, __ = (np.histogram2d(X[0:int(time_ms/delta_t), 1], X[0:int(time_ms/delta_t), 0], 20, [[0,1],[0,1]]))
+
+    ax[2*Ng+2].cla()
+    ax[2*Ng+2].imshow(position_hist, interpolation = 'none', origin = 'lower')
+    ax[2*Ng+2].set_title("trajectory")
 
     for z in range(Ng):
         
@@ -168,13 +179,13 @@ def update_plot(t):
         ax[z+1].set_title("%3.4f" % (gscore))
 
         # show gaussian filtered weights
-        ax[1+Ng+z].imshow(gaussian_filter(weight2d, 1.5), interpolation='none', origin = 'lower')
+        ax[2+Ng+z].imshow(gaussian_filter(weight2d, 1.5), interpolation='none', origin = 'lower')
 
         # show auto-correlation and nearest blod tracker
-        ax[1+2*Ng+z].cla()
-        ax[1+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
-        ax[1+2*Ng+z].autoscale(False)
-        ax[1+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+        ax[3+2*Ng+z].cla()
+        ax[3+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
+        ax[3+2*Ng+z].autoscale(False)
+        ax[3+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
 
     plt.pause(10)
 
