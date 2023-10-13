@@ -1,6 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-ran = np.arange(0,10)
-
-rand = np.random.exponential(ran, len(ran))
-print(ran, rand)
+files = np.load('grid_simulation/Results/test.npz')
+scores = files['scores']
+plt.plot(scores[0:-1])
+plt.show()
