@@ -6,6 +6,7 @@ class Recorder:
         self.plots = []
         self.alphas = []
         self.color_codes = []
+        self.backgrounds = []
         self.frames_per_ms = frames_per_ms
     def createAnimation(self, gif_name = "test"):
         fig = plt.figure()
@@ -23,10 +24,11 @@ class Recorder:
                        linewidths=0)
             ax.set_xlim(0,10)
             ax.set_ylim(0,10)
+            ax.set_facecolor(self.backgrounds[frame])
             string = str(round(self.frames_per_ms*frame/10)*10) + " ms"
 
             ax.legend(labels = [string], loc = 'upper right')
 
         ani = animation.FuncAnimation(fig, func = update, init_func = init, frames = len(self.plots), interval = 1)
         #fig.show()
-        ani.save(f"navigation/gifs/{gif_name}.gif")
+        ani.save(f"gifs/{gif_name}.gif")

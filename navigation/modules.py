@@ -5,6 +5,9 @@ class Symbol():
         self.coord = coord
         self.activated = False
         self.activated_at = None
+        self.inhibit_window = [np.inf, np.inf]
+        self.inhibit_pass = False
+        self.feedback_window = [np.inf, np.inf]
         self.spike_delay_ms = base_delay + np.random.rand()*2
         self.original_spike_delay_ms = self.spike_delay_ms
         self.tag = False
