@@ -22,7 +22,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
     # Reset symbols
     for symbol in symbols:
-        symbol.reset(5)
+        symbol.reset()
     
     symbols[goal].tag = True
     
@@ -48,11 +48,10 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
             current_time = min(event_series)
             #print(current_time,"ms")
 
-        global_inhibit = inhibit_until > current_time        
         # Neurons spike at this time if conditions are met, and receive speed-up:
         for spike_id in event_series[current_time].try_spike_ids:
             symbol = symbols[spike_id]
-            if global_inhibit or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time+6)):
+            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time+6)):
                 continue
 
             if symbol.tag:
@@ -71,7 +70,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
         # Output after spike:
         for output_id in event_series[current_time].output_ids:
             symbol = symbols[output_id]
-            if global_inhibit or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time + 6)):
+            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time + 6)):
                 continue
             
             symbol.activated = False
@@ -119,7 +118,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
 
         # Record the current state if desired
         if event_series[current_time].catch_frame:
-            sim_utils.catchFrame(symbols, current_time, start, goal, recorder, global_inhibit)
+            sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
 
         # Delete the entries at current time, to let the flow of time be in a strictly forward direction
         del event_series[current_time]

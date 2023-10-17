@@ -25,13 +25,13 @@ theta_rate = 1/10 # denominator is theta frequency used
 # Simulation variables
 duration = 3000 # NB: in this model, duration is in seconds, for convenience of implementation
 stationary = False
-visualize = True
-spike_plot = not visualize
+visualize = False
+spike_plot = False
 visualize_tick = 20000
 
 save_data = True
-save_tick = 5000
-fname = "m3f150_0"
+save_tick = 1000
+fname = "m3f0_0"
 if save_data:
     weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
     score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
@@ -111,7 +111,7 @@ input_weights = Synapses(input_layer, grid_layer, '''
             on_pre='''
             v_post += w
             apre += Apre
-            w = clip(w+(apost+150/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
+            w = clip(w+(apost+0/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
             ''',
             on_post='''
             apost += Apost
@@ -206,9 +206,11 @@ def update_plot(t):
     plt.pause(10)
 
 @network_operation(dt = save_tick*ms)
-def save_weights():
+def save_weights(t):
     if not save_data:
         return
+    sys.stdout.write("\rProgress: %3.4f" % ((t/second)/duration))
+    sys.stdout.flush()
     weight_tracker[save_id[0], ...] = input_weights.w
 
     grid_weights = np.reshape(input_weights.w, (Ndendrites2, Ng))
@@ -233,6 +235,7 @@ if save_data:
         sigma = sigma, \
         Ng = Ng, \
         save_tick = save_tick, \
+        duration = duration, \
         weights = weight_tracker, \
         scores = score_tracker)
 
