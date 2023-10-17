@@ -42,11 +42,11 @@ def addTrace(symbols, current_time, ids):
             #print("New symbol tagged:", id)
         symbols[id].tag = True
 
-def catchFrame(symbols, time,  start, goal, recorder, inhibit=False):
+def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False):
     plot_data = np.empty((2,0))
     alphas = np.empty(0)
     colors = np.empty(0)
-    background = 'white' #if not inhibit else 'lightgray'
+    background_color = 'white' if not is_inhibit else 'lavender'
     for id, symbol in enumerate(symbols):
         if symbol.activated_at is None:
             continue 
@@ -56,12 +56,9 @@ def catchFrame(symbols, time,  start, goal, recorder, inhibit=False):
         plot_data = np.hstack((plot_data, np.reshape(symbol.coord,(2,1))))
         norm_delt = delta_t / 20
         alphas = np.append(alphas, (norm_delt**3-2*norm_delt**2+norm_delt)/0.15)
-
-        #Set color of dot (so ugly, heh)
-        color = 'black' if id in [start, goal] else 'firebrick' if symbol.tag else 'darkmagenta' if symbol.feedback_window[0] < time < symbol.feedback_window[1] else 'deeppink' if symbol.inhibit_pass else 'darkturquoise' if symbol.inhibit_window[0]  < time < symbol.inhibit_window[1] else 'blue'
+        color = 'black' if id in [start, goal] else 'darkred' if symbol.tag else 'darksalmon' if symbol.feedback_window[0] < time < symbol.feedback_window[1] and symbol.inhibit_trace else 'lightskyblue' if symbol.inhibit_trace else 'cyan' if symbol.inhibit_window[0] < time < symbol.inhibit_window[1] else 'blue'
         colors = np.append(colors, color)
-
+    recorder.backgrounds.append(background_color)
     recorder.plots.append(plot_data)
     recorder.alphas.append(alphas)
     recorder.color_codes.append(colors)
-    recorder.backgrounds.append(background)

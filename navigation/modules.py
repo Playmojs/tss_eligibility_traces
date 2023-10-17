@@ -1,14 +1,15 @@
 import numpy as np
 
 class Symbol():
-    def __init__(self, coord, base_delay, nscales=1):
+    def __init__(self, coord, base_delay, variance):
         self.coord = coord
         self.activated = False
         self.activated_at = None
         self.inhibit_window = [np.inf, np.inf]
-        self.inhibit_pass = False
+        self.inhibit_trace = False
         self.feedback_window = [np.inf, np.inf]
-        self.spike_delay_ms = base_delay + np.random.rand()*2
+        self.variance = variance
+        self.spike_delay_ms = base_delay + np.random.rand()*self.variance
         self.original_spike_delay_ms = self.spike_delay_ms
         self.tag = False
         self.tagable = False
@@ -16,7 +17,7 @@ class Symbol():
         self.layer = np.inf
     def reset(self, base_delay):
         self.tag = False
-        self.spike_delay_ms = base_delay + np.random.rand()*2
+        self.spike_delay_ms = base_delay + np.random.rand()*self.variance
         self.original_spike_delay_ms = self.spike_delay_ms
         self.activated_at = None
 
