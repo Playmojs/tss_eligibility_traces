@@ -23,7 +23,7 @@ spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 theta_rate = 1/10 # denominator is theta frequency used
 
 # Simulation variables
-duration = 3000 # NB: in this model, duration is in seconds, for convenience of implementation
+duration = 6000 # NB: in this model, duration is in seconds, for convenience of implementation
 stationary = False
 visualize = False
 spike_plot = False
@@ -31,7 +31,7 @@ visualize_tick = 20000
 
 save_data = True
 save_tick = 1000
-fname = "m3f0_0"
+fname = "m3f50_0"
 if save_data:
     weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
     score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
