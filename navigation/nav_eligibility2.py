@@ -37,7 +37,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
         final_time = np.inf
 
         # Activate start to initiate wave propagation:
-        sim_utils.scheduleOutput(event_series, current_time + symbols[start].spike_delay_ms, start)
+        sim_utils.scheduleSpikeEvent(event_series, current_time + symbols[start].spike_delay_ms, start)
         symbols[start].activated = True
 
         while final_time + 15 > current_time: # Keeps running until at least 15 ms after goal is found, or exception
@@ -54,20 +54,20 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
                 #print(current_time,"ms")
 
             # Neurons spike at this time if conditions are met, and receive speed-up:
-            for spike_id in event_series[current_time].try_spike_ids:
+            for spike_id in event_series[current_time].receive_input_ids:
                 if inhibit_until > current_time or symbols[spike_id].activated or goal_found:
                     continue
                 if symbols[spike_id].tag: 
                     symbols[spike_id].spike_delay_ms = f + (symbols[spike_id].spike_delay_ms-f)*0.5 # Speed up
                 symbols[spike_id].activated = True
-                sim_utils.scheduleOutput(event_series, current_time + trigger_delay, spike_id)
+                sim_utils.scheduleSpikeEvent(event_series, current_time + trigger_delay, spike_id)
 
             # Output after spike:
-            for output_id in event_series[current_time].output_ids:
+            for output_id in event_series[current_time].spike_ids:
                 if inhibit_until > current_time or goal_found:
                     continue
                 for transition_id in valid_transitions[output_id].transition_ids:
-                    sim_utils.scheduleSpike(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
+                    sim_utils.scheduleSynapseEvent(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
                 if output_id == goal:
                     goal_found = True
                     final_time = current_time

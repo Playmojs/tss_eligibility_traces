@@ -40,8 +40,8 @@ class Transition():
 class TimedEvent():
      def __init__(self):
           self.try_activate = np.empty(0, dtype = int)
-          self.output_ids = np.empty(0, dtype=int)
-          self.try_spike_ids = np.empty(0, dtype = int)
+          self.spike_ids = np.empty(0, dtype=int)
+          self.receive_input_ids = np.empty(0, dtype = int)
           self.global_inhibition = False
           self.catch_frame = False
 

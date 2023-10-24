@@ -29,7 +29,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
         sim_utils.scheduleFrame(event_series, current_time + frame)
 
     # Activate start to initiate wave propagation:
-    sim_utils.scheduleOutput(event_series, current_time, start)
+    sim_utils.scheduleSpikeEvent(event_series, current_time, start)
 
     while not path_found: # Keeps running until the speed up has been sufficient
         
@@ -42,7 +42,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
             #print(current_time,"ms")
 
         # Acitivity
-        for output_id in event_series[current_time].output_ids:
+        for output_id in event_series[current_time].spike_ids:
             symbol = symbols[output_id]
             if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time + 8)):
                 continue
@@ -61,7 +61,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
                         t_symbol.activated = True
                         #print("Recovery:", recovery)
                         print("Delay:", transition_id, t_symbol.spike_delay_ms)
-                sim_utils.scheduleOutput(event_series, current_time + t_symbol.spike_delay_ms, transition_id)
+                sim_utils.scheduleSpikeEvent(event_series, current_time + t_symbol.spike_delay_ms, transition_id)
 
             # Add tag and inhibit: (This should happen after activation, so speed up only happens next circuit)
             if symbol.tag:
@@ -94,7 +94,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, g
                 # Initiate next iteration after a long inhibition to reset symbols:
                 start_time = current_time + refraction_time + 8
                 inhibit_until = start_time
-                sim_utils.scheduleOutput(event_series, start_time, start)
+                sim_utils.scheduleSpikeEvent(event_series, start_time, start)
 
 
         # Set inhibition duriation

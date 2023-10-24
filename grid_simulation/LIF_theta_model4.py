@@ -31,7 +31,7 @@ visualize_tick = 20000
 
 save_data = True
 save_tick = 10000
-fname = "m3f0_1"
+fname = "m4f100_1"
 if save_data:
     weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
     score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
@@ -111,7 +111,7 @@ input_weights = Synapses(input_layer, grid_layer, '''
             on_pre='''
             v_post += w
             apre += Apre
-            w = clip(w+(apost+0/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
+            w = clip(w+(apost+100/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
             ''',
             on_post='''
             apost += Apost
@@ -141,7 +141,7 @@ def update_learning_rate(t):
         learning_speed = 1
     else:
         current_speed = speed[int(t/(delta_t*ms))]
-        learning_speed = np.exp(-(mean_speed-current_speed)**2/mean_speed)
+        learning_speed = np.exp(-(mean_speed-current_speed)**2/mean_speed)*np.exp(-t/(3000*second))
     input_weights.l_speed = learning_speed
 
 @network_operation(dt = visualize_tick*ms)

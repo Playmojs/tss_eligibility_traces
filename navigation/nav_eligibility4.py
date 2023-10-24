@@ -5,137 +5,148 @@ import module_utils
 import simulation_utils as sim_utils
 import recorder as rec
 
-def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, gif_name = "test"):
+def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, min_base_delay = 8, variance=2, record = True, verbose = True, gif_name = "test"):
     valid_transitions = module_utils.findAllTransitions(symbols,distance) # Get a list containing, for each symbol, all their valid transitions
     event_series = {}
     recorder = rec.Recorder()
-    
     inhibit_until = 0
     will_inhibit = False
-    trigger_delay = 3
-    path_found = False
-    refraction_time = 12
 
-    current_time = 0
+    path_found = False
+    refraction_time = 20
+
+    start_time, current_time = 0, 0
     first_run_time = None
-    start_time = 0
 
     # Reset symbols
     for symbol in symbols:
-        symbol.reset()
+        symbol.reset(min_base_delay)
     
     symbols[goal].tag = True
+    symbols[goal].spike_delay_ms = f
     
-    
-    print("Start from start")
     for frame in range(0,1000, ms_per_frame):
         sim_utils.scheduleFrame(event_series, current_time + frame)
 
-    # Reset symbol to restart wave
-    for symbol in symbols:
-        symbol.activated_at = None
-
     # Activate start to initiate wave propagation:
-    sim_utils.scheduleOutput(event_series, symbols[start].spike_delay_ms, start)
+    sim_utils.scheduleSynapseEvent(event_series, current_time, start)
 
     while not path_found: # Keeps running until the speed up has been sufficient
         
         # Verify that the schedule should still run, and update time accordingly
-        if(len(event_series) == 0 or current_time > 1000):
-            recorder.createAnimation()
-            raise Exception("No further events or ran too long. Check animation to see what happened")
+        if(len(event_series) == 0 or current_time > 2000):
+            if record:
+                recorder.createAnimation()
+            #raise Exception("No further events or ran too long. Check gif to see what happened")
+            return False
         else:
             current_time = min(event_series)
             #print(current_time,"ms")
 
-        # Neurons spike at this time if conditions are met, and receive speed-up:
-        for spike_id in event_series[current_time].try_spike_ids:
+        global_inhibit = inhibit_until > current_time
+
+        # Activity
+        for spike_id in event_series[current_time].spike_ids:
             symbol = symbols[spike_id]
-            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time+6)):
-                continue
 
-            if symbol.tag:
-                if symbol.activated_at is None:
-                    recovery = 0
-                else:
-                    recovery = (symbol.original_spike_delay_ms - symbol.spike_delay_ms)*(1-np.exp(-(current_time - symbol.activated_at)/500))
-                symbol.spike_delay_ms = symbol.spike_delay_ms + recovery
-                if not symbol.activated:
-                    symbol.spike_delay_ms = f + (symbol.spike_delay_ms-f)*(0.5+(np.random.rand()-0.5)*0.2) # Speed up
-                    symbol.activated = True
-                    #print("Recovery:", recovery)
-                    print("Delay:", spike_id, symbol.spike_delay_ms)
-            sim_utils.scheduleOutput(event_series, current_time + trigger_delay, spike_id)
-
-        # Output after spike:
-        for output_id in event_series[current_time].output_ids:
-            symbol = symbols[output_id]
-            if inhibit_until > current_time or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time + 6)):
+            # Only proceed if the symbol isn't inhibited or in refractory
+            if global_inhibit or (symbol.activated_at is not None and symbol.activated_at > current_time - (refraction_time + 8)):
                 continue
             
-            symbol.activated = False
-            # Activate next layer:
+            # Set trace values
             symbol.activated_at = current_time
-            for transition_id in valid_transitions[output_id].transition_ids:
-                sim_utils.scheduleSpike(event_series, current_time + symbols[transition_id].spike_delay_ms, transition_id)
+            symbol.inhibit_window = [current_time + 2 + f, current_time + 3 + min_base_delay]
+            symbol.feedback_window = [current_time + 5 + f, current_time + 6 + min_base_delay]
+            symbol.inhibit_trace = False
 
-            # Add tag:
-            if symbol.tag: # Add tags and inhibit
-                sim_utils.addTrace(symbols, current_time, valid_transitions[output_id].transition_ids)
+            # Activate next layer:
+            sim_utils.scheduleSynapseEvent(event_series, current_time + 3, valid_transitions[spike_id].transition_ids)
+            
+            # Add tag and inhibit: (This should happen after activation, so speed up only happens next circuit)
+            if symbol.tag:
                 will_inhibit = True
-
+            
             # Check for goal funkiness:
-            if output_id == goal:
+            if spike_id == goal:
+
                 # If this is the first iteration, store the time it took:
                 if first_run_time is None:
                     first_run_time = current_time
 
                 # Find the time it took and check if the speed increase is sufficient:
                 final_time = current_time - start_time
-                print("Goal found in", final_time)
+                if verbose: 
+                    print("Goal found in", final_time)
+                    print(final_time / first_run_time)
                 
                 if final_time < first_run_time * 0.8:
                     i += 1
-                    print("Possible path found")
+                    if verbose:
+                        print("Possible path found")
                 else:
                     i = 0
                 
                 if i >= 3:
                     path_found = True
-                    print("Success, path successfully found!")
-                    print("Time reduced by factor", final_time / first_run_time)
+                    if verbose:
+                        print("Success, path successfully found!")
+                        print("Time reduced by factor", final_time / first_run_time)
 
                 # Initiate next iteration after a long inhibition to reset symbols:
-                start_time = current_time + refraction_time
+                start_time = current_time + refraction_time + 8
                 inhibit_until = start_time
-                sim_utils.scheduleSpike(event_series, start_time, start)
+                sim_utils.scheduleSynapseEvent(event_series, start_time, start)
 
+        # Receive input
+        for input_id in event_series[current_time].receive_input_ids: 
+            
+            input_symbol = symbols[input_id]
+            
+            # Check if symbol should receive tag:
+            if input_symbol.inhibit_trace and input_symbol.feedback_window[0] < current_time < input_symbol.feedback_window[1]:
+                input_symbol.tag = True
+                input_symbol.spike_delay_ms = f + (input_symbol.spike_delay_ms-f)*(0.5+(np.random.rand()-0.5)*0.2) # Speed up
+
+            if input_symbol.tag: # Recover from past speed up
+                recovery = 0 #if input_symbol.activated_at is None else (input_symbol.original_spike_delay_ms - input_symbol.spike_delay_ms)*(1-np.exp(-(current_time - input_symbol.activated_at)/200))
+                input_symbol.spike_delay_ms = input_symbol.spike_delay_ms + recovery
+            sim_utils.scheduleSpikeEvent(event_series, current_time + input_symbol.spike_delay_ms, input_id)
 
         # Set inhibition duriation
         if will_inhibit:
-            inhibit_until = max(current_time + f + 0.13, inhibit_until)
+            inhibit_until = max(current_time + 3 + f, inhibit_until)
+            for symbol in symbols:
+                if symbol.inhibit_window[0] < current_time < symbol.inhibit_window[1]:
+                    symbol.inhibit_trace = True
             will_inhibit = False          
 
         # Record the current state if desired
         if event_series[current_time].catch_frame:
-            sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
+            sim_utils.catchFrame(symbols, current_time, start, goal, recorder, global_inhibit)
 
         # Delete the entries at current time, to let the flow of time be in a strictly forward direction
         del event_series[current_time]
-
 
     event_series.clear()
     for _ in range(40):
         current_time += 1
         sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
 
-    print ("From ", symbols[start].coord, "to ", symbols[goal].coord)
-    print("Total time: ", current_time)
-    recorder.createAnimation(gif_name)
-    return
+    if verbose:
+        print ("From ", symbols[start].coord, "to ", symbols[goal].coord)
+        print("Total time: ", current_time)
+    if record:
+        recorder.createAnimation(gif_name)
+    return True
 
 #For random symbol, start and goal simulation:
-
-symbols = module_utils.generateRandomSymbols(100, 5, [0,10], [0,10], 1)
-[start, goal] = np.random.choice(len(symbols), 2, False)
-eligibilityNavigation(symbols, start, goal, 2, 1, 3)
+# variance = 3
+# min_base_delay = 5
+# valid_goal = False
+# min_dist = 10
+# model_num = 10
+# symbols = module_utils.generateRandomSymbols(100, min_base_delay, [0,10], [0,10], variance)
+# while not valid_goal:
+#     [start, goal] = np.random.choice(len(symbols), 2, False)
+#     valid_goal = np.linalg.norm(symbols[start].coord - symbols[goal].coord) > min_dist
+# eligibilityNavigation(symbols, start, goal, 2, 1, 2, min_base_delay, variance)

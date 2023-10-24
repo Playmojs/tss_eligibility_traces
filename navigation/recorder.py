@@ -19,7 +19,7 @@ class Recorder:
             
             alphas = self.alphas[frame] if len(self.alphas[frame]) > 0 else 1
             ax.clear()
-            ax.scatter(self.plots[frame][:][0],self.plots[frame][:][1], #alpha=alphas, 
+            ax.scatter(self.plots[frame][:][0],self.plots[frame][:][1], alpha=alphas, 
                        c = self.color_codes[frame], 
                        linewidths=0)
             ax.set_xlim(0,10)
@@ -32,4 +32,4 @@ class Recorder:
 
         ani = animation.FuncAnimation(fig, func = update, init_func = init, frames = len(self.plots), interval = 200)
         #fig.show()
-        ani.save(f"gifs/{gif_name}.gif")
+        ani.save(f"navigation/gifs/{gif_name}.gif")

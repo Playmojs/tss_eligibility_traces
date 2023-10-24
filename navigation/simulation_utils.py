@@ -25,13 +25,13 @@ def scheduleFrame(event_series, time):
     controlScheduleTime(event_series, time)
     event_series[time].catch_frame = True
 
-def scheduleOutput(event_series, time, id):
+def scheduleSpikeEvent(event_series, time, id):
     controlScheduleTime(event_series, time)
-    event_series[time].output_ids = np.append(event_series[time].output_ids, id)
+    event_series[time].spike_ids = np.append(event_series[time].spike_ids, id)
 
-def scheduleSpike(event_series, time, ids):
+def scheduleSynapseEvent(event_series, time, ids):
     controlScheduleTime(event_series, time)
-    event_series[time].try_spike_ids = np.append(event_series[time].try_spike_ids, ids)
+    event_series[time].receive_input_ids = np.append(event_series[time].receive_input_ids, ids)
 
 
 def addTrace(symbols, current_time, ids):
@@ -56,7 +56,7 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False):
         plot_data = np.hstack((plot_data, np.reshape(symbol.coord,(2,1))))
         norm_delt = delta_t / 20
         alphas = np.append(alphas, (norm_delt**3-2*norm_delt**2+norm_delt)/0.15)
-        color = 'black' if id in [start, goal] else 'darkred' if symbol.tag else 'darksalmon' if symbol.feedback_window[0] < time < symbol.feedback_window[1] and symbol.inhibit_trace else 'lightskyblue' if symbol.inhibit_trace else 'cyan' if symbol.inhibit_window[0] < time < symbol.inhibit_window[1] else 'blue'
+        color = 'black' if id in [start, goal] else 'darkred' if symbol.tag else 'darksalmon' if symbol.feedback_window[0] < time < symbol.feedback_window[1] and symbol.inhibit_trace else 'darkorchid' if symbol.inhibit_trace and time <symbol.feedback_window[0] else 'cyan' if symbol.inhibit_window[0] < time < symbol.inhibit_window[1] else 'blue'
         colors = np.append(colors, color)
     recorder.backgrounds.append(background_color)
     recorder.plots.append(plot_data)
