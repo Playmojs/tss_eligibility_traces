@@ -24,6 +24,6 @@ def generateTrajectory(boundary_vecs, dt, duration_s, output_file):
 
 boundary_square = [[-0.5,-0.5], [0.5,-0.5], [0.5,0.5], [-0.5, 0.5]]
 boundary_circular = [[0.5*np.cos(t),0.5*np.sin(t)] for t in np.linspace(0,2*np.pi,100)]
-boundary_trapezoid = [[-0.7, -0.2], [-0.7, 0.2], [0.7, 0.5], [0.7, -0.5]]
+boundary_trapezoid = [[0, -0.2], [0, 0.2], [1.5, 0.5], [1.5, -0.5]]
 
-generateTrajectory(boundary_circular, 0.1, 900, "Circular/test")
+generateTrajectory(boundary_trapezoid, 0.1, 900, "Trapezoid/test")

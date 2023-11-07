@@ -190,18 +190,20 @@ class CoordinateSamplers():
         A = self.act(X)
         S = generateSpikeTrainFromGaussian(A)
 
-def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, distribution = 'uniform', rate = 0.1, bvc_params = [12, 11]):
-    # Return lists of BVC-indices for each dendrite
+def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, distribution = 'uniform', rate = 0.1, bvc_params = [12, 11], verbose = False):
+    # Return two lists, one of dendrite number, the other of bvc number.
     bvc_range = np.arange(n_bvcs)
     bvc_range = np.reshape(np.tile(bvc_range, n_dendrites2), (n_dendrites2, n_bvcs))
     if distribution == 'uniform': #each dendrite gets input from a random number of BVCs indicated by 'rate'
         temp_connections = np.random.rand(n_dendrites2, n_bvcs)
-    if distribution=='orthogonal': #each dendrite gets input from four BVCs, which align with the x-y-axis
-        temp_connections = np.random.randint(0, bvc_params[1], (n_dendrites2 * 2))*bvc_params[1]
-        temp_connections += np.tile(np.arange(2), n_dendrites2)*(bvc_params[0]//4)
+    if distribution=='orthogonal': #each dendrite gets input from two BVCs, which align with the x-y-axis
+        temp_connections = np.random.randint(0, bvc_params[1], (n_dendrites2 * 2))*bvc_params[0]
+        temp_connections += np.tile(np.arange(2), n_dendrites2)*(bvc_params[0]//4) + np.random.randint(0,2, n_dendrites2*2)*bvc_params[0]//2
         indices = np.repeat(np.arange(n_dendrites2), 2)
         connections = np.array([indices, temp_connections])
+    if verbose:
+        print(connections)
     return connections
 
 
-#getBVCtoDendriteConnectivity(10, 15, distribution = 'uniform')
+#getBVCtoDendriteConnectivity(132, 15, distribution = 'orthogonal', verbose = True)
