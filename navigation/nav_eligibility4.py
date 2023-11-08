@@ -4,13 +4,20 @@ from matplotlib import animation
 import module_utils
 import simulation_utils as sim_utils
 import recorder as rec
+import copy
 
-def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, min_base_delay = 8, variance=2, record = True, verbose = True, gif_name = "test"):
+def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, min_base_delay = 8, variance=2, record = True, verbose = True, save_data = False, gif_name = "test", output_filepath = "output"):
     valid_transitions = module_utils.findAllTransitions(symbols,distance) # Get a list containing, for each symbol, all their valid transitions
     event_series = {}
     recorder = rec.Recorder()
+    if save_data:
+        symbol_data = dict()
+        symbol_data[0] = copy.deepcopy(symbols)
+        inhibit_data = np.empty((0,2))
+
     inhibit_until = 0
     will_inhibit = False
+
 
     path_found = False
     refraction_time = 20
@@ -25,7 +32,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
     symbols[goal].tag = True
     symbols[goal].spike_delay_ms = f
     
-    for frame in range(0,1000, ms_per_frame):
+    for frame in range(0,2000, ms_per_frame):
         sim_utils.scheduleFrame(event_series, current_time + frame)
 
     # Activate start to initiate wave propagation:
@@ -79,7 +86,10 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
                     print("Goal found in", final_time)
                     print(final_time / first_run_time)
                 
-                if final_time < first_run_time * 0.8:
+                if save_data:
+                    symbol_data[current_time] = copy.deepcopy(symbols)
+
+                if final_time < first_run_time * 0.7:
                     i += 1
                     if verbose:
                         print("Possible path found")
@@ -115,6 +125,8 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
         # Set inhibition duriation
         if will_inhibit:
             inhibit_until = max(current_time + 3 + f, inhibit_until)
+            if save_data:
+                inhibit_data = np.vstack((inhibit_data, [current_time, inhibit_until]))
             for symbol in symbols:
                 if symbol.inhibit_window[0] < current_time < symbol.inhibit_window[1]:
                     symbol.inhibit_trace = True
@@ -137,16 +149,24 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
         print("Total time: ", current_time)
     if record:
         recorder.createAnimation(gif_name)
+    if save_data:
+        np.savez_compressed(f"navigation/result_data/{output_filepath}", \
+                            symbols = symbol_data, \
+                            start = start, \
+                            goal = goal, \
+                            dist = distance, \
+                            inhibit_ranges = inhibit_data
+                            )
     return True
 
 #For random symbol, start and goal simulation:
-# variance = 3
-# min_base_delay = 5
-# valid_goal = False
-# min_dist = 10
-# model_num = 10
-# symbols = module_utils.generateRandomSymbols(100, min_base_delay, [0,10], [0,10], variance)
-# while not valid_goal:
-#     [start, goal] = np.random.choice(len(symbols), 2, False)
-#     valid_goal = np.linalg.norm(symbols[start].coord - symbols[goal].coord) > min_dist
-# eligibilityNavigation(symbols, start, goal, 2, 1, 2, min_base_delay, variance)
+variance = 1
+min_base_delay = 5
+valid_goal = False
+min_dist = 10
+model_num = 10
+symbols = module_utils.generateRandomSymbols(400, min_base_delay, [0,10], [0,10], variance)
+while not valid_goal:
+    [start, goal] = np.random.choice(len(symbols), 2, False)
+    valid_goal = np.linalg.norm(symbols[start].coord - symbols[goal].coord) > min_dist
+eligibilityNavigation(symbols, start, goal, 1, 1, 2, min_base_delay, variance, save_data= True, output_filepath="400_1ms_2")

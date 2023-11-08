@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import module_utils
             
-def dijkstra(symbols, start, goal, max_dist):
+def dijkstra(symbols, start, goal, max_dist, complete = False, time_cost = False):
     n_vertices = len(symbols)
 
     dist = np.inf * np.ones(n_vertices)
@@ -14,7 +14,7 @@ def dijkstra(symbols, start, goal, max_dist):
         u = Q[dist[Q].argmin()]
         if np.isinf(dist[u]):
             raise Exception("No complete path found with maximum distance at ", max_dist)
-        if u == goal:
+        if u == goal and not complete:
             print("Done")
             return dist, prev
 
@@ -24,13 +24,15 @@ def dijkstra(symbols, start, goal, max_dist):
             distance = np.linalg.norm(symbols[u].coord - symbols[vertice].coord)
             if distance > max_dist:
                 continue
-            alt = distance + dist[u]
+            if time_cost:
+                alt = symbols[vertice].spike_delay_ms + dist[u]
+            else:
+                alt = distance + dist[u]
             if alt < dist[vertice]:
                 dist[vertice] = alt
                 prev[vertice] = u
 
-    return False
-
+    return dist, prev
 
 def back_track_dijkstra(prev, goal):
     sequence = []
@@ -41,26 +43,3 @@ def back_track_dijkstra(prev, goal):
             u = prev[u]
     return sequence
 
-#Generate symbols
-
-symbols = module_utils.generateRandomSymbols(100, [0, 10], [0,10], 1)
-
-plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in symbols], 'o')
-
-# %%
-#Pick random start and goal from symbols:
-
-[start, goal] = np.random.choice(len(symbols), 2, False)
-print("From:", start, "to", goal)
-print ("at ", symbols[start].coord, "and", symbols[goal].coord)
-
-#Find path
-dist, prev = dijkstra(symbols, start, goal, 1.435)
-nodes = back_track_dijkstra(prev, goal)
-print("These nodes were visited:", nodes)
-
-
-#Plot path
-plt.plot([symbol.coord[0] for symbol in symbols], [symbol.coord[1] for symbol in symbols], 'o')
-plt.plot([symbols[i].coord[0] for i in nodes], [symbols[i].coord[1] for i in nodes], 'ro')
-plt.show()

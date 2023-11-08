@@ -8,6 +8,7 @@ class Recorder:
         self.color_codes = []
         self.backgrounds = []
         self.frames_per_ms = frames_per_ms
+
     def createAnimation(self, gif_name = "test"):
         fig = plt.figure()
         ax = plt.axes()

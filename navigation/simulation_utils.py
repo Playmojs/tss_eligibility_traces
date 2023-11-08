@@ -62,3 +62,7 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False):
     recorder.plots.append(plot_data)
     recorder.alphas.append(alphas)
     recorder.color_codes.append(colors)
+
+def saveData(symbols, time, recorder):
+    recorder.symbol_data.append(symbols)
+    recorder.time.append(time)
