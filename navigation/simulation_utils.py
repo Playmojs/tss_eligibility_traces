@@ -25,14 +25,20 @@ def scheduleFrame(event_series, time):
     controlScheduleTime(event_series, time)
     event_series[time].catch_frame = True
 
-def scheduleSpikeEvent(event_series, time, id):
+def scheduleSpikeEvent(event_series, time, id, scale = -1):
     controlScheduleTime(event_series, time)
-    event_series[time].spike_ids = np.append(event_series[time].spike_ids, id)
+    if scale == -1:
+        event_series[time].spike_ids = np.append(event_series[time].spike_ids, id)
+    else:
+        event_series[time].spike_events = np.vstack((event_series[time].spike_events, [id, scale]))
 
-def scheduleSynapseEvent(event_series, time, ids):
+def scheduleSynapseEvent(event_series, time, ids, scale = -1):
     controlScheduleTime(event_series, time)
-    event_series[time].receive_input_ids = np.append(event_series[time].receive_input_ids, ids)
-
+    if scale == -1:
+        event_series[time].receive_input_ids = np.append(event_series[time].receive_input_ids, ids)
+    else:
+        event_info = np.vstack((ids, np.full(ids.size, scale))).T
+        event_series[time].synapse_events = np.vstack((event_series[time].synapse_events, event_info))
 
 def addTrace(symbols, current_time, ids):
     for id in ids:
@@ -42,21 +48,30 @@ def addTrace(symbols, current_time, ids):
             #print("New symbol tagged:", id)
         symbols[id].tag = True
 
-def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False):
+def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_rule = 'advanced_tag'):
     plot_data = np.empty((2,0))
     alphas = np.empty(0)
     colors = np.empty(0)
-    background_color = 'white' if not is_inhibit else 'lavender'
+    background_color = 'white' if not np.any(is_inhibit) else 'lavender' if is_inhibit[0] else 'blanchedalmond' if is_inhibit[1] else 'khaki' if is_inhibit[2] else 'white'
     for id, symbol in enumerate(symbols):
-        if symbol.activated_at is None:
+        if np.isnan(symbol.activated_at).all():
             continue 
-        delta_t = time - symbol.activated_at
+        delta_t = time - np.nanmax(symbol.activated_at)
         if delta_t > 20:
             continue
         plot_data = np.hstack((plot_data, np.reshape(symbol.coord,(2,1))))
         norm_delt = delta_t / 20
         alphas = np.append(alphas, (norm_delt**3-2*norm_delt**2+norm_delt)/0.15)
-        color = 'black' if id in [start, goal] else 'darkred' if symbol.tag else 'darksalmon' if symbol.feedback_window[0] < time < symbol.feedback_window[1] and symbol.inhibit_trace else 'darkorchid' if symbol.inhibit_trace and time <symbol.feedback_window[0] else 'cyan' if symbol.inhibit_window[0] < time < symbol.inhibit_window[1] else 'blue'
+        if color_rule == "simple":
+            color = 'blue'
+        elif color_rule == 'tag':
+            color = 'black' if id in [start,goal] else 'darkred' if np.any(symbol.tag) else 'blue'
+        elif color_rule == 'advanced_tag':
+            color = 'black' if id in [start, goal] else 'darkred' if np.any(symbol.tag) else 'darksalmon' if np.nanmax(symbol.feedback_window[:,0]) < time < np.nanmax(symbol.feedback_window[:,1]) and np.any(symbol.inhibit_trace) else 'darkorchid' if np.any(symbol.inhibit_trace) and time < np.nanmax(symbol.feedback_window[:,0]) else 'cyan' if np.nanmax(symbol.inhibit_window[:,0]) < time < np.nanmax(symbol.inhibit_window[:,1]) else 'blue'
+        elif color_rule == 'simple_scale':
+            palette = ['deepskyblue', 'indianred', 'goldenrod']
+            tag_palette = np.array(['blue', 'darkred', 'darkgoldenrod'])
+            color = 'black' if id in [start, goal] else tag_palette[symbol.tag][0] if np.any(symbol.tag) else palette[min(np.nanargmax(symbol.activated_at),2)]
         colors = np.append(colors, color)
     recorder.backgrounds.append(background_color)
     recorder.plots.append(plot_data)
