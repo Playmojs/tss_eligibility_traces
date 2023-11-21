@@ -7,7 +7,7 @@ import h5py
 import sys
 
 # Total number of dendrites
-Ndendrites = 48
+Ndendrites = 20
 Ndendrites2 = Ndendrites**2
 
 # Total number of grid cells to simulate
@@ -23,7 +23,7 @@ spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 theta_rate = 1/10 # denominator is theta frequency used
 
 # Simulation variables
-duration = 400 # NB: in this model, duration is in seconds, for convenience of implementation
+duration = 200 # NB: in this model, duration is in seconds, for convenience of implementation
 stationary = False
 visualize = True
 spike_plot = False
@@ -31,7 +31,7 @@ visualize_tick = 10000
 
 save_data = False
 save_tick = 10000
-fname = "m3f0_1"
+fname = "m4f100_1"
 if save_data:
     weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
     score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
@@ -68,14 +68,14 @@ filter = 18
 
 # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
 print("Precalculate spatial input:")
-for i in np.arange(0, duration, theta_rate):
-    time_ms = i*1000
-    sys.stdout.write("\rStatus: %3.4f" % ((i+theta_rate)/duration))
+for z in np.arange(0, duration, theta_rate):
+    time_ms = z*1000
+    sys.stdout.write("\rStatus: %3.4f" % ((z+theta_rate)/duration))
     sys.stdout.flush()
 
     x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] + np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
     
-    activity = np.round(np.ndarray.flatten(spatialns.dist(x))/sigma * 10 + np.max(2*np.random.rand(Ndendrites2)-1, 0), 1)
+    activity = np.round(np.ndarray.flatten(spatialns.dist(x))/sigma * 10 + 2*(np.random.rand(Ndendrites2)-0.5), 1)
     neuron_indices = np.arange(Ndendrites2, dtype = int16)
     filtered_neuron_indices = neuron_indices[activity<filter]
     filtered_activity = activity[activity<filter]
@@ -87,51 +87,59 @@ print("\nDone")
 
 input_layer = SpikeGeneratorGroup(Ndendrites2, inputs[0], inputs[1]*ms, sorted = True)
 
+tau_d = 10*ms
+taupre = 20*ms
+taupost = 50*ms
+Apre = 0.055
+Apost = -0.12
+
+dendrite_eq = '''dv/dt = -v/tau_d : 1 (unless refractory)
+                dapost/dt = -apost/taupost : 1
+                dapre/dt = -apre/taupre : 1
+                c : 1
+                l_speed : 1'''
+base_conductivity = 120 / Ndendrites2
+c_max = 1.5*base_conductivity
+dendrite_layer = NeuronGroup(Ndendrites2 * Ng, dendrite_eq, method = 'exact')
+conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
+dendrite_layer.c = conductivities 
+
+input_to_dendrites = Synapses(input_layer, dendrite_layer, '''w : 1''', on_pre = '''v_post +=w
+                              c = clip(c + l_speed_post*(apost + 100/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
+                              apre_post += Apre''')
+input_to_dendrites.connect(condition = 'i == j % Ndendrites2')
+input_to_dendrites.w = 10
 #Grid layer and inhibitory layer:
 
 tau_g = 10*ms
-grid_eq = '''dv/dt = - v / tau_g : 1 (unless refractory)'''
+tau_y = 30*ms
+grid_eq = '''dv/dt = (-v + Igap - y) / tau_g : 1 (unless refractory)
+            dy/dt = -y/tau_y : 1
+            Igap : 1'''
 
-grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 1.0', reset = 'v = -0.1', refractory= 30*ms, method = 'exact')
+
+grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', reset = 'v = -0.1', refractory= 30*ms, method = 'exact')
 
 
 # Set up synapses from input to grid layer with STDP learning rule and randomized start weights
 
-taupre = 8*ms
-taupost = 80*ms
-wmax_i = 0.1
-Apre = 0.01
-Apost = -0.005
-input_weights = Synapses(input_layer, grid_layer, '''
-            w : 1
-            l_speed : 1
-            dapre/dt = -apre/taupre : 1 (event-driven)
-            dapost/dt = -apost/taupost : 1 (event-driven)
-            ''',
-            on_pre='''
-            v_post += w
-            apre += Apre
-            w = clip(w+(apost+0/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
-            ''',
-            on_post='''
-            apost += Apost
-            w = clip(w+apre*l_speed, 0, wmax_i)
-            ''', delay = 3*ms)
-input_weights.connect()
 
-weights = np.random.rand(Ndendrites2 * Ng)*0.06
-# weights[weights<0.95] = 0
-# weights[weights>0] = 0.1
-input_weights.w = weights
+dendrite_to_grid = Synapses(dendrite_layer, grid_layer,
+            '''Igap_post = c_pre*(v_pre-v_post) : 1 (summed)''', on_post = '''
+            c_pre = clip(c_pre + l_speed_pre*apre_pre, 0, c_max)
+            apost_pre += Apost''')
+dendrite_to_grid.connect(condition = 'j == i // Ndendrites2')
+
+
 
 # # Set up inhibitory layer:
 inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
 
-grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 0.6*ms)
+grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 1.0*ms)
 grid_to_inhibit.connect(condition = 'i==j')
 grid_to_inhibit.w = 0.7
 
-inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post = -10')
+inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += 5')
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 
@@ -141,8 +149,8 @@ def update_learning_rate(t):
         learning_speed = 1
     else:
         current_speed = speed[int(t/(delta_t*ms))]
-        learning_speed = np.exp(-(mean_speed-current_speed)**2/mean_speed)
-    input_weights.l_speed = learning_speed
+        learning_speed = 0.6 * np.exp(-(mean_speed-current_speed)**2/mean_speed)
+    dendrite_layer.l_speed = learning_speed
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
@@ -157,9 +165,9 @@ def update_plot(t):
     ax[0].set_title("%d" % time_ms)
 
 
-    grid_weights = np.reshape(input_weights.w, (Ndendrites2, Ng))
+    grid_weights = np.reshape(dendrite_layer.c, (Ng, Ndendrites2))
     
-    mean_weights = np.reshape(np.mean(grid_weights, axis = 1 ), (Ndendrites, Ndendrites))
+    mean_weights = np.reshape(np.mean(grid_weights, axis = 0 ), (Ndendrites, Ndendrites))
     ax[Ng+1].cla()
     ax[Ng+1].imshow(mean_weights, interpolation = 'none', origin = 'lower')
     ax[Ng+1].set_title("mean")
@@ -174,7 +182,7 @@ def update_plot(t):
 
     for z in range(Ng):
         
-        weight2d = np.reshape(grid_weights[:, z], (Ndendrites, Ndendrites))
+        weight2d = np.reshape(grid_weights[z, :], (Ndendrites, Ndendrites))
  
         # compute gridness score
         corr_w = utils.normcorr2d(weight2d)
@@ -211,9 +219,9 @@ def save_weights(t):
         return
     sys.stdout.write("\rProgress: %3.4f" % ((t/second)/duration))
     sys.stdout.flush()
-    weight_tracker[save_id[0], ...] = input_weights.w
+    weight_tracker[save_id[0], ...] = dendrite_to_grid.c
 
-    grid_weights = np.reshape(input_weights.w, (Ndendrites2, Ng))
+    grid_weights = np.reshape(dendrite_to_grid, (Ndendrites2, Ng))
     for z in range(Ng):    
         weight2d = np.reshape(grid_weights[:, z], (Ndendrites, Ndendrites))
         corr_w = utils.normcorr2d(weight2d)
@@ -224,6 +232,7 @@ def save_weights(t):
 if spike_plot:
     M = SpikeMonitor(input_layer)
     G = SpikeMonitor(grid_layer)
+    S = StateMonitor(grid_layer, 'v', [0,1,2])
 
 print("Initialize done")
 
@@ -247,16 +256,16 @@ if spike_plot:
     # print(G.i)
     # print(R.t/ms)
     plt.figure(figsize = (12,12))
-    # plt.subplot(221)
+    plt.subplot(221)
     plt.plot(M.t/ms, M.i, '.k')
     plt.vlines(G.t/ms, 0, Ndendrites2)
     # plt.vlines(R.t/ms, 0, Ndendrites2, colors = 'r')
-    # plt.subplot(222)
-    # plt.plot(S.t/ms, S.v[0], 'C0')
-    # plt.subplot(223)
-    # plt.plot(S.t/ms, S.v[1], 'C0')
-    # plt.subplot(224)
-    # plt.plot(S.t/ms, S.v[2], 'C0')
+    plt.subplot(222)
+    plt.plot(S.t/ms, S.v[0], 'C0')
+    plt.subplot(223)
+    plt.plot(S.t/ms, S.v[1], 'C0')
+    plt.subplot(224)
+    plt.plot(S.t/ms, S.v[2], 'C0')
     plt.show()
 
 
