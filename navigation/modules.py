@@ -21,7 +21,7 @@ class Symbol():
         if compressed:
              self.inhibit_window = np.ndarray.flatten(self.inhibit_window)
              self.feedback_window = np.ndarray.flatten(self.feedback_window)
-             self.activated_at = None
+             self.activated_at = np.nan
              self.inhibit_trace = 0
              self.tag = False
 

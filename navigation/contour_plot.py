@@ -13,6 +13,8 @@ def make_contour(coords, activation_times, ax, vmin, vmax, nlevels):
     ax.set_xlim((0,10))
     ax.set_ylim((0,10))
     ax.set_aspect('equal')
+    ax.tick_params(left = False, right = False , labelleft = False , 
+                labelbottom = False, bottom = False) 
     ax.tricontourf(tri_refi, z_test_refi, nlevels, vmin = vmin, vmax = vmax, cmap = 'GnBu')
     ax.tricontour(tri_refi, z_test_refi, nlevels, vmin = vmin, vmax = vmax,
               colors='0.25',
@@ -31,6 +33,7 @@ symbols = symbols.item()
 keys = list(symbols)
 n_keys = len(keys)
 fig, ax = plt.subplots(3, 5)
+fig.set_facecolor("#212121")
 colors = ['black', 'red', 'orange']
 
 for plot in range(n_keys-1):
@@ -60,6 +63,6 @@ for plot in range(n_keys-1):
     print(max(act_times))
     alphas = alphas[mask]
     ax_x.scatter(coords[:,0], coords[:,1], alpha = alphas, color = np.array(colors)[color_indices])
-    ax_x.set_title("%3.0f ms" % (max(act_times)-min(act_times)))
+    ax_x.set_title("%3.0f ms" % (max(act_times)-min(act_times)), color = "#adadad")
 
 plt.show()

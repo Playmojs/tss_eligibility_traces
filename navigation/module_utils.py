@@ -1,9 +1,9 @@
 import numpy as np
 import modules
 
-def findAllTransitions(symbols, base_dist, nscales: int = 1, compressed = True):
+def findAllTransitions(symbols, base_dist, nscales: int = 1, compressed = True) -> np.array((), dtype = modules.Transition):
     assert(nscales > 0)
-    transitions = np.empty((len(symbols),nscales), dtype = object)
+    transitions = np.empty((len(symbols),nscales), dtype = modules.Transition)
     ranges = np.logspace(0, nscales - 1, nscales, base = np.sqrt(2)) * base_dist
     ranges = np.insert(ranges, 0,0)
     for id in range(len(symbols)):

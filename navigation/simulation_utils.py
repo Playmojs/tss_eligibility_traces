@@ -48,7 +48,7 @@ def addTrace(symbols, current_time, ids):
             #print("New symbol tagged:", id)
         symbols[id].tag = True
 
-def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_rule = 'advanced_tag'):
+def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_rule = 'simple'):
     plot_data = np.empty((2,0))
     alphas = np.empty(0)
     colors = np.empty(0)
@@ -65,7 +65,7 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_
         if color_rule == "simple":
             color = 'blue'
         elif color_rule == 'tag':
-            color = 'black' if id in [start,goal] else 'darkred' if np.any(symbol.tag) else 'blue'
+            color = 'black' if id in [start,goal] else 'maroon' if np.any(symbol.tag) else 'darkblue'
         elif color_rule == 'advanced_tag':
             color = 'black' if id in [start, goal] else 'darkred' if np.any(symbol.tag) else 'darksalmon' if np.nanmax(symbol.feedback_window[:,0]) < time < np.nanmax(symbol.feedback_window[:,1]) and np.any(symbol.inhibit_trace) else 'darkorchid' if np.any(symbol.inhibit_trace) and time < np.nanmax(symbol.feedback_window[:,0]) else 'cyan' if np.nanmax(symbol.inhibit_window[:,0]) < time < np.nanmax(symbol.inhibit_window[:,1]) else 'blue'
         elif color_rule == 'simple_scale':
@@ -81,3 +81,30 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_
 def saveData(symbols, time, recorder):
     recorder.symbol_data.append(symbols)
     recorder.time.append(time)
+
+def extractTagged(symbols):
+    ids = np.empty(0)
+    for i, symbol in enumerate(symbols):
+        if symbol.tag:
+            ids = np.append(ids, i)
+    return ids
+
+def evaluateTag(symbols, tag_ids, transitions, goal_id):
+    if len(tag_ids) == 0:
+        return True
+    correctly_tagged = np.array([goal_id], dtype = int)
+    i = 0
+    while len(correctly_tagged) > i:
+        transition_ids = transitions[correctly_tagged[i]].transition_ids
+        for id in transition_ids:
+            if symbols[id].tag and id not in correctly_tagged:
+                correctly_tagged = np.append(correctly_tagged, id)
+        i += 1
+    #print(np.sort(correctly_tagged))
+    #print(tag_ids)
+    if len(correctly_tagged) < len(tag_ids):
+        return False
+    elif len(correctly_tagged) == len(tag_ids):
+        return True
+    else:
+        raise Exception("Whoops, algorithm fault. Couldn't determine the available tags")

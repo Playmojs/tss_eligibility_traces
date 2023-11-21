@@ -8,3 +8,5 @@ print(trace)
 
 for i in trace:
     print(i)
+
+print(np.isnan(8))

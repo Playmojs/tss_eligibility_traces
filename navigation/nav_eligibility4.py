@@ -17,7 +17,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
 
     inhibit_until = 0
     will_inhibit = False
-
+    correct_tag = True
 
     path_found = False
     refraction_time = 20
@@ -44,6 +44,8 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
         if(len(event_series) == 0 or current_time > 2000):
             if record:
                 recorder.createAnimation()
+            if save_data:
+                return rec.DataRec(symbol_data, start, goal, inhibit_data, correct_tag, False, distance, variance)
             #raise Exception("No further events or ran too long. Check gif to see what happened")
             return False
         else:
@@ -88,15 +90,18 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
                 
                 if save_data:
                     symbol_data[current_time] = copy.deepcopy(symbols)
+                    if correct_tag:
+                        tag_ids = sim_utils.extractTagged(symbols)
+                        correct_tag = sim_utils.evaluateTag(symbols, tag_ids, valid_transitions, goal)
 
-                if final_time < first_run_time * 0.7:
+                if final_time < first_run_time * 0.8:
                     i += 1
                     if verbose:
                         print("Possible path found")
                 else:
                     i = 0
                 
-                if i >= 3:
+                if i >= 2:
                     path_found = True
                     if verbose:
                         print("Success, path successfully found!")
@@ -133,8 +138,8 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
             will_inhibit = False          
 
         # Record the current state if desired
-        if event_series[current_time].catch_frame:
-            sim_utils.catchFrame(symbols, current_time, start, goal, recorder, global_inhibit)
+        if event_series[current_time].catch_frame and record:
+            sim_utils.catchFrame(symbols, current_time, start, goal, recorder, False, 'tag')
 
         # Delete the entries at current time, to let the flow of time be in a strictly forward direction
         del event_series[current_time]
@@ -142,7 +147,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
     event_series.clear()
     for _ in range(40):
         current_time += 1
-        sim_utils.catchFrame(symbols, current_time, start, goal, recorder)
+        sim_utils.catchFrame(symbols, current_time, start, goal, recorder, False, 'tag')
 
     if verbose:
         print ("From ", symbols[start].coord, "to ", symbols[goal].coord)
@@ -150,13 +155,7 @@ def eligibilityNavigation(symbols, start, goal, distance, ms_per_frame, f = 3, m
     if record:
         recorder.createAnimation(gif_name)
     if save_data:
-        np.savez_compressed(f"navigation/result_data/{output_filepath}", \
-                            symbols = symbol_data, \
-                            start = start, \
-                            goal = goal, \
-                            dist = distance, \
-                            inhibit_ranges = inhibit_data
-                            )
+        return(rec.DataRec(symbol_data, start, goal, inhibit_data, correct_tag, True, distance, variance))
     return True
 
 #For random symbol, start and goal simulation:
@@ -165,8 +164,8 @@ min_base_delay = 5
 valid_goal = False
 min_dist = 10
 model_num = 10
-symbols = module_utils.generateRandomSymbols(400, min_base_delay, [0,10], [0,10], variance)
+symbols = module_utils.generateRandomSymbols(200, min_base_delay, [0,10], [0,10], variance)
 while not valid_goal:
     [start, goal] = np.random.choice(len(symbols), 2, False)
     valid_goal = np.linalg.norm(symbols[start].coord - symbols[goal].coord) > min_dist
-eligibilityNavigation(symbols, start, goal, 1, 1, 2, min_base_delay, variance, save_data= True, output_filepath="400_1ms_2")
+eligibilityNavigation(symbols, start, goal, 2, 1, 2, min_base_delay, variance, record = True, save_data= True, output_filepath="navigation/ppt_viz")

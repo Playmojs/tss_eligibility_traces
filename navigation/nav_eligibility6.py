@@ -73,7 +73,7 @@ def eligibilityNavigation(symbols, start, goal, distance, nscales = 1,
             sim_utils.scheduleSynapseEvent(event_series, current_time + 3, valid_transitions[spike_info[0], scale].transition_ids, scale)
             
             # Add tag and inhibit: (This should happen after activation, so speed up only happens next circuit)
-            if symbol.tag[scale]:
+            if np.any(symbol.tag):
                 will_inhibit[:] = True
             
             # Check for goal funkiness:
@@ -124,16 +124,17 @@ def eligibilityNavigation(symbols, start, goal, distance, nscales = 1,
             
             if not (input_symbol.tag[scale] or input_info[0] == start) and np.random.rand() > 1/(2**(scale/2)):
                 continue
-
+            next_scale = scale
             # Check if symbol should receive tag:
             if input_symbol.inhibit_trace[scale] and input_symbol.feedback_window[scale, 0] <= current_time <= input_symbol.feedback_window[scale, 1]:
-                input_symbol.tag[:] = True
+                input_symbol.tag[scale] = True
                 input_symbol.spike_delay_ms = f + (input_symbol.spike_delay_ms-f)*(1-(0.5 + (np.random.rand()-0.5)*0.2)) # Speed up
 
-            if input_symbol.tag[scale]: # Recover from past speed up
+            if np.any(input_symbol.tag): # Recover from past speed up
                 recovery = 0 #if input_symbol.activated_at is None else (input_symbol.original_spike_delay_ms - input_symbol.spike_delay_ms)*(1-np.exp(-(current_time - input_symbol.activated_at)/200))
                 input_symbol.spike_delay_ms = input_symbol.spike_delay_ms + recovery
-            sim_utils.scheduleSpikeEvent(event_series, current_time + input_symbol.spike_delay_ms, input_info[0], scale)
+                next_scale = np.argmax(input_symbol.tag)
+            sim_utils.scheduleSpikeEvent(event_series, current_time + input_symbol.spike_delay_ms, input_info[0], next_scale)
 
         # Set inhibition duriation
         for iscale, inhib in enumerate(will_inhibit):    

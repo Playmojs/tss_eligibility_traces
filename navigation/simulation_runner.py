@@ -7,19 +7,19 @@ import numpy as np
 #%%
 # Setup data structure:
 
-variances = [0,1,2,3,4]
+variances = [1.8,2.2]
 distances = [0, 2, 4, 6, 8, 10]
 transition_dist = 1
 delay = 5
 neuron_number = 400
 reps = 100
 
-success_rates = np.zeros((len(variances), len(distances)))
+data = np.empty((len(variances), len(distances), reps), dtype=object)
 
 #%%
 for i, variance in enumerate(variances):
     variance_complete = False
-    sims_with_valid_distance = np.ones(len(distances)) * reps
+    sims_with_valid_distance = np.ones(len(distances), dtype = int) * reps
     while not variance_complete:
         print(np.sum(sims_with_valid_distance))
         symbols = mod_util.generateRandomSymbols(neuron_number, delay, [0,10], [0,10], variance)
@@ -30,16 +30,26 @@ for i, variance in enumerate(variances):
         if sims_with_valid_distance[idx] == 0:
             continue
         sims_with_valid_distance[idx] -= 1
-        success_rates[i, idx] += nav_el.eligibilityNavigation(symbols, start, goal, transition_dist, 1, 2, delay, variance, False, False) / 100
+        data[i, idx, sims_with_valid_distance[idx]] = nav_el.eligibilityNavigation(symbols, start, goal, transition_dist, 1, 2, delay, variance, False, False, save_data = True)
         if np.sum(sims_with_valid_distance) == 0:
             variance_complete = True
-    print(success_rates)
 
 
 # %%
-np.savez(file="variance_distance_numbers", success_rates = success_rates)
+for i in range(len(variances)):
+    for j in range(len(distances)):
+        np.savez(file=f"result_data/m4_data/m4_{variances[i]}ms_{distances[j]}dist", data = data[i,j,:])
 # %%
-results = np.load("variance_distance_numbers.npz")
+nav_successes = np.empty((3,6,100), dtype = bool)
+tag_successes = np.empty((3,6,100), dtype = bool)
+
+#%%
+it = np.nditer(data, flags = ['multi_index', 'refs_ok'])
+
+#%%
+for rec in it:
+    nav_successes[it.multi_index] = rec.item().success
+    tag_successes[it.multi_index] = rec.item().correct_tag
 #%%
 x_vals = ["1-2", "2-4", "4-6", "6-8", "8-10", "10-14"]
 plt.plot(x_vals, np.transpose(results['success_rates']))
