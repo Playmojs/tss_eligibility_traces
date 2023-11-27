@@ -1,9 +1,3 @@
-grid_simulation/Results/m3f100_0.npz
-grid_simulation/Results/m3f150_0.npz
-grid_simulation/Results/m3f0_0.npz
-grid_simulation/Results/m3f50_0.npz
-grid_simulation/Results/m3f100_1.npz
-grid_simulation/Results/m3f0_1.npz
-grid_simulation/Results/m4f100_1.npz
 grid_simulation/Results/test_gif2.gif
 navigation/result_data/m4_data/
+grid_simulation/Results/data/
