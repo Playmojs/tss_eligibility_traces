@@ -10,7 +10,8 @@ class Recorder:
         self.frames_per_ms = frames_per_ms
 
     def createAnimation(self, gif_name = "test"):
-        fig = plt.figure(figsize=(5,5), facecolor="#212121")
+        fig = plt.figure(figsize=(5,5)#, facecolor="#212121"
+                         )
         ax = plt.axes()
 
         def init():
@@ -28,7 +29,7 @@ class Recorder:
             ax.tick_params(left = False, right = False , labelleft = False , 
                 labelbottom = False, bottom = False) 
             ax.set_aspect('equal')
-            ax.set_facecolor("#adadad")#(self.backgrounds[frame])
+            #ax.set_facecolor("#adadad")#(self.backgrounds[frame])
             string = str(round(self.frames_per_ms*frame/10)*10) + " ms"
 
             ax.legend(labels = [string], loc = 'lower left', bbox_to_anchor=(0,1.02,1,0.2))

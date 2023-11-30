@@ -111,7 +111,7 @@ input_weights = Synapses(input_layer, grid_layer, '''
             on_pre='''
             v_post += w
             apre += Apre
-            w = clip(w+(apost+0/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
+            w = clip(w+(apost+100/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
             ''',
             on_post='''
             apost += Apost
@@ -131,7 +131,7 @@ grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post 
 grid_to_inhibit.connect(condition = 'i==j')
 grid_to_inhibit.w = 0.7
 
-inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post = -10')
+inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post = -7')
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 

@@ -7,7 +7,7 @@ import h5py
 import sys
 
 # Total number of dendrites
-Ndendrites = 20
+Ndendrites = 24
 Ndendrites2 = Ndendrites**2
 
 # Total number of grid cells to simulate
@@ -27,7 +27,7 @@ duration = 200 # NB: in this model, duration is in seconds, for convenience of i
 stationary = False
 visualize = True
 spike_plot = False
-visualize_tick = 10000
+visualize_tick = 1000
 
 save_data = False
 save_tick = 10000
@@ -90,7 +90,7 @@ input_layer = SpikeGeneratorGroup(Ndendrites2, inputs[0], inputs[1]*ms, sorted =
 tau_d = 10*ms
 taupre = 20*ms
 taupost = 50*ms
-Apre = 0.055
+Apre = 0.06
 Apost = -0.12
 
 dendrite_eq = '''dv/dt = -v/tau_d : 1 (unless refractory)
@@ -98,14 +98,16 @@ dendrite_eq = '''dv/dt = -v/tau_d : 1 (unless refractory)
                 dapre/dt = -apre/taupre : 1
                 c : 1
                 l_speed : 1'''
-base_conductivity = 120 / Ndendrites2
-c_max = 1.5*base_conductivity
+base_conductivity = 60 / Ndendrites2
+c_max = 1.0*base_conductivity
 dendrite_layer = NeuronGroup(Ndendrites2 * Ng, dendrite_eq, method = 'exact')
-conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
+conductivities = np.random.rand(Ndendrites2 * Ng)
+conductivities[conductivities<0.67] = 0
+conductivities[conductivities>0] = base_conductivity
 dendrite_layer.c = conductivities 
 
 input_to_dendrites = Synapses(input_layer, dendrite_layer, '''w : 1''', on_pre = '''v_post +=w
-                              c = clip(c + l_speed_post*(apost + 100/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
+                              c = clip(c + l_speed_post*(apost + 1/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
                               apre_post += Apre''')
 input_to_dendrites.connect(condition = 'i == j % Ndendrites2')
 input_to_dendrites.w = 10
@@ -118,7 +120,7 @@ grid_eq = '''dv/dt = (-v + Igap - y) / tau_g : 1 (unless refractory)
             Igap : 1'''
 
 
-grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', reset = 'v = -0.1', refractory= 30*ms, method = 'exact')
+grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', reset = 'v = 0', refractory= 30*ms, method = 'exact')
 
 
 # Set up synapses from input to grid layer with STDP learning rule and randomized start weights
@@ -135,13 +137,16 @@ dendrite_to_grid.connect(condition = 'j == i // Ndendrites2')
 # # Set up inhibitory layer:
 inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
 
-grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 1.0*ms)
+grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 2.5*ms)
 grid_to_inhibit.connect(condition = 'i==j')
 grid_to_inhibit.w = 0.7
 
-inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += 5')
+inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/30')
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
+
+# inhibit_to_grid = Synapses(inhibit_layer, dendrite_layer, on_pre = 'v_post = -5')
+# inhibit_to_grid.connect()
 
 @network_operation(dt = theta_rate*ms)
 def update_learning_rate(t):
@@ -149,8 +154,8 @@ def update_learning_rate(t):
         learning_speed = 1
     else:
         current_speed = speed[int(t/(delta_t*ms))]
-        learning_speed = 0.6 * np.exp(-(mean_speed-current_speed)**2/mean_speed)
-    dendrite_layer.l_speed = learning_speed
+        learning_speed = 0.5*np.exp(-(mean_speed-current_speed)**2/mean_speed)
+    dendrite_layer.l_speed = 0.3#learning_speed
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
@@ -211,7 +216,7 @@ def update_plot(t):
         ax[3+2*Ng+z].autoscale(False)
         ax[3+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
     ax[2+Ng].set_title("%3.4f" % (mean_score))
-    plt.pause(10)
+    plt.pause(3)
 
 @network_operation(dt = save_tick*ms)
 def save_weights(t):
@@ -232,7 +237,8 @@ def save_weights(t):
 if spike_plot:
     M = SpikeMonitor(input_layer)
     G = SpikeMonitor(grid_layer)
-    S = StateMonitor(grid_layer, 'v', [0,1,2])
+    S = StateMonitor(grid_layer, True, [0,1,2] if Ng >= 3 else 0)
+    I = SpikeMonitor(inhibit_layer)
 
 print("Initialize done")
 
@@ -259,13 +265,20 @@ if spike_plot:
     plt.subplot(221)
     plt.plot(M.t/ms, M.i, '.k')
     plt.vlines(G.t/ms, 0, Ndendrites2)
-    # plt.vlines(R.t/ms, 0, Ndendrites2, colors = 'r')
+    plt.vlines(I.t/ms, 0, Ndendrites2, colors = 'r')
     plt.subplot(222)
     plt.plot(S.t/ms, S.v[0], 'C0')
-    plt.subplot(223)
-    plt.plot(S.t/ms, S.v[1], 'C0')
-    plt.subplot(224)
-    plt.plot(S.t/ms, S.v[2], 'C0')
+    plt.plot(S.t/ms, S.Igap[0] / 50, 'green')
+    plt.plot(S.t/ms, S.y[0] / 50, 'red')
+    if Ng >= 3:
+        plt.subplot(223)
+        plt.plot(S.t/ms, S.v[1], 'C0')
+        plt.plot(S.t/ms, S.Igap[1] / 50, 'green')
+        plt.plot(S.t/ms, S.y[1] / 50, 'red')
+        plt.subplot(224)
+        plt.plot(S.t/ms, S.v[2], 'C0')
+        plt.plot(S.t/ms, S.Igap[2] / 50, 'green')
+        plt.plot(S.t/ms, S.y[2] / 50, 'red')
     plt.show()
 
 

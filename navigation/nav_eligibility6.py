@@ -179,7 +179,7 @@ variance = 1
 min_base_delay = 5
 valid_goal = False
 min_dist = 6
-n_scales = 3
+n_scales = 7
 model_num = 11
 symbols = module_utils.generateRandomSymbols(400, min_base_delay, [0,10], [0,10], variance, n_scales, False)
 while not valid_goal:

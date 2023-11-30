@@ -52,7 +52,7 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_
     plot_data = np.empty((2,0))
     alphas = np.empty(0)
     colors = np.empty(0)
-    background_color = 'white' if not np.any(is_inhibit) else 'lavender' if is_inhibit[0] else 'blanchedalmond' if is_inhibit[1] else 'khaki' if is_inhibit[2] else 'white'
+    background_color = 'white'  #if not np.any(is_inhibit) else 'lavender' if is_inhibit[0] else 'blanchedalmond' if is_inhibit[1] else 'khaki' if is_inhibit[2] else 'white'
     for id, symbol in enumerate(symbols):
         if np.isnan(symbol.activated_at).all():
             continue 
@@ -72,6 +72,42 @@ def catchFrame(symbols, time,  start, goal, recorder, is_inhibit = False, color_
             palette = ['deepskyblue', 'indianred', 'goldenrod']
             tag_palette = np.array(['blue', 'darkred', 'darkgoldenrod'])
             color = 'black' if id in [start, goal] else tag_palette[symbol.tag][0] if np.any(symbol.tag) else palette[min(np.nanargmax(symbol.activated_at),2)]
+        elif color_rule == 'no_tag_scale':
+            color = 'black' if id in [start, goal] else 'indianred' if symbol.tag[0] else 'greenyellow' if symbol.no_tag else 'darkblue'
+
+        colors = np.append(colors, color)
+    recorder.backgrounds.append(background_color)
+    recorder.plots.append(plot_data)
+    recorder.alphas.append(alphas)
+    recorder.color_codes.append(colors)
+
+def catchF(symbols, time,  start, goal, recorder, is_inhibit = False, color_rule = 'simple'):
+    plot_data = np.empty((2,0))
+    alphas = np.empty(0)
+    colors = np.empty(0)
+    background_color = 'white'  #if not np.any(is_inhibit) else 'lavender' if is_inhibit[0] else 'blanchedalmond' if is_inhibit[1] else 'khaki' if is_inhibit[2] else 'white'
+    for id in range(symbols.nsymbols):
+        if np.isnan(symbols.activated_at[id]).all():
+            continue 
+        delta_t = time - np.nanmax(symbols.activated_at[id])
+        if delta_t > 20:
+            continue
+        plot_data = np.hstack((plot_data, np.reshape(symbols.coords[id],(2,1))))
+        norm_delt = delta_t / 20
+        alphas = np.append(alphas, (norm_delt**3-2*norm_delt**2+norm_delt)/0.15)
+        if color_rule == "simple":
+            color = 'blue'
+        elif color_rule == 'tag':
+            color = 'black' if id in [start,goal] else 'maroon' if np.any(symbols.tag[id]) else 'darkblue'
+        elif color_rule == 'advanced_tag':
+            color = 'black' if id in [start, goal] else 'darkred' if np.any(symbols.tag[id]) else 'darksalmon' if np.nanmax(symbols.feedback_window[id, :,0]) < time < np.nanmax(symbols.feedback_window[id, :,1]) and np.any(symbols.inhibit_trace[id]) else 'darkorchid' if np.any(symbols.inhibit_trace) and time < np.nanmax(symbol.feedback_window[:,0]) else 'cyan' if np.nanmax(symbol.inhibit_window[:,0]) < time < np.nanmax(symbol.inhibit_window[:,1]) else 'blue'
+        elif color_rule == 'simple_scale':
+            palette = ['deepskyblue', 'indianred', 'goldenrod']
+            tag_palette = np.array(['blue', 'darkred', 'darkgoldenrod'])
+            color = 'black' if id in [start, goal] else tag_palette[symbols.tag[id]][0] if np.any(symbols.tag[id]) else palette[min(np.nanargmax(symbols.activated_at[id]),2)]
+        elif color_rule == 'no_tag_scale':
+            color = 'black' if id in [start, goal] else 'indianred' if symbols.tag[id, 0] else 'greenyellow' if symbols.no_tag[id] else 'darkblue'
+
         colors = np.append(colors, color)
     recorder.backgrounds.append(background_color)
     recorder.plots.append(plot_data)

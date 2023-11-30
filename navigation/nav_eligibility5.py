@@ -53,6 +53,7 @@ def eligibilityNavigation(symbols, start, goal, distance, nscales = 1,
             return False
         else:
             current_time = min(event_series)
+            print(current_time)
 
         global_inhibit = inhibit_until > current_time
 
@@ -178,10 +179,10 @@ variance = 1
 min_base_delay = 5
 valid_goal = False
 min_dist = 10
-n_scales = 3
+n_scales = 7
 model_num = 11
-symbols = module_utils.generateRandomSymbols(100, min_base_delay, [0,10], [0,10], variance, n_scales, False)
+symbols = module_utils.generateRandomSymbols(400, min_base_delay, [0,10], [0,10], variance, n_scales, False)
 while not valid_goal:
     [start, goal] = np.random.choice(len(symbols), 2, False)
     valid_goal = np.linalg.norm(symbols[start].coord - symbols[goal].coord) > min_dist
-eligibilityNavigation(symbols, start, goal, 2, n_scales, 1, 2, min_base_delay, variance, color_rule= 'simple_scale', save_data= False, output_filepath="400_1ms_2")
+eligibilityNavigation(symbols, start, goal, 1, n_scales, 1, 2, min_base_delay, variance, color_rule= 'simple_scale', save_data= False, output_filepath="400_1ms_2")
