@@ -35,7 +35,7 @@ duration = 9 * 10**5
 stationary = False
 visualize = True
 spike_plot = False
-visualize_tick = 10000
+visualize_tick = 60000
 input_file = "Square/900s.npz"
 
 save_data = False
@@ -72,7 +72,7 @@ tMax = len(X)
 
 # Input layer setup
 inputs = np.empty((2,0))
-filter = 2*sigma
+filter = 3*sigma
 neuron_indices = np.arange(Nbvcs, dtype = int16)
 
 # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
@@ -82,12 +82,18 @@ for i in np.arange(0, duration//100, dtype = int):
     sys.stdout.write("\rStatus: %3.4f" % ((i+1)*100/duration))
     sys.stdout.flush()
 
+    # Getting BVC rates, as described in literature:
     iBoundaries = boundary_vectors[i]
-    activity = np.abs(boundary_cells[1] - iBoundaries[np.ndarray.astype(boundary_cells[0], int)] + (np.random.rand(len(boundary_cells[1])) -0.5)*filter/10)
-    
-    filtered_neuron_indices = neuron_indices[activity<filter]
-    filtered_spike_times = activity[activity<filter]/filter*20 # These values scale the activity so the slowest neurons fire 20 ms after theta, and the fastest up to theta
-    temp_input = np.array((filtered_neuron_indices, filtered_spike_times + time_ms))
+    dists = boundary_cells[1, :, np.newaxis] - iBoundaries[np.newaxis, :]
+    thetas = (boundary_cells[0, :, np.newaxis] - np.arange(180))/180
+    activity = np.sum(np.exp(dists**2/1+thetas**2/1), axis = 1)
+    activity = np.clip(activity/np.max(activity) + (np.random.rand(Nbvcs) - 0.5)*0.1, 0, 1)
+
+    # Translating rates to activation delays, filtering and sorting:
+    BVC_delay = (1/(2*activity) - 1)
+    filtered_neuron_indices = neuron_indices[BVC_delay<filter]
+    filtered_spike_times = activity[BVC_delay<filter]*20/filter # The factor scales the activity so the slowest neurons fire 20 ms after theta, and the fastest up to theta
+    temp_input = np.array((filtered_neuron_indices, filtered_spike_times + time_ms-20))
     temp_input = temp_input[:, np.argsort(temp_input[1,:])]
     inputs = np.hstack((inputs, temp_input))
 print("\n")
@@ -110,7 +116,7 @@ if visualize or spike_plot:
 taupre = 8*ms
 taupost = 80*ms
 Apre = 0.01
-Apost = -0.005
+Apost = -0.01
 input_weights = Synapses(BVC_layer, grid_layer, '''
             w : 1
             l_speed : 1
@@ -120,7 +126,7 @@ input_weights = Synapses(BVC_layer, grid_layer, '''
             on_pre='''
             v_post += w
             apre += Apre
-            w = clip(w+(apost+5/(Ng*Nbvcs)*(wmax_i-w))*l_speed, 0, wmax_i)
+            w = clip(w+(apost+10/(Ng*n_weights)*(wmax_i-w))*l_speed, 0, wmax_i)
             ''',
             on_post='''
             apost += Apost
@@ -128,12 +134,14 @@ input_weights = Synapses(BVC_layer, grid_layer, '''
             ''', delay = 3*ms)
 input_weights.connect(p = 1)
 n_weights = len(input_weights.w)
-wmax_i = 12 * Ng / n_weights
+wmax_i = 5 * Ng / n_weights
 
 weights = np.random.rand(n_weights)*0.6*wmax_i
 # weights[weights<0.95] = 0
 # weights[weights>0] = 0.1
 input_weights.w = weights
+
+
 
 # # Set up inhibitory layer:
 inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
@@ -146,18 +154,23 @@ inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'v_post 
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 
+
+
+# My manual simulation interventions:
+
 @network_operation(dt = theta_rate*second)
 def update_learning_rate(t):
     if stationary:
         learning_speed = 1
     else:
         current_speed = speed[int(t/(second * theta_rate))]
-        learning_speed = 1.5*np.exp(-(mean_speed-current_speed)**2/mean_speed)
+        learning_speed = 1*np.exp(-(mean_speed-current_speed)**2/mean_speed)
     input_weights.l_speed = learning_speed
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
-    plot_weights(t)
+    if visualize:
+        plot_weights(t)
 
 def plot_weights(t):
     time_ms = t/ms
@@ -273,7 +286,7 @@ if save_data:
         scores = score_tracker)
 
 if visualize:
-    plot_weights(duration*ms)
+    plot_weights((duration-100)*ms)
     plt.show()
 
 if spike_plot:
