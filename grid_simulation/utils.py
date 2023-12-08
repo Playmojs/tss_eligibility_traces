@@ -23,6 +23,13 @@ def getTrajValues(file):
     boundary_vectors = f['boundary_distances']
     return positions, speeds, boundaries, boundary_vectors
 
+def BVC_act(BVCs, boundary_vectors, Nbvcs, noise_level = 0.01):
+    dists = BVCs[1, :, np.newaxis] - boundary_vectors[:, np.newaxis, :]
+    thetas = np.expand_dims((BVCs[0, :, np.newaxis] - np.arange(180))/180, 0)
+    activity = np.sum(np.exp(dists**2/1+thetas**2/1), axis = 2)
+    activity = np.clip(activity/np.expand_dims(np.max(activity, axis = 1), 1) + (np.random.rand(len(boundary_vectors), Nbvcs) - 0.5)*noise_level, 0, 1)
+    return activity
+
 def gauss(D, sig):
     return 1 / np.sqrt(2 * np.pi * sig) * np.exp(- (D)**2 / (2 * sig**2))
 
