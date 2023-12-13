@@ -235,12 +235,11 @@ class CoordinateSamplers():
             # generate meshgrid of locations on the coordinate space
             x = np.linspace(xlim[0], xlim[1], N)
             y = np.linspace(ylim[0], ylim[1], N)
-            xv, yv = np.meshgrid(x, y, indexing='xy')
-            self.Xs = np.array((xv, yv))
-            self.Xs = np.rollaxis(self.Xs, 0, 3)
+            Xs = np.meshgrid(x, y, indexing='xy')
+            self.Xs = np.reshape(Xs, (2,-1)).T
 
     def dist(self, X):
-        return np.sqrt(np.sum((self.Xs - X)**2, axis=2))
+        return np.sqrt(np.sum((self.Xs[np.newaxis, ...] - X[:, np.newaxis, :])**2, axis=2))
 
     def act(self, X):
         D = self.dist(X)

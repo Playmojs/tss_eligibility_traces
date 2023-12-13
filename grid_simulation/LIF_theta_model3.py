@@ -57,25 +57,16 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
 
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculate spatial input:")
-    for i in np.arange(0, duration, theta_rate):
-        time_ms = i*1000
-        sys.stdout.write("\rStatus: %3.4f" % ((i+theta_rate)/duration))
-        sys.stdout.flush()
 
-        x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] + np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
-        
-        activity = np.round(np.ndarray.flatten(spatialns.dist(x))/sigma * 10 + np.max(2*np.random.rand(Ndendrites2)-1, 0), 1)
-        neuron_indices = np.arange(Ndendrites2, dtype = int16)
-        filtered_neuron_indices = neuron_indices[activity<filter]
-        filtered_activity = activity[activity<filter]
-        temp_input = np.array((filtered_neuron_indices, filtered_activity + time_ms))
-        temp_input = temp_input[:, np.argsort(temp_input[1,:])]
-        inputs = np.hstack((inputs, temp_input))
+    end_ix = int(duration*delta_t/theta_rate)
+    x = X[0:end_ix:int(1000 * theta_rate/delta_t), :] #TODO: add stationary here
+    activity = np.round(spatialns.dist(x)/sigma*10 + np.max(2*np.random.rand(end_ix, Ndendrites2)-1, 0), 1)
+    act_indices = np.where(activity < filter)
+    activation_times = activity[act_indices] + 100 * act_indices[0]
+    neuron_indices = act_indices[1]
 
-    print("\nDone")
-
+    input_layer = SpikeGeneratorGroup(Ndendrites2, neuron_indices, activation_times*ms)
     print(f"Total time: {time.time() - current_time}")
-    input_layer = SpikeGeneratorGroup(Ndendrites2, inputs[0], inputs[1]*ms, sorted = True)
 
     #Grid layer and inhibitory layer:
 
@@ -141,9 +132,9 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
             return
         time_ms = t/ms
         x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
-        i68, i95, i99 = spatialns.get68_95(x)
+        i68, i95, i99 = spatialns.get68_95(np.array([x]))
         ax[0].cla()
-        ax[0].imshow(spatialns.act(x) * i68, interpolation='none', origin='lower')
+        ax[0].imshow(spatialns.act(np.array([x])) * i68, interpolation='none', origin='lower')
         ax[0].set_title("%d" % time_ms)
 
 
@@ -251,4 +242,4 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
 
 
 if __name__ == '__main__':
-    gridSimulation(48, 12, 0.1, 1000, False, False, 10000, False, False, 10000, 'output.npz')
+    gridSimulation(48, 12, 0.1, 6000, False, True, 10000, False, False, 10000, 'output.npz')

@@ -5,8 +5,11 @@ import utils
 # grid= utils.createHexField(25, 0.3, np.radians(7.5), 'square')
 # plt.imshow(grid, origin = 'lower')
 # plt.show()
-spatialns = utils.CoordinateSamplers(48**2, 0.1, )
+
+spatialns = utils.CoordinateSamplers(48, 0.1, )
 positions = np.random.rand(50,2)
+dists = spatialns.dist(positions)
+print(np.shape(dists))
 
 # Nthetas = 20
 # Ndists = 21
