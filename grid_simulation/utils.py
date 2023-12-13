@@ -1,5 +1,7 @@
 import numpy as np
 import scipy.ndimage as ndimage
+import scipy.interpolate as interpolate
+import matplotlib.path as mpath
 import scipy.signal as sig
 
 def getCoords(f5):
@@ -25,14 +27,78 @@ def getTrajValues(file):
 
 def BVC_act(BVCs, boundary_vectors, Nbvcs, noise_level = 0.01):
     dists = BVCs[1, :, np.newaxis] - boundary_vectors[:, np.newaxis, :]
-    thetas = np.expand_dims((BVCs[0, :, np.newaxis] - np.arange(180))/180, 0)
-    activity = np.sum(np.exp(dists**2/1+thetas**2/1), axis = 2)
+    temp_thetas = (BVCs[0, :, np.newaxis] - np.arange(180)) % 180
+    temp_thetas[temp_thetas > 90] -= 180
+    thetas = np.expand_dims(temp_thetas/90, 0)
+    activity = np.sum(np.exp(-(dists**2/1+thetas**2/1)), axis = 2)
     activity = np.clip(activity/np.expand_dims(np.max(activity, axis = 1), 1) + (np.random.rand(len(boundary_vectors), Nbvcs) - 0.5)*noise_level, 0, 1)
     return activity
 
+def getBoundaryVectorsFromShape(shape: str):
+    match shape:
+        case 'square':
+            boundary_vecs = [[-0.5,-0.5], [0.5,-0.5], [0.5,0.5], [-0.5, 0.5]]
+            x_min, x_max, y_min, y_max = -0.5, 0.5, -0.5, 0.5
+        case 'circular':
+            boundary_vecs = [[0.5*np.cos(t),0.5*np.sin(t)] for t in np.linspace(0,2*np.pi,100)]
+            x_min, x_max, y_min, y_max = -0.5, 0.5, -0.5, 0.5
+        case 'trapezoid':
+            boundary_vecs = [[0, -0.2], [0, 0.2], [1.5, 0.5], [1.5, -0.5]]
+            x_min, x_max, y_min, y_max = 0, 1.5, -0.5, 0.5
+        case _:
+            raise Exception("Invalid boundary shape")
+    return boundary_vecs
+
+def maskArea(pxs, boundary_vecs, x_range, y_range):
+    path = mpath.Path(boundary_vecs)
+    x_min, x_max = x_range[0], x_range[1]
+    y_min, y_max = y_range[0], y_range[1]
+    points = np.reshape(np.meshgrid(np.linspace(x_min, x_max, int(pxs*(x_max-x_min))), np.linspace(y_min, y_max, int(pxs*(y_max-y_min)))), (2,-1)).T
+    mask = mpath.Path.contains_points(path, points, radius = 1/pxs)
+    mask = mask[:, np.newaxis]
+    return mask
+
+def createHexField(pxs, sigma, wall_angle_offset, shape = 'square'):
+    x_vals, y_vals = np.meshgrid(
+        np.arange(-1000, 2000, sigma *1000 * np.sqrt(3) / 2),
+        np.arange(-1000, 2000, sigma*1000)
+    )
+    
+    x_vals[1::2] += sigma * 500 * np.sqrt(3) / 2  # Shift every other row
+    
+    # Flatten the grid and apply rotation
+    x_vals_flat = x_vals.flatten() + np.random.uniform(0, sigma * 500)
+    y_vals_flat = y_vals.flatten() + np.random.uniform(0, sigma * 500)
+    rotated_x = (x_vals_flat * np.cos(wall_angle_offset) - y_vals_flat * np.sin(wall_angle_offset))
+    rotated_y = (x_vals_flat * np.sin(wall_angle_offset) + y_vals_flat * np.cos(wall_angle_offset))
+    indices = np.logical_and(np.logical_and(rotated_x > 0, rotated_x <1000), np.logical_and(rotated_y>0, rotated_y < 1000))
+    rotated_x = np.ndarray.astype(rotated_x[indices], int)
+    rotated_y = np.ndarray.astype(rotated_y[indices], int)
+
+    grid_mesh = np.zeros((1000,1000))
+    grid_mesh[rotated_x, rotated_y] = 1
+    grid_mesh = ndimage.gaussian_filter(grid_mesh, sigma*100)
+
+    # Define the interpolation function
+    interp_function = interpolate.interp2d(np.arange(1000), np.arange(1000), grid_mesh, kind='linear')
+
+    # Define the new grid for the nxn array
+    new_x = np.linspace(0, 999, pxs)
+    new_y = np.linspace(0, 999, pxs)
+
+    # Perform the interpolation
+    reduced_grid_mesh = interp_function(new_x, new_y)
+
+    area_mask = maskArea(pxs, getBoundaryVectorsFromShape(shape), [-0.5,0.5], [-0.5,0.5])
+
+    reduced_grid_mesh = reduced_grid_mesh *np.reshape(area_mask, (pxs, pxs))
+
+    return reduced_grid_mesh
+
+
+
 def gauss(D, sig):
     return 1 / np.sqrt(2 * np.pi * sig) * np.exp(- (D)**2 / (2 * sig**2))
-
 
 def gaussNonnorm(D, sig):
     return np.exp(- (D)**2 / (2 * sig**2))

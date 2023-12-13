@@ -25,13 +25,13 @@ theta_rate = 1/10 # denominator is theta frequency used
 # Set up boundary cell values
 Nthetas = 20
 Ndists = 21
-max_dist = np.sqrt(2)
+max_dist = 1
 Nbvcs = Nthetas*Ndists
 boundary_cells = np.meshgrid(np.arange(0,180, int(180/Nthetas), dtype =int), np.linspace(0, max_dist, Ndists))
 boundary_cells = np.reshape(boundary_cells, (2,-1))
 
 # Simulation variables
-stationary = True
+stationary = False
 visualize = True
 spike_plot = not visualize
 boundary_shape = 'circular'
@@ -42,7 +42,7 @@ if stationary:
     visualize_tick = 500
     dist = 3*sigma
 else:
-    duration = 0.9 * 10**6
+    duration = 0.1 * 10**6
     visualize_tick = 10000
 
 save_data = False
@@ -55,24 +55,32 @@ save_id = [0]
 
 # Prepare plot
 
+plot_spike_hist = True
+plot_gauss_spike_hist = True
+plot_activity = True
+plot_weights = True
+plot_auto_corr = True
+plots = np.array([plot_spike_hist, plot_gauss_spike_hist, plot_activity, plot_weights, plot_auto_corr], dtype = bool)
+
 if visualize:
     import matplotlib
     import matplotlib.pyplot as plt
     import trajectory_gen
 
     pxs = 25
-    grid_activity, plot_dims = trajectory_gen.global_bvc_act(boundary_cells, Nbvcs, boundary_shape, pxs)
+    if plot_activity:
+        grid_activity, plot_dims = trajectory_gen.global_bvc_act(boundary_cells, Nbvcs, boundary_shape, pxs)
 
     # suppress deprecation warning from matplotlib.
     import warnings
-    warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
-    n_rows = 3
+    #warnings.filterwarnings("ignore",category=RuntimeWarning)
+    n_rows = np.sum(plots)
     fig = plt.figure()
     ax = []
     for y in range (n_rows):
         for z in range(Ng+1):
             ax.append(plt.subplot2grid((n_rows,Ng+1),(y,z)))
-            ax[-1].axis('off')
+
 
 
 # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
@@ -101,8 +109,11 @@ print("Calculating BVC activity")
 # Get BVC activity and convert to delays
 acts = utils.BVC_act(boundary_cells, boundary_vectors[:int(duration//100)], Nbvcs) # Shape (Nsamples, Nbvcs)
 delays = (1/acts - 1) # Shape (Nsamples, Nbvcs)
-delays = delays / np.expand_dims(np.max(delays, axis = 1), 1) * 60
-
+delays = delays / np.expand_dims(np.max(delays, axis = 1), 1) * 420
+z = np.quantile(delays, 0.20)
+z2 = np.quantile(delays, 0.30)
+z3 = np.quantile(delays, 0.40)
+z4 = np.quantile(delays, 0.50)
 
 # Filter based on delay
 indices = np.where(delays < 20) 
@@ -130,7 +141,7 @@ if visualize or spike_plot:
 taupre = 10*ms
 taupost = 40*ms
 Apre = 0.01
-Apost = -0.135
+Apost = -0.02
 input_weights = Synapses(BVC_layer, grid_layer, '''
             w : 1
             l_speed : 1
@@ -148,17 +159,17 @@ input_weights = Synapses(BVC_layer, grid_layer, '''
             ''', delay = 1*ms)
 input_weights.connect(p = 1)
 n_weights = len(input_weights.w)
-wmax_i = 30 * Ng / n_weights
+wmax_i = 15 * Ng / n_weights
 
 weights = np.random.rand(n_weights)
 # weights[weights<0.95] = 0
 # weights[weights>0] = 1
-input_weights.w = weights*wmax_i*1.2
+input_weights.w = weights*wmax_i*0.67
 
 
 
 # # Set up inhibitory layer:
-inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
+inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', refractory = 0*ms, method = 'exact')
 
 grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 1.2*ms)
 grid_to_inhibit.connect(condition = 'i==j')
@@ -179,90 +190,116 @@ def update_learning_rate(t):
         learning_speed = 1#*int(time_ms < 1000 or time_ms > 2000)
     else:
         current_speed = speed[int(t/(second * theta_rate))]
-        learning_speed = 0.3*np.exp(-(mean_speed-current_speed)**2/mean_speed)
+        learning_speed = 0.2*np.exp(-(mean_speed-current_speed)**2/mean_speed)
     input_weights.l_speed = learning_speed
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
     if visualize:
-        plot_weights(t)
+        plotter(t)
 
-def plot_weights(t):
+def plotter(t):
     time_ms = t/ms
     time_id = int(time_ms/100)
     x = X[time_id, :] + 0.5
     i68, i95, i99 = spatialns.get68_95(x)
-    ax[0].cla()
     ax[0].imshow(spatialns.act(x) * i68, interpolation='none', origin='lower')
-
+    ax[0].axis('off')
 
     position_hist, _, __ = np.histogram2d(X[max(0, time_id - 3000):time_id, 1], X[max(0,time_id-3000):time_id, 0], pxs, [[-0.5,0.5],[-0.5,0.5]])
     visited_pxs = position_hist > 0
 
     spike_times = G.t/ms
-    spike_times = spike_times[spike_times > (time_ms - 300000)]
+    time_filter = time_ms - 300000 if time_ms < 2000000 else 1500000
+    spike_times = spike_times[spike_times > time_filter]
     spike_indices = np.floor(spike_times/100)
 
     spike_positions = X[np.ndarray.astype(spike_indices, int)]
-    if len(spike_positions) == 0:
-        spike_positions = np.vstack((spike_positions, [0,0]))
+    n_spikes = len(spike_positions)
+    if n_spikes == 0:
+        spike_positions = np.vstack((spike_positions, [-10,-10]))
     spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
 
-    ax[Ng+1].imshow(spike_hist, interpolation = 'none', origin = 'lower')
-    ax[Ng+1].set_title("mean")
+    ax[Ng + 1].imshow(spike_hist, interpolation = 'none', origin = 'lower')
+    ax[Ng + 1].set_title("mean")
+    ax[Ng + 1].axis('off')
 
-    ax[2*Ng+2].imshow(position_hist, interpolation = 'none', origin = 'lower')
-    ax[2*Ng+2].set_title("trajectory")
+    ax[2 * Ng + 2].imshow(position_hist, interpolation = 'none', origin = 'lower')
+    ax[2 * Ng + 2].set_title("trajectory")
+    ax[2 * Ng + 2].axis('off')
+    ax[3 * Ng + 3].axis('off')
+    ax[4 * Ng + 4].axis('off')
 
     mean_score = 0
-    spike_trains = G.spike_trains()
-    n_spikes = 0
+    if plot_spike_hist or plot_gauss_spike_hist:
+        spike_trains = G.spike_trains()
 
-    grid_weights = np.reshape(input_weights.w, (Nbvcs, Ng))
-    activity_estimate = np.sum(grid_weights[np.newaxis, :] * grid_activity[..., np.newaxis], axis = 1)
-    max_act = np.max(activity_estimate)
+    if plot_activity or plot_weights:
+        grid_weights = np.reshape(input_weights.w, (Nbvcs, Ng))
+        activity_estimate = np.sum(grid_weights[np.newaxis, :] * grid_activity[..., np.newaxis], axis = 1)
+        activity_estimate = activity_estimate / np.expand_dims(np.where(np.max(activity_estimate, axis = 1) == 0, np.nan, np.max(activity_estimate, axis = 1)), 1)
+        max_act = np.nanmax(activity_estimate)
 
     for z in range(Ng):
-        act_estimate = np.reshape(activity_estimate[..., z], plot_dims)
+        i = 0
+        if plot_spike_hist or plot_gauss_spike_hist:
+            spike_times = spike_trains[z]/ms
+            spike_times = spike_times[spike_times > time_filter]
+            spike_indices = np.floor(spike_times/100)
+            spike_positions = X[np.ndarray.astype(spike_indices, int)]
+            if len(spike_positions) == 0:
+                spike_positions = np.vstack((spike_positions, [-10,-10]))
+            spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
+            spike_hist[visited_pxs] = spike_hist[visited_pxs] / position_hist[visited_pxs]
 
-        spike_times = spike_trains[z]/ms
-        time_filter = time_ms - 300000 if time_ms < 2000000 else 1500000
-        spike_times = spike_times[spike_times > time_filter]
-        n_spikes += len(spike_times)
-        spike_indices = np.floor(spike_times/100)
+        if plot_spike_hist:
+            spike_hist_max = 1 if stationary else np.max(spike_hist)
+            ax[i * (Ng + 1) + z + 1 ].imshow(spike_hist, vmax = spike_hist_max, interpolation='none', origin='lower')
+            ax[i * (Ng + 1) + z + 1 ].axis('off')
+            i += 1
 
-        spike_positions = X[np.ndarray.astype(spike_indices, int)]
-        if len(spike_positions) == 0:
-            spike_positions = np.vstack((spike_positions, [-10,-10]))
-        spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
-        spike_hist[visited_pxs] = spike_hist[visited_pxs] / position_hist[visited_pxs]
-        vmax = 5 if stationary else np.max(spike_hist)
-        # compute gridness score
-        gauss_spike_hist = gaussian_filter(spike_hist, 1)
-        corr_w = utils.normcorr2d(gauss_spike_hist)
-        gscore, _ = utils.gridness_score(corr_w, pxs, 0.7*sigma)
-        cntr_xy = corr_w.shape[0]//2
+        if plot_gauss_spike_hist:
+            gauss_spike_hist = gaussian_filter(spike_hist, 1)
+            ax[i * (Ng +1) + z + 1].imshow(gauss_spike_hist, interpolation='none', origin = 'lower')
+            ax[i * (Ng +1) + z + 1].axis('off')
+            i += 1
 
-        mean_score += gscore/Ng
-        # only consider cells with a score > 0 (as is common in
-        # literature)
-        if gscore > 0:
-            orientation, closest_r, _ = utils.grid_orientation(corr_w, Ndendrites, 0.7*sigma)
-        else:
-            orientation = -1
-            closest_r = np.array([0, 0])
+        if plot_activity:
+            act_estimate = np.reshape(activity_estimate[..., z], plot_dims)
+            ax[i * (Ng + 1) + z + 1 ].imshow(act_estimate, vmax = max_act, origin='lower')
+            ax[i * (Ng + 1) + z + 1].axis('off')
+            i += 1
+        
+        if plot_weights:
+            weights2d = np.reshape(grid_weights[..., z], (Ndists, Nthetas))
+            ax[i  *( Ng + 1) + z +1].imshow(weights2d,interpolation = 'none', origin = 'lower')
+            i += 1
 
-        # show weights
-        ax[z+1].imshow(act_estimate, vmax = max_act, interpolation='none', origin='lower')
-        ax[z+1].set_title("%3.4f" % (gscore))
+        
+        if plot_auto_corr:
+            assert plot_gauss_spike_hist
+            # compute gridness score
+            corr_w = utils.normcorr2d(gauss_spike_hist)
+            gscore, _ = utils.gridness_score(corr_w, pxs, 0.7*sigma)
+            cntr_xy = corr_w.shape[0]//2
+            
+            mean_score += gscore/Ng
 
-        # show gaussian filtered weights
-        ax[2+Ng+z].imshow(gauss_spike_hist, interpolation='none', origin = 'lower')
+            # only consider cells with a score > 0 (as is common in
+            # literature)
+            if gscore > 0:
+                orientation, closest_r, _ = utils.grid_orientation(corr_w, Ndendrites, 0.7*sigma)
+            else:
+                orientation = -1
+                closest_r = np.array([0, 0])
 
-        # show auto-correlation and nearest blod tracker
-        ax[3+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
-        ax[3+2*Ng+z].autoscale(False)
-        ax[3+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+            ax[z+1].set_title("%3.4f" % (gscore))
+            
+            ax[i * (Ng + 1) + z + 1].imshow(corr_w, interpolation='none', origin='lower')
+            ax[i * (Ng + 1) + z + 1].autoscale(False)
+            ax[i * (Ng + 1) + z + 1].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+            ax[i * (Ng + 1) + z + 1].axis('off')
+            i += 1
     
     ax[0].set_title(f"#Spikes: {n_spikes}")
 
@@ -305,7 +342,7 @@ if save_data:
         scores = score_tracker)
 
 if visualize:
-    plot_weights((duration-100)*ms)
+    plotter((duration-100)*ms)
     plt.show()
 
 if spike_plot:

@@ -4,9 +4,6 @@ import ratinabox as rb
 import utils
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
-from ratinabox.Environment import Environment
-from ratinabox.Agent import Agent
-from ratinabox.Neurons import BoundaryVectorCells
 
 def generateTrajectory(dt, duration_s, output_file, boundary_shape = 'square', pos = 'rand', save_to_f = True):
     match boundary_shape:
@@ -57,10 +54,7 @@ def global_bvc_act(boundary_cells, NBVCs, boundary_shape, pxs):
             raise Exception("Invalid boundary shape")
     plot_dims = np.array([int(pxs*(y_max - y_min)), int(pxs*(x_max-x_min))])
 
-    path = mpath.Path(boundary_vecs)
-    points = np.reshape(np.meshgrid(np.linspace(x_min, x_max, int(pxs*(x_max-x_min))), np.linspace(y_min, y_max, int(pxs*(y_max-y_min)))), (2,-1)).T
-    mask = mpath.Path.contains_points(path, points, radius = 1/pxs)
-    mask = mask[:, np.newaxis]
+    mask = utils.maskArea(pxs, boundary_vecs, [x_min, x_max], [y_min, y_max])
 
     Env = rb.Environment(params={'boundary': boundary_vecs, 'dx': 1/pxs})
     Ag = rb.Agent(Environment= Env, params = {'dt': 0.01})
@@ -68,8 +62,9 @@ def global_bvc_act(boundary_cells, NBVCs, boundary_shape, pxs):
     dists = BVCs.get_state(evaluate_at = 'all', dist = True)
     masked_dists = dists*mask # Mask the distances to avoid overflow later
     acts = utils.BVC_act(boundary_cells, masked_dists, NBVCs, 0)
+    y = np.quantile(acts, 0.9)
     masked_acts = acts * mask
-    masked_acts[masked_acts<0.7] = 0
+    masked_acts[masked_acts<0.92] = 0
     return masked_acts, plot_dims
 
 
