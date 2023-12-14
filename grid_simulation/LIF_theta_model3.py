@@ -66,7 +66,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     neuron_indices = act_indices[1]
 
     input_layer = SpikeGeneratorGroup(Ndendrites2, neuron_indices, activation_times*ms)
-    print(f"Total time: {time.time() - current_time}")
+    print(f"Time: {time.time() - current_time}")
 
     #Grid layer and inhibitory layer:
 
@@ -106,7 +106,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     input_weights.w = weights
 
     # # Set up inhibitory layer:
-    inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
+    inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', refractory = 0*ms, reset = 'v = 0', method = 'exact')
 
     grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 0.6*ms)
     grid_to_inhibit.connect(condition = 'i==j')
@@ -190,7 +190,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     def save_weights(t):
         if not save_data:
             return
-        sys.stdout.write("\rProgress: %3.4f" % ((t/second)/duration))
+        sys.stdout.write("\rProgress: %3.4f" % ((t/second + save_tick/1000)/duration))
         sys.stdout.flush()
         weight_tracker[save_id[0], ...] = input_weights.w
 
@@ -211,6 +211,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     run(duration*second)
 
     if save_data:
+        print()
         np.savez_compressed(f'grid_simulation/Results/{file_name}', \
             Ndendrites = Ndendrites, \
             sigma = sigma, \
