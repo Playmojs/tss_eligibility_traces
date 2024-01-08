@@ -32,9 +32,10 @@ boundary_cells = np.reshape(boundary_cells, (2,-1))
 
 # Simulation variables
 stationary = False
+use_ideal_weights = True
 visualize = True
 spike_plot = not visualize
-boundary_shape = 'circular'
+boundary_shape = 'square'
 input_file = boundary_shape + '/900s.npz'
 
 if stationary:
@@ -60,16 +61,16 @@ plot_gauss_spike_hist = True
 plot_activity = True
 plot_weights = True
 plot_auto_corr = True
-plots = np.array([plot_spike_hist, plot_gauss_spike_hist, plot_activity, plot_weights, plot_auto_corr], dtype = bool)
+plots = np.array([plot_spike_hist, plot_gauss_spike_hist, plot_activity, use_ideal_weights, plot_weights, plot_auto_corr], dtype = bool)
+
+pxs = 25
+if plot_activity or use_ideal_weights:
+    import trajectory_gen
+    grid_activity, plot_dims = trajectory_gen.global_bvc_act(boundary_cells, Nbvcs, boundary_shape, pxs)
 
 if visualize:
     import matplotlib
     import matplotlib.pyplot as plt
-    import trajectory_gen
-
-    pxs = 25
-    if plot_activity:
-        grid_activity, plot_dims = trajectory_gen.global_bvc_act(boundary_cells, Nbvcs, boundary_shape, pxs)
 
     # suppress deprecation warning from matplotlib.
     import warnings
@@ -110,10 +111,6 @@ print("Calculating BVC activity")
 acts = utils.BVC_act(boundary_cells, boundary_vectors[:int(duration//100)], Nbvcs) # Shape (Nsamples, Nbvcs)
 delays = (1/acts - 1) # Shape (Nsamples, Nbvcs)
 delays = delays / np.expand_dims(np.max(delays, axis = 1), 1) * 420
-z = np.quantile(delays, 0.20)
-z2 = np.quantile(delays, 0.30)
-z3 = np.quantile(delays, 0.40)
-z4 = np.quantile(delays, 0.50)
 
 # Filter based on delay
 indices = np.where(delays < 20) 
@@ -151,17 +148,30 @@ input_weights = Synapses(BVC_layer, grid_layer, '''
             on_pre='''
             v_post += w
             apre += Apre 
-            w = clip(w+(apost+0/(Ng*n_weights)*(wmax_i-w))*l_speed, 0, wmax_i)
+            w = clip(w+(apost+0/(Nbvcs)*(wmax_i-w))*l_speed, 0, wmax_i)
             ''',
             on_post='''
             apost += Apost 
             w = clip(w+apre*l_speed, 0, wmax_i)
             ''', delay = 1*ms)
-input_weights.connect(p = 1)
-n_weights = len(input_weights.w)
-wmax_i = 15 * Ng / n_weights
+input_weights.connect()
+wmax_i = 15 * Nbvcs
 
-weights = np.random.rand(n_weights)
+if use_ideal_weights:
+    print("Calculating BVC to Grid weights")
+    weights = np.empty(Ng*Nbvcs)
+    ideal_firing_fields = np.empty((Ng, pxs, pxs))
+    for i in range(Ng):
+        firing_field = utils.createHexField(pxs, 5*sigma, 7.5, boundary_shape)
+        flat_firing_field = np.ndarray.flatten(firing_field) - np.mean(firing_field)
+        temp_weights = np.sum(flat_firing_field[..., np.newaxis]*grid_activity, axis = 0)
+        weights[i::Ng] = temp_weights
+        ideal_firing_fields[i] = firing_field
+    print("Complete")
+else:
+    weights = np.random.rand(Ng*Nbvcs) 
+
+
 # weights[weights<0.95] = 0
 # weights[weights>0] = 1
 input_weights.w = weights*wmax_i*0.67
@@ -191,7 +201,7 @@ def update_learning_rate(t):
     else:
         current_speed = speed[int(t/(second * theta_rate))]
         learning_speed = 0.2*np.exp(-(mean_speed-current_speed)**2/mean_speed)
-    input_weights.l_speed = learning_speed
+    input_weights.l_speed = learning_speed*0
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
@@ -202,8 +212,9 @@ def plotter(t):
     time_ms = t/ms
     time_id = int(time_ms/100)
     x = X[time_id, :] + 0.5
-    i68, i95, i99 = spatialns.get68_95(x)
-    ax[0].imshow(spatialns.act(x) * i68, interpolation='none', origin='lower')
+    i68, i95, i99 = spatialns.get68_95(np.array([x]))
+    ax[0].cla()
+    ax[0].imshow(spatialns.act(np.array([x])) * i68, interpolation='none', origin='lower')
     ax[0].axis('off')
 
     position_hist, _, __ = np.histogram2d(X[max(0, time_id - 3000):time_id, 1], X[max(0,time_id-3000):time_id, 0], pxs, [[-0.5,0.5],[-0.5,0.5]])
@@ -220,15 +231,18 @@ def plotter(t):
         spike_positions = np.vstack((spike_positions, [-10,-10]))
     spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
 
+    ax[Ng + 1].cla()
     ax[Ng + 1].imshow(spike_hist, interpolation = 'none', origin = 'lower')
     ax[Ng + 1].set_title("mean")
     ax[Ng + 1].axis('off')
 
+    ax[2 * Ng + 2].cla()
     ax[2 * Ng + 2].imshow(position_hist, interpolation = 'none', origin = 'lower')
     ax[2 * Ng + 2].set_title("trajectory")
     ax[2 * Ng + 2].axis('off')
     ax[3 * Ng + 3].axis('off')
     ax[4 * Ng + 4].axis('off')
+    ax[5 * Ng + 5].axis('off')
 
     mean_score = 0
     if plot_spike_hist or plot_gauss_spike_hist:
@@ -241,6 +255,7 @@ def plotter(t):
         max_act = np.nanmax(activity_estimate)
 
     for z in range(Ng):
+
         i = 0
         if plot_spike_hist or plot_gauss_spike_hist:
             spike_times = spike_trains[z]/ms
@@ -254,24 +269,34 @@ def plotter(t):
 
         if plot_spike_hist:
             spike_hist_max = 1 if stationary else np.max(spike_hist)
-            ax[i * (Ng + 1) + z + 1 ].imshow(spike_hist, vmax = spike_hist_max, interpolation='none', origin='lower')
-            ax[i * (Ng + 1) + z + 1 ].axis('off')
+            ax[i * (Ng + 1) + z + 1].cla()
+            ax[i * (Ng + 1) + z + 1].imshow(spike_hist, vmax = spike_hist_max, interpolation='none', origin='lower')
+            ax[i * (Ng + 1) + z + 1].axis('off')
             i += 1
 
         if plot_gauss_spike_hist:
             gauss_spike_hist = gaussian_filter(spike_hist, 1)
-            ax[i * (Ng +1) + z + 1].imshow(gauss_spike_hist, interpolation='none', origin = 'lower')
-            ax[i * (Ng +1) + z + 1].axis('off')
+            ax[i * (Ng + 1) + z + 1].cla()
+            ax[i * (Ng + 1) + z + 1].imshow(gauss_spike_hist, interpolation='none', origin = 'lower')
+            ax[i * (Ng + 1) + z + 1].axis('off')
             i += 1
 
         if plot_activity:
             act_estimate = np.reshape(activity_estimate[..., z], plot_dims)
-            ax[i * (Ng + 1) + z + 1 ].imshow(act_estimate, vmax = max_act, origin='lower')
+            ax[i * (Ng + 1) + z + 1].cla()
+            ax[i * (Ng + 1) + z + 1].imshow(act_estimate, vmax = max_act, origin='lower')
             ax[i * (Ng + 1) + z + 1].axis('off')
             i += 1
         
+        if use_ideal_weights:
+            ax[i * (Ng + 1) + z + 1].cla()
+            ax[i * (Ng + 1) + z + 1].imshow(ideal_firing_fields[z], interpolation='none', origin='lower')
+            ax[i * (Ng + 1) + z + 1].axis('off')
+            i += 1
+
         if plot_weights:
             weights2d = np.reshape(grid_weights[..., z], (Ndists, Nthetas))
+            ax[i * (Ng + 1) + z + 1].cla()
             ax[i  *( Ng + 1) + z +1].imshow(weights2d,interpolation = 'none', origin = 'lower')
             i += 1
 
@@ -295,6 +320,7 @@ def plotter(t):
 
             ax[z+1].set_title("%3.4f" % (gscore))
             
+            ax[i * (Ng + 1) + z + 1].cla()
             ax[i * (Ng + 1) + z + 1].imshow(corr_w, interpolation='none', origin='lower')
             ax[i * (Ng + 1) + z + 1].autoscale(False)
             ax[i * (Ng + 1) + z + 1].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')

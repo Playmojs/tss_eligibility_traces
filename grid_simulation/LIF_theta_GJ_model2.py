@@ -1,13 +1,14 @@
 from brian2 import *
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import tanh
 import utils
 from scipy.ndimage import gaussian_filter
 import h5py
 import sys
 
 # Total number of dendrites
-Ndendrites = 24
+Ndendrites = 16
 Ndendrites2 = Ndendrites**2
 
 # Total number of grid cells to simulate
@@ -23,7 +24,7 @@ spatialns = utils.CoordinateSamplers(Ndendrites, sigma)
 theta_rate = 1/10 # denominator is theta frequency used
 
 # Simulation variables
-stationary = True
+stationary = False
 visualize = True
 spike_plot = not visualize
 boundary_shape = 'square'
@@ -32,9 +33,9 @@ input_file = boundary_shape + '/900s.npz'
 if stationary:
     duration = 3000
     dist = 3*sigma
-    visualize_tick = 500
+    visualize_tick = 200
 else:
-    duration = 0.1 * 10**6
+    duration = 0.5 * 10**6
     visualize_tick = 10000
 
 save_data = False
@@ -68,7 +69,7 @@ if visualize:
 if stationary:
     rand_theta = np.random.uniform(0, 2*np.pi)
     pos = np.outer(np.linspace(0, dist, 3, True), np.array([np.cos(rand_theta), np.sin(rand_theta)]))
-    X = np.concatenate((np.zeros((9, 2)), pos, np.ones((int(duration // 100 - (np.size(pos, 0) + 9)), 2)) * pos[-1]), axis = 0)
+    X = np.concatenate((np.zeros((9, 2)), pos, np.ones((int(duration // 100 - (np.size(pos, 0) + 9)), 2)) * pos[-1]), axis = 0) + 0.5
     delta_t = 100
 else:
     X, speed = utils.getCoords(h5py.File("grid_simulation/trajectory_square_2d_0.01dt_long.hdf5", "r"))
@@ -83,9 +84,10 @@ filter = 18
 # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
 print("Precalculate spatial input:")
 
-end_ix = int(duration / delta_t * 10 / theta_rate)
-x = X[0:end_ix:int(1000 * theta_rate/delta_t), :]
-activity = np.round(spatialns.dist(x)/sigma*10 + np.max(2*np.random.rand(end_ix, Ndendrites2)-1, 0), 1)
+end_ix = int(duration / delta_t * 10 * theta_rate)
+step = int(1000*theta_rate/delta_t)
+x = X[0:end_ix:step, :]
+activity = np.round(spatialns.dist(x)/sigma*10 + np.max(2*np.random.rand(int(end_ix/step), Ndendrites2)-1, 0), 1)
 act_indices = np.where(activity < filter)
 activation_times = activity[act_indices] + 100 * act_indices[0]
 neuron_indices = act_indices[1]
@@ -103,37 +105,34 @@ dendrite_eq = '''dv/dt = -v/tau_d : 1
                 dapre/dt = -apre/taupre : 1
                 c : 1
                 l_speed : 1'''
-base_conductivity = 60 / Ndendrites2
+base_conductivity = 30 / Ndendrites2
 c_max = 1.0*base_conductivity
 dendrite_layer = NeuronGroup(Ndendrites2 * Ng, dendrite_eq, method = 'exact')
-conductivities = np.random.rand(Ndendrites2 * Ng)
-conductivities[conductivities<0.67] = 0
-conductivities[conductivities>0] = base_conductivity
+conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
 dendrite_layer.c = conductivities 
 
 
 input_to_dendrites = Synapses(input_layer, dendrite_layer, '''w : 1''', on_pre = '''v_post +=w
-                              c = clip(c + l_speed_post*(apost + 1/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
+                              c = clip(c + l_speed_post*(apost + 0/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
                               apre_post += Apre''')
 input_to_dendrites.connect(condition = 'i == j % Ndendrites2')
 input_to_dendrites.w = 10
 #Grid layer and inhibitory layer:
 
 tau_g = 10*ms
-tau_y = 30*ms
-grid_eq = '''dv/dt = (-v + Igap - y) / tau_g : 1 (unless refractory)
+tau_y = 20*ms
+grid_eq = '''v = (Igap - y)*int(not_refractory) : 1
             dy/dt = -y/tau_y : 1
             Igap : 1'''
 
 
-grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', reset = 'v = 0', refractory= 30*ms, method = 'exact')
+grid_layer = NeuronGroup(Ng, grid_eq, threshold = 'v > 0.5', refractory= 30*ms, method = 'exact')
 
 
 # Set up synapses from input to grid layer with STDP learning rule and randomized start weights
 
-
 dendrite_to_grid = Synapses(dendrite_layer, grid_layer,
-            '''Igap_post = c_pre*(v_pre-v_post) : 1 (summed)''', on_post = '''
+            '''Igap_post = c_pre*tanh(v_pre) : 1 (summed)''', on_post = '''
             c_pre = clip(c_pre + l_speed_pre*apre_pre, 0, c_max)
             apost_pre += Apost''')
 dendrite_to_grid.connect(condition = 'j == i // Ndendrites2')
@@ -141,13 +140,15 @@ dendrite_to_grid.connect(condition = 'j == i // Ndendrites2')
 
 
 # # Set up inhibitory layer:
-inhibit_layer = NeuronGroup(Ng, grid_eq, threshold='v > 0.5', refractory = 0*ms, reset = 'v = 0', method = 'exact')
+tau_i = 10*ms
+inhibit_eq = '''dv/dt = -v/tau_i : 1'''
+inhibit_layer = NeuronGroup(Ng, inhibit_eq, threshold='v > 0.5', reset = 'v = 0', method = 'exact')
 
-grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 2.5*ms)
+grid_to_inhibit = Synapses(grid_layer, inhibit_layer, 'w : 1', on_pre = 'v_post += w', delay = 1*ms)
 grid_to_inhibit.connect(condition = 'i==j')
 grid_to_inhibit.w = 0.7
 
-inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/30')
+inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/100')
 inhibit_to_grid.connect(condition = 'i!=j')
 inhibit_to_grid.w = 2
 
@@ -161,7 +162,7 @@ def update_learning_rate(t):
     else:
         current_speed = speed[int(t/(delta_t*ms))]
         learning_speed = 0.5*np.exp(-(mean_speed-current_speed)**2/mean_speed)
-    dendrite_layer.l_speed = 0.3#learning_speed
+    dendrite_layer.l_speed = 0.1#learning_speed
 
 @network_operation(dt = visualize_tick*ms)
 def update_plot(t):
@@ -170,9 +171,11 @@ def update_plot(t):
         return
     time_ms = t/ms
     x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
-    i68, i95, i99 = spatialns.get68_95(np.array([x]))
+    pos_plot = np.zeros((Ndendrites, Ndendrites))
+    x_ind = np.ndarray.astype(Ndendrites * x, int)
+    pos_plot[tuple(x_ind)] = 1
     ax[0].cla()
-    ax[0].imshow(spatialns.act(np.array([x])) * i68, interpolation='none', origin='lower')
+    ax[0].imshow(pos_plot, interpolation='none', origin='lower')
 
 
     grid_weights = np.reshape(dendrite_layer.c, (Ng, Ndendrites2))
