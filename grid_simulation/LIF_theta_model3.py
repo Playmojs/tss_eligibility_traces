@@ -101,8 +101,6 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     input_weights.connect()
 
     weights = np.random.rand(Ndendrites2 * Ng)*0.06
-    # weights[weights<0.95] = 0
-    # weights[weights>0] = 0.1
     input_weights.w = weights
 
     # # Set up inhibitory layer:

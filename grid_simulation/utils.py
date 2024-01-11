@@ -266,9 +266,9 @@ def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, distribution = 'uniform',
     # Return two lists, one of dendrite number, the other of bvc number.
     bvc_range = np.arange(n_bvcs)
     bvc_range = np.reshape(np.tile(bvc_range, n_dendrites2), (n_dendrites2, n_bvcs))
-    if distribution == 'uniform': #each dendrite gets input from a random number of BVCs indicated by 'rate'
+    if distribution == 'uniform': # each dendrite gets input from a random number of BVCs indicated by 'rate'
         temp_connections = np.random.rand(n_dendrites2, n_bvcs)
-    if distribution=='orthogonal': #each dendrite gets input from two BVCs, which align with the x-y-axis
+    if distribution=='orthogonal': # each dendrite gets input from two BVCs, which align with the x-y-axis
         temp_connections = np.random.randint(0, bvc_params[1], (n_dendrites2 * 2))*bvc_params[0]
         temp_connections += np.tile(np.arange(2), n_dendrites2)*(bvc_params[0]//4) + np.random.randint(0,2, n_dendrites2*2)*bvc_params[0]//2
         indices = np.repeat(np.arange(n_dendrites2), 2)
