@@ -8,7 +8,7 @@ import h5py
 import sys
 
 
-def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visualize_tick, spike_plot, save_data, save_tick, file_name):
+def gridSimulation(Ndendrites: int, Ng: int, sigma, duration, stationary, visualize, visualize_tick, spike_plot, save_data, save_tick: int, file_name):
     # Total number of dendrites
     Ndendrites2 = Ndendrites**2
 
@@ -20,8 +20,8 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
 
     # Simulation variables
     if save_data:
-        weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
-        score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
+        weight_tracker = np.zeros((int(duration // save_tick + 1), Ng*Ndendrites2))
+        score_tracker = np.zeros((int(duration // save_tick + 1), Ng))
     save_id = [0]
 
 
@@ -46,7 +46,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
     # Read file to get trajectory and speed
     if stationary:
         rand_theta = np.random.uniform(0, 2*np.pi)
-        pos = np.outer(np.linspace(0, dist, 3, True), np.array([np.cos(rand_theta), np.sin(rand_theta)]))
+        pos = np.outer(np.linspace(0, 3*sigma, 3, True), np.array([np.cos(rand_theta), np.sin(rand_theta)]))
         X = np.concatenate((np.zeros((9, 2)), pos, np.ones((int(duration // 100 - (np.size(pos, 0) + 9)), 2)) * pos[-1]), axis = 0) + 0.5
         delta_t = 100
     else:
@@ -143,86 +143,84 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visua
             learning_speed = 0.8*np.exp(-(mean_speed-current_speed)**2/mean_speed)
         dendrite_layer.l_speed = learning_speed
 
-    @network_operation(dt = visualize_tick*ms)
-    def update_plot(t):
-        # Visualize grid weights if wanted
-        if not visualize:
-            return
-        time_ms = t/ms
-        x = X[int(time_ms/delta_t), :]
-        pos_plot = np.zeros((Ndendrites, Ndendrites))
-        x_ind = np.ndarray.astype(Ndendrites * x, int)
-        pos_plot[tuple(x_ind)] = 1
-        ax[0].cla()
-        ax[0].imshow(pos_plot, interpolation='none', origin='lower')
+    if visualize:
+        @network_operation(dt = visualize_tick*ms)
+        def update_plot(t):
+            # Visualize grid weights if wanted
+            time_ms = t/ms
+            x = X[int(time_ms/delta_t), :]
+            pos_plot = np.zeros((Ndendrites, Ndendrites))
+            x_ind = np.ndarray.astype(Ndendrites * x, int)
+            pos_plot[tuple(x_ind)] = 1
+            ax[0].cla()
+            ax[0].imshow(pos_plot, interpolation='none', origin='lower')
 
 
-        grid_weights = np.reshape(dendrite_layer.c, (Ng, Ndendrites2))
-        
-        mean_weights = np.reshape(np.mean(grid_weights, axis = 0 ), (Ndendrites, Ndendrites))
-        ax[Ng+1].cla()
-        ax[Ng+1].imshow(mean_weights, interpolation = 'none', origin = 'lower')
-        ax[Ng+1].set_title("mean")
-
-        position_hist, _, __ = (np.histogram2d(X[0:int(time_ms/delta_t), 1], X[0:int(time_ms/delta_t), 0], 20, [[0,1],[0,1]]))
-
-        ax[2*Ng+2].cla()
-        ax[2*Ng+2].imshow(position_hist, interpolation = 'none', origin = 'lower')
-        ax[2*Ng+2].set_title("trajectory")
-
-        mean_score = 0
-
-        for z in range(Ng):
+            grid_weights = np.reshape(dendrite_layer.c, (Ng, Ndendrites2))
             
-            weight2d = np.reshape(grid_weights[z, :], (Ndendrites, Ndendrites))
-    
-            # compute gridness score
-            corr_w = utils.normcorr2d(weight2d)
-            gscore, _ = utils.gridness_score(corr_w, Ndendrites, sigma)
-            cntr_xy = corr_w.shape[0]//2
+            mean_weights = np.reshape(np.mean(grid_weights, axis = 0 ), (Ndendrites, Ndendrites))
+            ax[Ng+1].cla()
+            ax[Ng+1].imshow(mean_weights, interpolation = 'none', origin = 'lower')
+            ax[Ng+1].set_title("mean")
 
-            mean_score += gscore/Ng
-            # only consider cells with a score > 0 (as is common in
-            # literature)
-            if gscore > 0:
-                orientation, closest_r, _ = utils.grid_orientation(corr_w, Ndendrites, sigma)
-            else:
-                orientation = -1
-                closest_r = np.array([0, 0])
+            position_hist, _, __ = (np.histogram2d(X[0:int(time_ms/delta_t), 1], X[0:int(time_ms/delta_t), 0], 20, [[0,1],[0,1]]))
 
-            # show weights
-            ax[z+1].cla()
-            ax[z+1].imshow(weight2d, interpolation='none', origin='lower')
-            ax[z+1].set_title("%3.4f" % (gscore))
+            ax[2*Ng+2].cla()
+            ax[2*Ng+2].imshow(position_hist, interpolation = 'none', origin = 'lower')
+            ax[2*Ng+2].set_title("trajectory")
 
-            # show gaussian filtered weights
-            ax[2+Ng+z].cla()
-            ax[2+Ng+z].imshow(gaussian_filter(weight2d, 1.5), interpolation='none', origin = 'lower')
+            mean_score = 0
 
-            # show auto-correlation and nearest blod tracker
-            ax[3+2*Ng+z].cla()
-            ax[3+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
-            ax[3+2*Ng+z].autoscale(False)
-            ax[3+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
-        ax[2+Ng].set_title("%3.4f" % (mean_score))
-        fig.suptitle(f"{t/second // 60} mins {(t/second) % 60} seconds")
-        plt.pause(3)
+            for z in range(Ng):
+                
+                weight2d = np.reshape(grid_weights[z, :], (Ndendrites, Ndendrites))
+        
+                # compute gridness score
+                corr_w = utils.normcorr2d(weight2d)
+                gscore, _ = utils.gridness_score(corr_w, Ndendrites, sigma)
+                cntr_xy = corr_w.shape[0]//2
 
-    @network_operation(dt = save_tick*ms)
-    def save_weights(t):
-        if not save_data:
-            return
-        sys.stdout.write("\rProgress: %3.4f" % ((t/second)/duration))
-        sys.stdout.flush()
-        weight_tracker[save_id[0], ...] = dendrite_to_grid.c
+                mean_score += gscore/Ng
+                # only consider cells with a score > 0 (as is common in
+                # literature)
+                if gscore > 0:
+                    orientation, closest_r, _ = utils.grid_orientation(corr_w, Ndendrites, sigma)
+                else:
+                    orientation = -1
+                    closest_r = np.array([0, 0])
 
-        grid_weights = np.reshape(dendrite_to_grid, (Ndendrites2, Ng))
-        for z in range(Ng):    
-            weight2d = np.reshape(grid_weights[:, z], (Ndendrites, Ndendrites))
-            corr_w = utils.normcorr2d(weight2d)
-            gscore, _ = utils.gridness_score(corr_w, Ndendrites, sigma)
-            score_tracker[save_id[0],z] = gscore
-        save_id[0]+=1
+                # show weights
+                ax[z+1].cla()
+                ax[z+1].imshow(weight2d, interpolation='none', origin='lower')
+                ax[z+1].set_title("%3.4f" % (gscore))
+
+                # show gaussian filtered weights
+                ax[2+Ng+z].cla()
+                ax[2+Ng+z].imshow(gaussian_filter(weight2d, 1.5), interpolation='none', origin = 'lower')
+
+                # show auto-correlation and nearest blod tracker
+                ax[3+2*Ng+z].cla()
+                ax[3+2*Ng+z].imshow(corr_w, interpolation='none', origin='lower')
+                ax[3+2*Ng+z].autoscale(False)
+                ax[3+2*Ng+z].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+            ax[2+Ng].set_title("%3.4f" % (mean_score))
+            fig.suptitle(f"{t/second // 60} mins {(t/second) % 60} seconds")
+            plt.pause(3)
+
+    if save_data:
+        @network_operation(dt = save_tick*ms)
+        def save_weights(t):
+            sys.stdout.write("\rProgress: %3.4f" % ((t/ms)/duration))
+            sys.stdout.flush()
+            weight_tracker[save_id[0], ...] = dendrite_layer.c
+
+            grid_weights = np.reshape(dendrite_layer.c, (Ng, Ndendrites2))
+            for z in range(Ng):    
+                weight2d = np.reshape(grid_weights[z, :], (Ndendrites, Ndendrites))
+                corr_w = utils.normcorr2d(weight2d)
+                gscore, _ = utils.gridness_score(corr_w, Ndendrites, sigma)
+                score_tracker[save_id[0],z] = gscore
+            save_id[0]+=1
 
     if spike_plot:
         M = SpikeMonitor(input_layer)
@@ -281,10 +279,10 @@ if __name__ == '__main__':
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.1 * 10**6
-        visualize_tick = 50000
+        duration = 0.01 * 10**6
+        visualize_tick = 1000
     spike_plot = not visualize
-    save_data = False
-    save_tick = 10000
-    output_filename = 'output.npz'
+    save_data = True
+    save_tick = 1000
+    output_filename = 'test.npz'
     gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visualize_tick, spike_plot, save_data, save_tick, output_filename)

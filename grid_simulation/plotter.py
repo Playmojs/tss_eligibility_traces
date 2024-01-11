@@ -17,16 +17,16 @@ def LinePlot(input_files, legends, add_error_bars = False):
         times[i] = f['save_tick']
         z = scores[i]
         deviations[i] = np.std(z, 1) / np.sqrt(13)
-        durs[i] = 50 if 'duration' not in f else f['duration']/60
+        durs[i] = 50 if 'duration' not in f else f['duration']//60
 
     fig = plt.figure()
 
     for time, score, deviation, duration in zip(times, scores, deviations, durs):
-        x_vals = np.arange(0, duration, time/60000)
+        x_vals = np.arange(0, duration, time//60)
         y_mean = np.mean(score[0:-1], 1)
-        plt.plot(x_vals, y_mean)
+        plt.plot(x_vals[0:-1], y_mean)
         if add_error_bars:
-            plt.fill_between(x_vals, y_mean - deviation[0:-1], y_mean + deviation[0:-1], alpha = 0.3, label = '_nolegend_')
+            plt.fill_between(x_vals[0:-1], y_mean - deviation[0:-1], y_mean + deviation[0:-1], alpha = 0.3, label = '_nolegend_')
 
     plt.hlines(0, -20, duration + 5, linestyles = 'dashed', colors = 'blue')
     plt.xlabel("Time(mins)")
@@ -95,9 +95,10 @@ def WeightsGif(input_file, output_file):
     ani = animation.FuncAnimation(fig, update, duration*1000//save_tick, init, interval = 2000)
     ani.save(f"grid_simulation/Results/{output_file}.gif")
 
-#WeightsGif('m3f100_1.npz', 'test_gif2')
-input_files = ['m3f0_0.npz', 'm3f0_1.npz', 'm3f50_0.npz', 'm3f100_0.npz', 'm3f100_1.npz', 'm3f150_0.npz']
-legends = ["No baseline", 'No baseline', "Low Baseline", "Moderate baseline", "Moderate baseline", "High baseline"]
-long_files = ["m3f0_1.npz", "m3f100_1.npz", "m4f100_1.npz"]
-long_legends = ["No baseline or time dependence", "Moderate baseline", "Moderate baseline and time dependence"]
-LinePlot(["m3f100_1.npz"], ["_nolegend_"], True)
+if __name__ == '__main__':
+    #WeightsGif('m3f100_1.npz', 'test_gif2')
+    # input_files = ['m3f0_0.npz', 'm3f0_1.npz', 'm3f50_0.npz', 'm3f100_0.npz', 'm3f100_1.npz', 'm3f150_0.npz']
+    # legends = ["No baseline", 'No baseline', "Low Baseline", "Moderate baseline", "Moderate baseline", "High baseline"]
+    # long_files = ["m3f0_1.npz", "m3f100_1.npz", "m4f100_1.npz"]
+    # long_legends = ["No baseline or time dependence", "Moderate baseline", "Moderate baseline and time dependence"]
+    LinePlot(["test.npz"], ["_nolegend_"], True)
