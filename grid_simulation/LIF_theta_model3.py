@@ -273,7 +273,8 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distributi
             duration = duration, \
             weights = weight_tracker, \
             scores = score_tracker, \
-            spike_times = spike_data)
+            spike_times = spike_data, \
+            input_pos = spatialns.Xs)
 
     if visualize:
         plt.show()

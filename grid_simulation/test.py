@@ -9,3 +9,7 @@ import utils
 # plt.plot(np.mean(score, axis = 1))
 # plt.plot(np.mean(old_scores, axis=1))
 # plt.show()
+
+with np.load("grid_simulation/Results/data/test_regular0.npz", allow_pickle=True) as data:
+    print(data.files)
+    print(data['input_pos'])
