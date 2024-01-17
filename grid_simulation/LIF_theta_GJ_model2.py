@@ -74,7 +74,7 @@ def gridSimulation(Ndendrites: int, Ng: int, sigma, duration, stationary, visual
     tau_d = 10*ms
     taupre = 8*ms
     taupost = 80*ms
-    Apre = 0.01
+    Apre = 0.012
     Apost = -0.007  
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
@@ -89,11 +89,11 @@ def gridSimulation(Ndendrites: int, Ng: int, sigma, duration, stationary, visual
     conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
     dendrite_layer.c = conductivities 
 
-    baseline_effect = 10 # Factor that determines how much conductivity strengthens upon input - I think 20 is considered a strong baseline here.
+    baseline_effect = 15/(Ndendrites2*Ng) # Factor that determines how much conductivity strengthens upon input - I think 20 is considered a strong baseline here.
     input_to_dendrites = Synapses(input_layer, dendrite_layer, '''w : 1''', 
                                 on_pre = '''
                                 v_post +=w
-                                c = clip(c + l_speed_post*(apost + baseline_effect/(Ng*Ndendrites2)*(c_max-c)), 0, c_max)
+                                c = clip(c + l_speed_post*(apost + baseline_effect*(c_max-c)), 0, c_max)
                                 apre_post += Apre''')
     input_to_dendrites.connect(condition = 'i == j % Ndendrites2')
     input_to_dendrites.w = 10
@@ -238,6 +238,7 @@ def gridSimulation(Ndendrites: int, Ng: int, sigma, duration, stationary, visual
             sigma = sigma, \
             Ng = Ng, \
             save_tick = save_tick, \
+            baseline_value = baseline_effect, \
             duration = duration, \
             weights = weight_tracker, \
             scores = score_tracker)
@@ -279,10 +280,10 @@ if __name__ == '__main__':
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.01 * 10**6
-        visualize_tick = 1000
+        duration = 0.5 * 10**6
+        visualize_tick = 10000
     spike_plot = not visualize
-    save_data = True
+    save_data = False
     save_tick = 1000
     output_filename = 'test.npz'
     gridSimulation(Ndendrites, Ng, sigma, duration, stationary, visualize, visualize_tick, spike_plot, save_data, save_tick, output_filename)

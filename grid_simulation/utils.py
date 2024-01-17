@@ -3,6 +3,7 @@ import scipy.ndimage as ndimage
 import scipy.interpolate as interpolate
 import matplotlib.path as mpath
 import scipy.signal as sig
+import sys
 
 def getCoords(f5):
     # Position is returned as a numpy array of 2d-arrays
@@ -160,11 +161,27 @@ def gridness_score(R,Ndendrites, sigma):
         dotB0 = np.sum(B*np.ones((nx, ny)), axis=0)
         dotAB = np.sum(A*B, axis=0)
 
-        corrot[idrot] = (nx * ny * np.sum(dotAB) - np.sum(dotA0) * np.sum(dotB0)) / \
-                 (np.sqrt(nx * ny * np.sum(dotAA) - np.sum(dotA0)**2)*np.sqrt(nx*ny*np.sum(dotBB)) - np.sum(dotB0)**2)
+        corrot[idrot] = (nx * ny * np.sum(dotAB) - np.sum(dotA0) * np.sum(dotB0)) / (np.sqrt(nx * ny * np.sum(dotAA) - np.sum(dotA0)**2)*np.sqrt(nx*ny*np.sum(dotBB)) - np.sum(dotB0)**2)
 
     gridscore = min(corrot[59],corrot[119]) - max(corrot[29], corrot[89], corrot[149])
     return gridscore, Tmp
+
+def genWhiteNoiseCoords(N, xlim, ylim):
+    return np.array([np.random.uniform(xlim[0], xlim[1], N), np.random.uniform(ylim[0], ylim[1], N)]).T
+
+def genBlueNoiseCoords(N, xlim = [0,1], ylim = [0,1]):
+    coords = np.zeros((N,2))
+    coords[0:6] = genWhiteNoiseCoords(1, xlim, ylim)
+    m = 1
+    for i in range(1, N):
+        sys.stdout.write(f"\rBlue noise coords: {i}/{N}")
+        sys.stdout.flush()
+        coord_opts = genWhiteNoiseCoords(i*m, xlim, ylim)
+        dists = np.linalg.norm(coords[:i, np.newaxis, :] - coord_opts, axis = 2)
+        ind = np.argmax(np.min(dists, 0))
+        coords[i] = coord_opts[ind]
+    sys.stdout.write("\n")
+    return(coords)
 
 def grid_orientation(Tmp, Ndendrites, sigma):
     """Compute the orientation of the grid using the cut-out of the
@@ -221,9 +238,8 @@ class GridCell():
     def activity(self, inp):
         return np.sum(np.sum(self.w * inp, axis = 1))
 
-#TODO: Replace coordinate samplers with border cells
 class CoordinateSamplers():
-    def __init__(self, N, tuning_width, xlim=np.array([0,1]), ylim=np.array([0,1]), distrib = 'regular'):
+    def __init__(self, N, tuning_width, xlim=np.array([0,1]), ylim=np.array([0,1]), distrib = 'regular', noise_level = 0):
         self.N = N
         self.N2 = N**2
         self.tuning_width = tuning_width
@@ -231,12 +247,31 @@ class CoordinateSamplers():
         self.ylim = ylim
         self.samplers = np.zeros((N,N))
 
-        if distrib == 'regular':
-            # generate meshgrid of locations on the coordinate space
-            x = np.linspace(xlim[0], xlim[1], N)
-            y = np.linspace(ylim[0], ylim[1], N)
-            Xs = np.meshgrid(x, y, indexing='xy')
-            self.Xs = np.reshape(Xs, (2,-1)).T
+        match distrib:
+            case 'regular':
+                x = np.linspace(xlim[0], xlim[1], N)
+                y = np.linspace(ylim[0], ylim[1], N)
+                Xs = np.meshgrid(x, y, indexing='xy')
+                self.Xs = np.reshape(Xs, (2,-1)).T
+        
+            case 'noisy_regular':
+                x = np.linspace(xlim[0], xlim[1], N)
+                y = np.linspace(ylim[0], ylim[1], N)
+                Xs = np.reshape(np.meshgrid(x, y, indexing='xy'), (2,-1)).T
+                Xs += np.random.normal(0, 1/(10*N**2), Xs.shape)
+                Xs[:,0] = np.clip(Xs[:,0], 0, 1)
+                Xs[:,1] = np.clip(Xs[:,1], 0, 1)
+                self.Xs = Xs
+            case 'noisy_blue':
+                Xs = genBlueNoiseCoords(N**2, xlim, ylim)
+                self.Xs = Xs
+            case 'noisy_white':
+                Xs = genWhiteNoiseCoords(N**2, xlim, ylim)
+                ind = np.lexsort((Xs[:,0], Xs[:,1]))
+                self.Xs = Xs[ind]
+            case _:
+                assert(False)
+            
 
     def dist(self, X):
         return np.sqrt(np.sum((self.Xs[np.newaxis, ...] - X[:, np.newaxis, :])**2, axis=2))
