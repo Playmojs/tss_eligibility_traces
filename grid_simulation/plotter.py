@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import utils
 import sys
+import h5py
 from scipy.ndimage import gaussian_filter
+from brian2 import second
 
 def LinePlot(input_files, legends, add_error_bars = False):
     scores = [None]*len(input_files)
@@ -13,7 +15,7 @@ def LinePlot(input_files, legends, add_error_bars = False):
     print(deviations)
 
     for i, file in enumerate(input_files):
-        f = np.load('grid_simulation/Results/'+file)
+        f = np.load('grid_simulation/Results/'+file, allow_pickle=True)
         scores[i] = f['scores']
         times[i] = f['save_tick']
         z = scores[i]
@@ -33,7 +35,7 @@ def LinePlot(input_files, legends, add_error_bars = False):
     plt.xlabel("Time(mins)")
     plt.ylabel("Mean gridscore across 13 grid cells")
     plt.xlim(-5, np.max(durs)//60 + 5)
-    plt.rcParams.update({'font.size': 100})
+    #plt.rcParams.update({'font.size': 100})
     plt.legend(legends)
     plt.show()
 
@@ -156,6 +158,68 @@ def calculateGridScores(filename, output_filename, sigma, use_gaussian_filter = 
             g_scores[i, z] = gscore
     print(np.max(np.mean(g_scores, axis = 1)))
     np.save(f"grid_simulation/Results/{output_filename}", g_scores)
+
+def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites, pxs = 48, dt = 10, plot_weights = False, weights = [[0,0]]):
+    fig, axs = plt.subplots(nrows = 3 + plot_weights, ncols = len(spike_trains)+1)
+    time_filter = np.clip(time_s - duration_s, 0, time_s)
+    relevant_positions = X[time_filter*100:time_s*100: int(100 / dt)]
+    position_hist, _, __ = np.histogram2d(relevant_positions[:,1], relevant_positions[:,0], pxs, [[0,1], [0,1]])
+    axs[0,0].imshow(position_hist, interpolation = 'none', origin = 'lower')
+    axs[0,0].axis('off')
+    axs[1,0].axis('off')
+    axs[2,0].axis('off')
+    mean_score = 0
+    for z in spike_trains:
+        spike_times = spike_trains[z]/second
+        spike_times = spike_times[np.logical_and(spike_times > time_filter, spike_times < time_s)]
+        spike_indices = np.floor(spike_times*int(1000/dt))
+        spike_positions = X[np.ndarray.astype(spike_indices, int)]
+        spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
+        #spike_hist = spike_hist**2
+        gauss_spike_hist = gaussian_filter(spike_hist, 1)
+        if len(spike_positions) == 0:
+            spike_positions = np.vstack((spike_positions, [-10,-10]))
+            gauss_gscore = 0
+            corr_gauss = [[0,0]]
+            cntr_xy = 0
+        else: #lazily avoid divide by zero warnings by only doing gscore if the cells have spiked within the time window
+            # Get grid score:
+            corr_gauss = utils.normcorr2d(gauss_spike_hist)
+            gauss_gscore, _ = utils.gridness_score(corr_gauss, pxs, sigma)
+            axs[0, z+1].set_title("%3.4f" % (gauss_gscore))
+            mean_score += gauss_gscore/len(spike_trains)
+            cntr_xy = corr_gauss.shape[0]//2
+
+        axs[0, z+1].imshow(spike_hist, interpolation='none', origin='lower')
+        axs[0, z+1].axis('off')
+
+        axs[1, z+1].imshow(gauss_spike_hist,  interpolation='none', origin = 'lower')
+        axs[1, z+1].axis('off')
+
+        if gauss_gscore > 0:
+                _, closest_r, _ = utils.grid_orientation(corr_gauss, Ndendrites, sigma)
+        else:
+            closest_r = np.array([0, 0])
+
+        axs[2, z+1].cla()
+        axs[2, z+1].imshow(corr_gauss, interpolation='none', origin='lower')
+        axs[2, z+1].autoscale(False)
+        axs[2, z+1].plot([cntr_xy, cntr_xy + closest_r[0]], [cntr_xy, cntr_xy + closest_r[1]], linewidth=2.0, color='black')
+        axs[2, z+1].axis('off')
+
+        if plot_weights:
+            weight2d = np.reshape(weights[:, z], (Ndendrites, Ndendrites))
+            weight_corr = utils.normcorr2d(weight2d)
+            gscore, _ = utils.gridness_score(weight_corr, Ndendrites, sigma)
+            axs[3, z + 1].imshow(weight2d, interpolation='none', origin='lower')
+            axs[3, z + 1].set_title(("%3.4f" % (gscore)))
+            axs[3, z + 1].axis('off')
+
+    axs[0,0].set_title("Mean:\n %3.4f" % (mean_score))
+    fig.suptitle(f"{time_s // 60} mins {(time_s) % 60} seconds")
+    plt.show()
+
+    
 
 
 if __name__ == '__main__':

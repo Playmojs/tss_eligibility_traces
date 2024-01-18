@@ -8,7 +8,7 @@ from scipy.ndimage import gaussian_filter
 import h5py
 import sys
 
-def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distribution, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, file_name):
+def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary, input_distribution, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, file_name):
     # Total number of dendrites
     Ndendrites2 = Ndendrites**2
 
@@ -84,6 +84,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distributi
     wmax_i = 0.1
     Apre = 0.01
     Apost = -0.005
+    baseline_effect = baseline_effect
     input_weights = Synapses(input_layer, grid_layer, '''
                 w : 1
                 l_speed : 1
@@ -93,7 +94,7 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distributi
                 on_pre='''
                 v_post += w
                 apre += Apre
-                w = clip(w+(apost+80/(Ng*Ndendrites2)*(wmax_i-w))*l_speed, 0, wmax_i)
+                w = clip(w+(apost+baseline_effect*(wmax_i-w))*l_speed, 0, wmax_i)
                 ''',
                 on_post='''
                 apost += Apost
@@ -274,7 +275,8 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distributi
             weights = weight_tracker, \
             scores = score_tracker, \
             spike_times = spike_data, \
-            input_pos = spatialns.Xs)
+            input_pos = spatialns.Xs, \
+            baseline_effect = baseline_effect)
 
     if visualize:
         plt.show()
@@ -298,6 +300,6 @@ def gridSimulation(Ndendrites, Ng, sigma, duration, stationary, input_distributi
 
 
 if __name__ == '__main__':
-    distrib = 'noisy_regular'
+    distrib = 'noisy_blue'
     print(f"Input distribution: {distrib}")
     gridSimulation(48, 13, 0.1, 3000, False, distrib, 100000, True, False, False, True, 10000, f'data/{distrib}_3000s.npz')

@@ -174,8 +174,7 @@ def genBlueNoiseCoords(N, xlim = [0,1], ylim = [0,1]):
     coords[0:6] = genWhiteNoiseCoords(1, xlim, ylim)
     m = 1
     for i in range(1, N):
-        sys.stdout.write(f"\rBlue noise coords: {i}/{N}")
-        sys.stdout.flush()
+        print(f"\rBlue noise coords: {i}/{N}", end = "")
         coord_opts = genWhiteNoiseCoords(i*m, xlim, ylim)
         dists = np.linalg.norm(coords[:i, np.newaxis, :] - coord_opts, axis = 2)
         ind = np.argmax(np.min(dists, 0))
@@ -239,7 +238,7 @@ class GridCell():
         return np.sum(np.sum(self.w * inp, axis = 1))
 
 class CoordinateSamplers():
-    def __init__(self, N, tuning_width, xlim=np.array([0,1]), ylim=np.array([0,1]), distrib = 'regular', noise_level = 0):
+    def __init__(self, N, tuning_width, xlim=np.array([0,1]), ylim=np.array([0,1]), distrib = 'regular', noise_level = 0, Xs = [0,0]):
         self.N = N
         self.N2 = N**2
         self.tuning_width = tuning_width
@@ -269,6 +268,9 @@ class CoordinateSamplers():
                 Xs = genWhiteNoiseCoords(N**2, xlim, ylim)
                 ind = np.lexsort((Xs[:,0], Xs[:,1]))
                 self.Xs = Xs[ind]
+            case 'premade':
+                assert (len(Xs) == self.N2)
+                self.Xs = Xs
             case _:
                 assert(False)
             
