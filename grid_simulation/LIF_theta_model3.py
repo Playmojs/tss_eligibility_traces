@@ -81,7 +81,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
     taupre = 8*ms
     taupost = 80*ms
-    wmax_i = 0.1
+    wmax_i = 0.08
     Apre = 0.01
     Apost = -0.005
     baseline_effect = baseline_effect
@@ -276,7 +276,10 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
             scores = score_tracker, \
             spike_times = spike_data, \
             input_pos = spatialns.Xs, \
-            baseline_effect = baseline_effect)
+            baseline_effect = baseline_effect, \
+            apre = Apre, \
+            apost = Apost, \
+            wmax = wmax_i)
 
     if visualize:
         plt.show()
