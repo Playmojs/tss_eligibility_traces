@@ -20,14 +20,14 @@ def LinePlot(input_files, legends, add_error_bars = False):
         times[i] = f['save_tick']
         z = scores[i]
         deviations[i] = np.std(z, 1) / np.sqrt(13)
-        durs[i] = 50 if 'duration' not in f else f['duration'] * 1000
+        durs[i] = 50 if 'duration' not in f else f['duration'] #* 1000
 
     fig = plt.figure()
 
     for time, score, deviation, duration in zip(times, scores, deviations, durs):
-        x_vals = np.arange(0, duration, time)
+        x_vals = np.arange(0, duration, time / 1000)
         y_mean = np.mean(score[0:-1], 1)
-        plt.plot(x_vals // 60, y_mean)
+        plt.plot(x_vals / 60, y_mean)
         if add_error_bars:
             plt.fill_between(x_vals // 60, y_mean - deviation[0:-1], y_mean + deviation[0:-1], alpha = 0.3, label = '_nolegend_')
 
@@ -159,7 +159,7 @@ def calculateGridScores(filename, output_filename, sigma, use_gaussian_filter = 
     print(np.max(np.mean(g_scores, axis = 1)))
     np.save(f"grid_simulation/Results/{output_filename}", g_scores)
 
-def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites, pxs = 48, dt = 10, plot_weights = False, weights = [[0,0]]):
+def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites, pxs = 48, dt = 10, title = "", plot_weights = False, weights = [[0,0]]):
     fig, axs = plt.subplots(nrows = 3 + plot_weights, ncols = len(spike_trains)+1)
     time_filter = np.clip(time_s - duration_s, 0, time_s)
     relevant_positions = X[time_filter*100:time_s*100: int(100 / dt)]
@@ -168,6 +168,8 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
     axs[0,0].axis('off')
     axs[1,0].axis('off')
     axs[2,0].axis('off')
+    if plot_weights:
+        axs[3,0].axis('off')
     mean_score = 0
     for z in spike_trains:
         spike_times = spike_trains[z]/second
@@ -216,7 +218,7 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
             axs[3, z + 1].axis('off')
 
     axs[0,0].set_title("Mean:\n %3.4f" % (mean_score))
-    fig.suptitle(f"{time_s // 60} mins {(time_s) % 60} seconds")
+    fig.suptitle(title)
     plt.show()
 
     
@@ -224,11 +226,11 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
 
 if __name__ == '__main__':
     #WeightsGif('m3f100_1.npz', 'test_gif2')
-    # input_files = ['m3f0_0.npz', 'm3f0_1.npz', 'm3f50_0.npz', 'm3f100_0.npz', 'm3f100_1.npz', 'm3f150_0.npz']
-    # legends = ["No baseline", 'No baseline', "Low Baseline", "Moderate baseline", "Moderate baseline", "High baseline"]
-    # long_files = ["m3f0_1.npz", "m3f100_1.npz", "m4f100_1.npz"]
-    # long_legends = ["No baseline or time dependence", "Moderate baseline", "Moderate baseline and time dependence"]
-    #LinePlot(["data/m3f100_1.npz"], ["_nolegend_"], True)
+    #input_files = ['data/ThetaMSimuls/regular0.npz', 'data/ThetaMSimuls/regular1.npz', 'data/ThetaMSimuls/regular2.npz', 'data/ThetaMSimuls/regular3.npz', 'data/ThetaMSimuls/regular4.npz', 'data/ThetaMSimuls/regular5.npz', 'data/ThetaMSimuls/regular6.npz' ]
+    input_files = ['data/ThetaMSimuls/regular3.npz', 'data/ThetaMSimuls/regular5.npz', 'data/ThetaMSimuls/regular6.npz', 'data/m3f100_1.npz']
+    #legends = ["80_baseline", '60_baseline', "40_baseline", "Low Max1", "LowMax2", "LowMax60B", "MiniMax60B"]
+    legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old']
+    LinePlot(input_files, legends, False)
     #estimateOptimalSigma("data/m3f100_1.npz", True)
-    calculateGridScores("data/model2_6000s_0.npz", "data/model2_6000s_0_opt_g_score", 0.115, False, 'GJ')
-    calculateGridScores("data/m3f100_1.npz", "data/mf3100_1_opt_g_score", 0.086, False, 'theta')
+    # calculateGridScores("data/model2_6000s_0.npz", "data/model2_6000s_0_opt_g_score", 0.115, False, 'GJ')
+    # calculateGridScores("data/m3f100_1.npz", "data/mf3100_1_opt_g_score", 0.086, False, 'theta')
