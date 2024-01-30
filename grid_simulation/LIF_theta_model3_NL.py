@@ -94,4 +94,5 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
         np.savez_compressed(f"grid_simulation/Results/{file_name}",  \
             spike_train = G.spike_trains(), \
             positions = X)
+    print()
     return G
