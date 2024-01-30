@@ -81,9 +81,9 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
     taupre = 8*ms
     taupost = 80*ms
-    wmax_i = 0.08
+    wmax_i = 180 / Ndendrites2
     Apre = 0.01
-    Apost = -0.005
+    Apost = -0.007
     baseline_effect = baseline_effect
     input_weights = Synapses(input_layer, grid_layer, '''
                 w : 1
@@ -102,7 +102,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
                 ''', delay = 3*ms)
     input_weights.connect()
 
-    weights = np.random.rand(Ndendrites2 * Ng)*0.06
+    weights = np.random.rand(Ndendrites2 * Ng)*0.75*wmax_i
     input_weights.w = weights
 
     # # Set up inhibitory layer:
@@ -122,7 +122,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
             learning_speed = 1
         else:
             current_speed = speed[int(t/(delta_t*ms))]
-            learning_speed = np.exp(-(mean_speed-current_speed)**2/mean_speed)
+            learning_speed = 2304 / Ndendrites2 * np.exp(-(mean_speed-current_speed)**2/mean_speed)
         input_weights.l_speed = learning_speed
 
     @network_operation(dt = visualize_tick*ms)
@@ -303,6 +303,8 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
 
 if __name__ == '__main__':
-    distrib = 'noisy_blue'
+    distrib = 'regular'
     print(f"Input distribution: {distrib}")
-    gridSimulation(48, 13, 0.1, 3000, False, distrib, 100000, True, False, False, True, 10000, f'data/{distrib}_3000s.npz')
+    Ndendrites = 24
+    Ng = 13
+    gridSimulation(Ndendrites, Ng, 0.12, 1.6 / (Ndendrites*Ng), 100, False, distrib, 1000, True, True, False, False, 10000, f'data/{distrib}_3000s.npz')

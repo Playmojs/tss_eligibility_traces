@@ -1,7 +1,9 @@
+output/
 grid_simulation/Results/test_gif2.gif
 navigation/result_data/m4_data/
 grid_simulation/Results/data/
 grid_simuation/Trajectories/
 grid_simulation/Idun_specs/
 grid_simulation/__pycache__/
+grid_simulation/CUDA_test.py
 grid_simulation/Simulation_runner.py

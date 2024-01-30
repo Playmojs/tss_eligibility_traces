@@ -1,8 +1,15 @@
 \begin{thebibliography}{1}
 
 \bibitem{Barry2006}
-C.~Barry, C.~Lever, R.~Hayman, T.~Hartley, S.~Burton, J.~O'Keefe, K.~Jeffery, and N.~Burgess.
-\newblock The boundary vector cell model of place cell firing and spatial memory.
+C.~Barry, C.~Lever, R.~Hayman, T.~Hartley, S.~Burton, J.~O'Keefe, K.~Jeffery,
+  and N.~Burgess.
+\newblock The boundary vector cell model of place cell firing and spatial
+  memory.
 \newblock {\em Reviews in the Neurosciences}, 17(1-2), January 2006.
+
+\bibitem{OKeefe1976}
+John O'Keefe.
+\newblock Place units in the hippocampus of the freely moving rat.
+\newblock {\em Experimental Neurology}, 51(1):78--109, 1976.
 
 \end{thebibliography}

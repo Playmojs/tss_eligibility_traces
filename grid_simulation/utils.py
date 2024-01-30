@@ -124,12 +124,24 @@ def normcorr2d(A, B=None):
     N = A.shape[0] * A.shape[1]
     R = A - np.mean(A)
     S = B - np.mean(B)
-    T = sig.correlate2d(R, S, mode='full') / (N * np.std(A) * np.std(B))
-    return T
+    T = sig.correlate2d(R, S, mode='full') 
+    norm_factor = (N * np.std(A) * np.std(B))
+    return T / norm_factor
+
+def autoCorr(A):
+    """Normalized autocorrelation of arrayvector A, with shape (..., X, X)"""
+    X = A.shape[-1]
+    mean_A = np.mean(A, axis=(-2, -1), keepdims=True)
+    std_A = np.std(A, axis=(-2, -1), keepdims=True)
+
+    R = A - mean_A
+    autocorr = sig.fftconvolve(R, R[:, ::-1, ::-1], axes = (-2, -1))
+    norm_factor = X * X * std_A ** 2
+
+    return autocorr/norm_factor
 
 def gridness_score(R,Ndendrites, sigma):
     """Compute the Gridness Score of a autocorrelated rate map R"""
-
     dim0 = R.shape[0]
     cntr = dim0 // 2
 
@@ -165,6 +177,67 @@ def gridness_score(R,Ndendrites, sigma):
 
     gridscore = min(corrot[59],corrot[119]) - max(corrot[29], corrot[89], corrot[149])
     return gridscore, Tmp
+
+def gridnessScore(R, Ndendrites, sigma):
+    """
+    Compute the Gridness Score of autocorrelated rate maps R.
+    
+    Args:
+    - R: Input array of autocorrelation matrices of shape (some_shape, X, X).
+    - Ndendrites: Scalar number representing dendrites.
+    - sigma: Scalar number representing sigma.
+
+    Returns:
+    - gridscore: Array of grid scores with shape (some_shape).
+    - Tmp: Array of corresponding temporary results.
+    """
+    # Compute the dimensions
+    dim0 = R.shape[-2]
+    cntr = dim0 // 2
+
+    # Create the ring filter
+    in_ra = int(2 * sigma * Ndendrites)
+    out_ra = int(4 * sigma * Ndendrites)
+    RingFilt = np.zeros((dim0, dim0))
+    for i in range(dim0):
+        for j in range(dim0):
+            cntr_i = (cntr - i) ** 2
+            cntr_j = (cntr - j) ** 2
+            dist = cntr_i + cntr_j
+            if in_ra ** 2 <= dist <= out_ra ** 2:
+                RingFilt[i, j] = 1
+
+    # Apply the filter
+    Tmp = R * RingFilt[np.newaxis, ...]
+    Tmp = Tmp[..., cntr - out_ra - 1:cntr + out_ra + 1, cntr - out_ra - 1: cntr + out_ra + 1]
+
+    # Initialize arrays for storing grid scores
+    gridscore = np.zeros(R.shape[:-2])
+
+    angles = [29, 59, 89, 119, 149]
+    corrot = np.tile(np.zeros(R.shape[:-2])[..., np.newaxis], len(angles))
+    nx, ny = Tmp.shape[-2], Tmp.shape[-1]
+    for i, idrot in enumerate(angles):
+        rot = ndimage.rotate(Tmp, idrot, axes=(-2, -1), reshape=False)
+
+        dotAA = np.sum(Tmp * Tmp, axis=(-2, -1))
+        dotA0 = np.sum(Tmp * np.ones_like(Tmp), axis=(-2, -1))
+        dotBB = np.sum(rot * rot, axis=(-2, -1))
+        dotB0 = np.sum(rot * np.ones_like(rot), axis=(-2, -1))
+        dotAB = np.sum(Tmp * rot, axis=(-2, -1))
+
+        temp = (nx * ny * dotAB - dotA0 * dotB0) / (
+                    np.sqrt(nx * ny * dotAA - dotA0 ** 2) * np.sqrt(
+                nx * ny * dotBB) - dotB0 ** 2)
+        corrot[..., i] = temp
+    p = np.array([1, 3], dtype = int)
+    d = np.array([0, 2, 4], dtype = int)
+    z = corrot[..., p]
+
+    gridscore = np.min(corrot[..., p], axis = -1) - np.max(corrot[..., d], axis = -1)
+
+    return gridscore, Tmp
+
 
 def genWhiteNoiseCoords(N, xlim, ylim):
     return np.array([np.random.uniform(xlim[0], xlim[1], N), np.random.uniform(ylim[0], ylim[1], N)]).T
