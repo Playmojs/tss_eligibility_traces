@@ -164,6 +164,7 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
     time_filter = np.clip(time_s - duration_s, 0, time_s)
     relevant_positions = X[time_filter*100:time_s*100: int(100 / dt)]
     position_hist, _, __ = np.histogram2d(relevant_positions[:,1], relevant_positions[:,0], pxs, [[0,1], [0,1]])
+    
     axs[0,0].imshow(position_hist, interpolation = 'none', origin = 'lower')
     axs[0,0].axis('off')
     axs[1,0].axis('off')
@@ -178,7 +179,7 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
         spike_positions = X[np.ndarray.astype(spike_indices, int)]
         spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
         #spike_hist = spike_hist**2
-        gauss_spike_hist = gaussian_filter(spike_hist, 1)
+        gauss_spike_hist = gaussian_filter(spike_hist, 2)
         if len(spike_positions) == 0:
             spike_positions = np.vstack((spike_positions, [-10,-10]))
             gauss_gscore = 0
@@ -219,7 +220,6 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
 
     axs[0,0].set_title("Mean:\n %3.4f" % (mean_score))
     fig.suptitle(title)
-    plt.show()
 
     
 

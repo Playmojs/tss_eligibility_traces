@@ -1,0 +1,40 @@
+# Fdb version 4
+["bibtex Text"] 1706192361.78533 "Text.aux" "Text.bbl" "Text" 1706192364.4999 0
+  "./Text.bib" 1706191691 2065 e46251b7f5858848aed089d234eb4022 ""
+  "Text.aux" 1706192363 1038 5dd66f76521b4327e99a3373748fcb3b "latex"
+  "d:/Programs/texlive/2023/texmf-dist/bibtex/bst/base/plain.bst" 1704191698 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
+  (generated)
+  "Text.bbl"
+  "Text.blg"
+  (rewritten before read)
+["latex"] 1706192362.38219 "Text.tex" "Text.dvi" "Text" 1706192364.50076 0
+  "Text.aux" 1706192363 1038 5dd66f76521b4327e99a3373748fcb3b "latex"
+  "Text.bbl" 1706192362 484 6420918e14ae6e630b6a57eecbf9a580 "bibtex Text"
+  "Text.tex" 1706192275 24440 60162475f1ffec5096f87b665a56577a ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/map/fontname/texfonts.map" 1704193655 3524 cb3e574dea2d1052e39280babc910dc8 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1704192143 1328 c834bbb027764024c09d3d2bf908b5f0 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1704192143 1324 c910af8c371558dc20f2d7822f66fe64 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1704192143 1524 4414a8315f39513458b80dfc63bff03a ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1704192143 1512 f21f83efb36853c0b70002322c1ab3ad ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm" 1704192143 1520 eccf95517727cb11801f4f1aee3a21b4 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1704192143 1288 655e228510b4c2a1abe905c368440826 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmr17.tfm" 1704192143 1292 296a67155bdbfc32aa9c636f21e91433 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmr6.tfm" 1704192143 1300 b62933e007d01cfd073f79b963c01526 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmr8.tfm" 1704192143 1292 21c1c5bfeaebccffdb478fd231a0997d ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm" 1704192143 1124 6c73e740cf17375f03eec0ee63599741 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1704192143 1116 933a60c408fc0a863a92debe84b2d294 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmsy8.tfm" 1704192143 1120 8b7d695260f3cff42e636090a8002094 ""
+  "d:/Programs/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmti10.tfm" 1704192143 1480 aa8e34af0eb6a2941b776984cf1dfdc4 ""
+  "d:/Programs/texlive/2023/texmf-dist/tex/latex/base/article.cls" 1704194699 20144 fbcf51733730d8f1a62143512ff5b1fe ""
+  "d:/Programs/texlive/2023/texmf-dist/tex/latex/base/size10.clo" 1704194699 8448 74078c4a887f2cdcd57c3ec111622740 ""
+  "d:/Programs/texlive/2023/texmf-dist/tex/latex/cite/cite.sty" 1704192082 26218 19edeff8cdc2bcb704e8051dc55eb5a7 ""
+  "d:/Programs/texlive/2023/texmf-dist/tex/latex/l3backend/l3backend-dvips.def" 1704194654 35592 3e6577d32b10872f7a4c3c3075f20e3b ""
+  "d:/Programs/texlive/2023/texmf-dist/tex/latex/url/url.sty" 1704198795 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
+  "d:/Programs/texlive/2023/texmf-dist/web2c/texmf.cnf" 1704190988 41009 84b61f42d16d06bedb915f57aa2374cf ""
+  "d:/Programs/texlive/2023/texmf-var/web2c/pdftex/latex.fmt" 1704199569 8218027 2eaa3185f571ace3b02d1121493af7d6 ""
+  "d:/Programs/texlive/2023/texmf.cnf" 1704199252 713 e69b156964470283e0530f5060668171 ""
+  (generated)
+  "Text.aux"
+  "Text.dvi"
+  "Text.log"
+  (rewritten before read)
