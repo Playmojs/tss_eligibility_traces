@@ -9,23 +9,24 @@ from scipy.ndimage import gaussian_filter
 pxs = 48
 times = ['10', '20', '30', '40', '50', '60', '70', '80', '90']
 appendix = 'min_Spikes.npz'
-base_path = 'grid_simulation/Results/data/noisy_white_params'
-str_sep = 'noisy_white'
+base_path = 'grid_simulation/Results/data/24dendrites'
+str_sep = 'regular'
 
 sub_dirs = os.walk(base_path)
 
-n_groups = 5
+n_groups = 4
 n_simuls = len(next(sub_dirs)[1]) // n_groups
 n_times = len(times)
 ng = 13
 
 gscores = np.zeros((n_groups, n_simuls, n_times, ng))
 legends = np.empty(n_groups, dtype = object)
+multi_hists = np.empty((n_groups, n_simuls, n_times, ng, pxs, pxs))
 for j, sub_dir in enumerate(sub_dirs):
     str_app = sub_dir[0].split('\\')[-1]
     iterator_number = int(str_app.split(str_sep)[-1])
-    j1 = iterator_number // n_groups
-    j2 = iterator_number % n_groups
+    j1 = iterator_number // n_simuls
+    j2 = iterator_number % n_simuls
     sys.stdout.write(f"\rProgress: {j + 1} / {n_groups * n_simuls}")
     sys.stdout.flush()
     legends[j1] = str_app
@@ -40,12 +41,14 @@ for j, sub_dir in enumerate(sub_dirs):
             spike_positions = X[np.ndarray.astype(spike_indices, int)]
             spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
             gauss_spike_hist = gaussian_filter(spike_hist, 1)
-            corr_gauss = utils.normcorr2d(gauss_spike_hist)
-            gauss_gscore, _ = utils.gridness_score(corr_gauss, pxs, 0.1)
-            gscores[j1, j2, i, z] = gauss_gscore
-np.savez("grid_simulation/Results/noisy_white_gscores", gscores = gscores)
+            multi_hists[j1, j2, i, z] = gauss_spike_hist
+print("Initiate auto-correlation")
+corr_gauss = utils.autoCorr(multi_hists)
+print("Initiate gridness scores")
+gauss_gscores, _ = utils.gridnessScore(corr_gauss, pxs, 0.1)
+np.savez("grid_simulation/Results/24dend_gscores", gscores = gauss_gscores)
 
-gscores = np.load('grid_simulation/Results/noisy_white_gscores.npz')['gscores']
+gscores = np.load('grid_simulation/Results/24dend_gscores.npz')['gscores']
 mean_gscores = np.nanmean(gscores, axis = (1,3))
 var_gscores = np.nanvar(gscores, axis = (1,3)) / (n_simuls * ng)
 

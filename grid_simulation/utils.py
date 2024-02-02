@@ -232,7 +232,6 @@ def gridnessScore(R, Ndendrites, sigma):
         corrot[..., i] = temp
     p = np.array([1, 3], dtype = int)
     d = np.array([0, 2, 4], dtype = int)
-    z = corrot[..., p]
 
     gridscore = np.min(corrot[..., p], axis = -1) - np.max(corrot[..., d], axis = -1)
 

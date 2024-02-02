@@ -116,13 +116,15 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     inhibit_to_grid.connect(condition = 'i!=j')
     inhibit_to_grid.w = 2
 
+    nu = Ndendrites2/Ndendrites2
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
             learning_speed = 1
         else:
             current_speed = speed[int(t/(delta_t*ms))]
-            learning_speed = 2304 / Ndendrites2 * np.exp(-(mean_speed-current_speed)**2/mean_speed)
+            
+            learning_speed = nu * np.exp(-(mean_speed-current_speed)**2/mean_speed)
         input_weights.l_speed = learning_speed
 
     @network_operation(dt = visualize_tick*ms)
@@ -131,8 +133,6 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
         if not visualize:
             return
         
-       
-
         time_ms = t/ms
         # x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
         # i68, i95, i99 = spatialns.get68_95(np.array([x]))
@@ -279,6 +279,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
             baseline_effect = baseline_effect, \
             apre = Apre, \
             apost = Apost, \
+            nu = nu, \
             wmax = wmax_i)
 
     if visualize:
@@ -307,4 +308,4 @@ if __name__ == '__main__':
     print(f"Input distribution: {distrib}")
     Ndendrites = 24
     Ng = 13
-    gridSimulation(Ndendrites, Ng, 0.12, 1.6 / (Ndendrites*Ng), 100, False, distrib, 1000, True, True, False, False, 10000, f'data/{distrib}_3000s.npz')
+    gridSimulation(Ndendrites, Ng, 0.12, 1.6 / (Ndendrites*Ng), 100, False, distrib, 10000, True, True, False, False, 10000, f'data/{distrib}_3000s.npz')
