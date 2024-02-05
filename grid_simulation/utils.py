@@ -4,6 +4,29 @@ import scipy.interpolate as interpolate
 import matplotlib.path as mpath
 import scipy.signal as sig
 import sys
+import os
+import re
+
+def getSortedEntries(directory, file_type=None, full_path = True):
+    entries = os.listdir(directory)
+
+    #GPT based, sorry :P
+    # To get both file types, let file_type == None
+    if file_type == 'npz':
+        entries = [entry for entry in entries if entry.endswith('.npz')]
+    elif file_type == 'directory':
+        entries = [entry for entry in entries if os.path.isdir(os.path.join(directory, entry))]
+    
+    # Define a regular expression pattern to extract the prefix and numeric part
+    pattern = re.compile(r'([a-zA-Z]+)(\d+)')
+    
+    # Sort the entries based on the prefix and numeric part
+    entries.sort(key=lambda x: (pattern.match(x).group(1), int(pattern.match(x).group(2))) if pattern.match(x) else (x,))
+
+    if full_path:
+        entries = [os.path.join(directory, entry) for entry in entries]
+
+    return entries
 
 def getCoords(f5):
     # Position is returned as a numpy array of 2d-arrays

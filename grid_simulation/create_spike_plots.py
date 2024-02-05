@@ -15,7 +15,7 @@ import plotter
 #plotter.LinePlot(["data/ThetaMSimuls/regular0.npz"], "", False)
 
 
-file_base = 'regular15'
+file_base = 'regular21'
 root_dir = 'grid_simulation/Results/data/24dendrites'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
@@ -49,6 +49,6 @@ for i in range (1,10):
         pos = data['positions']
     time2 = int(reps*48*48/10)
     time = i * 600
-    plotter.gridPlotFromSpikeData(spike_trains2, pos, time2, time2, sigma, Ndendrites, 48, 100, title = f"{b}_baseline: {time // 60} minutes {time % 60} seconds", plot_weights = False, weights = np.reshape(weights[weights_index], (Ndendrites **2, Ng)))
+    plotter.gridPlotFromSpikeData(spike_trains2, pos, time2, time2, sigma, Ndendrites, 48, 100, title = f"{b}_baseline: {time // 60} minutes {time % 60} seconds", plot_weights = True, weights = np.reshape(weights[weights_index], (Ndendrites **2, Ng)))
 
 plt.show()

@@ -99,10 +99,10 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
                 on_post='''
                 apost += Apost
                 w = clip(w+apre*l_speed, 0, wmax_i)
-                ''', delay = 3*ms)
+                ''', delay = 3 * ms)
     input_weights.connect()
 
-    weights = np.random.rand(Ndendrites2 * Ng)*0.75*wmax_i
+    weights = np.random.rand(Ndendrites2 * Ng) * 0.75 * wmax_i
     input_weights.w = weights
 
     # # Set up inhibitory layer:

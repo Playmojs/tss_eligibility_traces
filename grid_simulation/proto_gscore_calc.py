@@ -14,7 +14,7 @@ str_sep = 'regular'
 
 sub_dirs = os.walk(base_path)
 
-n_groups = 4
+n_groups = 6
 n_simuls = len(next(sub_dirs)[1]) // n_groups
 n_times = len(times)
 ng = 13
@@ -30,29 +30,29 @@ for j, sub_dir in enumerate(sub_dirs):
     sys.stdout.write(f"\rProgress: {j + 1} / {n_groups * n_simuls}")
     sys.stdout.flush()
     legends[j1] = str_app
-    for i, time in enumerate(times):
-        with np.load(sub_dir[0] + '/' + time + appendix, allow_pickle = True) as data:
-            spike_trains = data['spike_train'].item()
-            X = data['positions']
-        for z in range(13):
-            x = 5
-            spike_times = spike_trains[z]/second
-            spike_indices = np.floor(spike_times*int(1000/100))
-            spike_positions = X[np.ndarray.astype(spike_indices, int)]
-            spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
-            gauss_spike_hist = gaussian_filter(spike_hist, 1)
-            multi_hists[j1, j2, i, z] = gauss_spike_hist
-print("Initiate auto-correlation")
-corr_gauss = utils.autoCorr(multi_hists)
-print("Initiate gridness scores")
-gauss_gscores, _ = utils.gridnessScore(corr_gauss, pxs, 0.1)
-np.savez("grid_simulation/Results/24dend_gscores", gscores = gauss_gscores)
+#     for i, time in enumerate(times):
+#         with np.load(sub_dir[0] + '/' + time + appendix, allow_pickle = True) as data:
+#             spike_trains = data['spike_train'].item()
+#             X = data['positions']
+#         for z in range(13):
+#             x = 5
+#             spike_times = spike_trains[z]/second
+#             spike_indices = np.floor(spike_times*int(1000/100))
+#             spike_positions = X[np.ndarray.astype(spike_indices, int)]
+#             spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
+#             gauss_spike_hist = gaussian_filter(spike_hist, 1)
+#             multi_hists[j1, j2, i, z] = gauss_spike_hist
+# print("Initiate auto-correlation")
+# corr_gauss = utils.autoCorr(multi_hists)
+# print("Initiate gridness scores")
+# gauss_gscores, _ = utils.gridnessScore(corr_gauss, pxs, 0.1)
+# np.savez("grid_simulation/Results/24dend_gscores", gscores = gauss_gscores)
 
 gscores = np.load('grid_simulation/Results/24dend_gscores.npz')['gscores']
 mean_gscores = np.nanmean(gscores, axis = (1,3))
 var_gscores = np.nanvar(gscores, axis = (1,3)) / (n_simuls * ng)
 
-plt.plot(times, mean_gscores.T)
+plt.plot(times, mean_gscores)
 #plt.fill_between(times, mean_gscores.T + np.sqrt(var_gscores.T), mean_gscores.T - np.sqrt(var_gscores.T))
 plt.legend(legends)
 plt.show()

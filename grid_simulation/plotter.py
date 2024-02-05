@@ -4,37 +4,55 @@ import matplotlib.animation as animation
 import utils
 import sys
 import h5py
+import os
 from scipy.ndimage import gaussian_filter
 from brian2 import second
 
-def LinePlot(input_files, legends, add_error_bars = False):
-    scores = [None]*len(input_files)
-    times = [None]*len(input_files)
-    deviations = [None]*len(input_files)
-    durs = [None]*len(input_files)
-    print(deviations)
+def LinePlot(input_files, legends, add_error_bars = False, groupings = None):
+    # Preliminary file-reading for plot params:
+    n_files = len(input_files)
+    save_ticks = np.zeros(n_files)
+    Ngs = np.zeros(n_files, dtype = int)
+    durations = np.zeros(n_files)
+    for i, file in enumerate(input_files):
+        f = np.load(str(file))
+        save_ticks[i] = f['save_tick'] / 1000
+        Ngs[i] = f['Ng']
+        durations[i] = f['duration']
+    min_tick = np.min(save_ticks)
+    max_duration = np.max(durations)
+    max_Ng = np.max(Ngs)
+    if type(groupings) == None:
+        groupings = np.arange(len(input_files))
+    uniq, counts = np.unique(groupings, return_counts = True)
+    n_groups = len(uniq)
+    max_count = np.max(counts)
+    
+    scores = np.empty((n_groups, max_count, max_Ng, int(max_duration//min_tick) + 1))
+    x_vals = np.arange(max_duration//min_tick + 1)*min_tick
+    group_iter = np.zeros(n_groups, dtype = int)
 
     for i, file in enumerate(input_files):
-        f = np.load('grid_simulation/Results/'+file, allow_pickle=True)
-        scores[i] = f['scores']
-        times[i] = f['save_tick']
-        z = scores[i]
-        deviations[i] = np.std(z, 1) / np.sqrt(13)
-        durs[i] = 50 if 'duration' not in f else f['duration'] #* 1000
+        f = np.load(file, allow_pickle=True)
+        group_i = groupings[i]
+        max_ind = int(durations[i]//min_tick)
+        step = int(save_ticks[i]//min_tick)
+        scores[group_i, group_iter[group_i], :Ngs[i], 0:(max_ind+step):step] = f['scores'].T
+        group_iter[group_i] += 1
+    mean_scores = np.mean(scores, axis = (1,2))
+    std_scores = np.std(scores, axis = (1,2))
 
     fig = plt.figure()
 
-    for time, score, deviation, duration in zip(times, scores, deviations, durs):
-        x_vals = np.arange(0, duration, time / 1000)
-        y_mean = np.mean(score[0:-1], 1)
-        plt.plot(x_vals / 60, y_mean)
-        if add_error_bars:
-            plt.fill_between(x_vals // 60, y_mean - deviation[0:-1], y_mean + deviation[0:-1], alpha = 0.3, label = '_nolegend_')
+    plt.plot(x_vals / 60, mean_scores.T)
+    if add_error_bars:
+        pass
+        #plt.fill_between(x_vals // 60, y_mean - deviation[0:-1], y_mean + deviation[0:-1], alpha = 0.3, label = '_nolegend_')
 
-    plt.hlines(0, -20, duration + 5, linestyles = 'dashed', colors = 'blue')
+    plt.hlines(0, -20, max_duration + 5, linestyles = 'dashed', colors = 'blue')
     plt.xlabel("Time(mins)")
     plt.ylabel("Mean gridscore across 13 grid cells")
-    plt.xlim(-5, np.max(durs)//60 + 5)
+    plt.xlim(-5, max_duration/60 + 5)
     #plt.rcParams.update({'font.size': 100})
     plt.legend(legends)
     plt.show()
@@ -225,12 +243,16 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
 
 
 if __name__ == '__main__':
-    #WeightsGif('m3f100_1.npz', 'test_gif2')
-    #input_files = ['data/ThetaMSimuls/regular0.npz', 'data/ThetaMSimuls/regular1.npz', 'data/ThetaMSimuls/regular2.npz', 'data/ThetaMSimuls/regular3.npz', 'data/ThetaMSimuls/regular4.npz', 'data/ThetaMSimuls/regular5.npz', 'data/ThetaMSimuls/regular6.npz' ]
-    input_files = ['data/ThetaMSimuls/regular3.npz', 'data/ThetaMSimuls/regular5.npz', 'data/ThetaMSimuls/regular6.npz', 'data/m3f100_1.npz']
-    #legends = ["80_baseline", '60_baseline', "40_baseline", "Low Max1", "LowMax2", "LowMax60B", "MiniMax60B"]
-    legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old']
-    LinePlot(input_files, legends, False)
+    basepath = 'grid_simulation/Results/data/24dendrites/'
+    files = utils.getSortedEntries(basepath, 'npz')
+    # for entry in os.listdir(basepath):
+    #     tot_entry = os.path.join(basepath, entry)
+    #     if os.path.isfile(tot_entry):
+    #         input_files.append(tot_entry)
+    groupings = np.repeat(np.arange(6), 5)
+
+    legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old', 'bla', 'blabla']
+    LinePlot(files, legends, False, groupings = groupings)
     #estimateOptimalSigma("data/m3f100_1.npz", True)
     # calculateGridScores("data/model2_6000s_0.npz", "data/model2_6000s_0_opt_g_score", 0.115, False, 'GJ')
     # calculateGridScores("data/m3f100_1.npz", "data/mf3100_1_opt_g_score", 0.086, False, 'theta')
