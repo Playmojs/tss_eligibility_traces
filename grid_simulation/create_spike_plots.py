@@ -15,8 +15,8 @@ import plotter
 #plotter.LinePlot(["data/ThetaMSimuls/regular0.npz"], "", False)
 
 
-file_base = 'regular21'
-root_dir = 'grid_simulation/Results/data/24dendrites'
+file_base = 'noisy_white5'
+root_dir = 'grid_simulation/Results/data/24dend2'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']
@@ -29,7 +29,7 @@ with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     Apost = data['apost']
     wmax = data['wmax']
 
-b = round(baseline*Ng*Ndendrites, 0)
+b = baseline*Ng*Ndendrites
 print(b)
 print(wmax)
 print(Apost)
@@ -49,6 +49,6 @@ for i in range (1,10):
         pos = data['positions']
     time2 = int(reps*48*48/10)
     time = i * 600
-    plotter.gridPlotFromSpikeData(spike_trains2, pos, time2, time2, sigma, Ndendrites, 48, 100, title = f"{b}_baseline: {time // 60} minutes {time % 60} seconds", plot_weights = True, weights = np.reshape(weights[weights_index], (Ndendrites **2, Ng)))
+    plotter.gridPlotFromSpikeData(spike_trains2, pos, time2, time2, sigma, Ndendrites, 48, 100, title = f"{b}_baseline: {time // 60} minutes {time % 60} seconds", plot_weights = True, weights = np.moveaxis(np.reshape(weights[weights_index], (Ng, Ndendrites **2)), 0, 1))
 
 plt.show()

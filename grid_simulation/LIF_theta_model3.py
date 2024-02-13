@@ -81,7 +81,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
     taupre = 8*ms
     taupost = 80*ms
-    wmax_i = 180 / Ndendrites2
+    wmax_i = 90 / Ndendrites2
     Apre = 0.01
     Apost = -0.007
     baseline_effect = baseline_effect
@@ -102,7 +102,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
                 ''', delay = 3 * ms)
     input_weights.connect()
 
-    weights = np.random.rand(Ndendrites2 * Ng) * 0.75 * wmax_i
+    weights = np.random.rand(Ndendrites2 * Ng) * 0.85 * wmax_i
     input_weights.w = weights
 
     # # Set up inhibitory layer:
@@ -116,7 +116,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     inhibit_to_grid.connect(condition = 'i!=j')
     inhibit_to_grid.w = 2
 
-    nu = Ndendrites2/Ndendrites2
+    nu = 1
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
@@ -291,8 +291,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
         # print(R.t/ms)
         plt.figure(figsize = (12,12))
         # plt.subplot(221)
-        plt.plot(M.t/ms, M.i, '.k')
-        plt.vlines(G.t/ms, 0, Ndendrites2)
+        
         # plt.vlines(R.t/ms, 0, Ndendrites2, colors = 'r')
         # plt.subplot(222)
         # plt.plot(S.t/ms, S.v[0], 'C0')
