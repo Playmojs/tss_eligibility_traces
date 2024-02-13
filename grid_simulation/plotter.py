@@ -16,13 +16,13 @@ def LinePlot(input_files, legends, add_error_bars = False, groupings = None):
     durations = np.zeros(n_files)
     for i, file in enumerate(input_files):
         f = np.load(str(file))
-        save_ticks[i] = f['save_tick'] / 1000
+        save_ticks[i] = f['save_tick'] #/ 1000
         Ngs[i] = f['Ng']
         durations[i] = f['duration']
     min_tick = np.min(save_ticks)
     max_duration = np.max(durations)
     max_Ng = np.max(Ngs)
-    if type(groupings) == None:
+    if groupings is None:
         groupings = np.arange(len(input_files))
     uniq, counts = np.unique(groupings, return_counts = True)
     n_groups = len(uniq)
@@ -243,16 +243,16 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
 
 
 if __name__ == '__main__':
-    basepath = 'grid_simulation/Results/data/24dendrites/'
+    basepath = 'grid_simulation/Results/data/GJ_tests/'
     files = utils.getSortedEntries(basepath, 'npz')
     # for entry in os.listdir(basepath):
     #     tot_entry = os.path.join(basepath, entry)
     #     if os.path.isfile(tot_entry):
     #         input_files.append(tot_entry)
-    groupings = np.repeat(np.arange(6), 5)
+    groupings = None#np.repeat(np.arange(2), 5)
 
-    legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old', 'bla', 'blabla']
-    LinePlot(files, legends, False, groupings = groupings)
+    #legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old', 'bla', 'blabla']
+    LinePlot(files, 'legends', False, groupings = groupings)
     #estimateOptimalSigma("data/m3f100_1.npz", True)
     # calculateGridScores("data/model2_6000s_0.npz", "data/model2_6000s_0_opt_g_score", 0.115, False, 'GJ')
     # calculateGridScores("data/m3f100_1.npz", "data/mf3100_1_opt_g_score", 0.086, False, 'theta')

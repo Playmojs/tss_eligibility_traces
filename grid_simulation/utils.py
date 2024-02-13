@@ -49,14 +49,21 @@ def getTrajValues(file):
     boundary_vectors = f['boundary_distances']
     return positions, speeds, boundaries, boundary_vectors
 
-def BVC_act(BVCs, boundary_vectors, Nbvcs, noise_level = 0.01):
-    dists = BVCs[1, :, np.newaxis] - boundary_vectors[:, np.newaxis, :]
-    temp_thetas = (BVCs[0, :, np.newaxis] - np.arange(180)) % 180
-    temp_thetas[temp_thetas > 90] -= 180
-    thetas = np.expand_dims(temp_thetas/90, 0)
-    activity = np.sum(np.exp(-(dists**2/1+thetas**2/1)), axis = 2)
-    activity = np.clip(activity/np.expand_dims(np.max(activity, axis = 1), 1) + (np.random.rand(len(boundary_vectors), Nbvcs) - 0.5)*noise_level, 0, 1)
-    return activity
+def BVC_act(BVCs, boundary_vectors, Nbvcs, sigma, noise_level = 0.01, alg = 'full'):
+    if alg == 'simple':
+        activity = np.abs(BVCs[1] - boundary_vectors[:,np.ndarray.astype(BVCs[0], int)] + (np.random.rand(len(boundary_vectors), Nbvcs) -0.5)*noise_level)
+        delays = activity / (2*sigma) * 20
+    
+    elif alg == 'full':
+        dists = BVCs[1, :, np.newaxis] - boundary_vectors[:, np.newaxis, :]
+        temp_thetas = (BVCs[0, :, np.newaxis] - np.arange(180)) % 180
+        temp_thetas[temp_thetas > 90] -= 180
+        thetas = np.expand_dims(temp_thetas/90, 0)
+        activity = np.sum(np.exp(-(dists**2/1+thetas**2/1)), axis = 2)
+        activity = np.clip(activity/np.expand_dims(np.max(activity, axis = 1), 1) + (np.random.rand(len(boundary_vectors), Nbvcs) - 0.5)*noise_level, 0, 1)
+        delays = (1/activity - 1) # Shape (Nsamples, Nbvcs)
+        delays = delays / (np.max(delays, axis = 1, keepdims= True) * 2 * sigma) * 20
+    return delays
 
 def getBoundaryVectorsFromShape(shape: str):
     match shape:
@@ -158,7 +165,7 @@ def autoCorr(A):
     std_A = np.std(A, axis=(-2, -1), keepdims=True)
 
     R = A - mean_A
-    autocorr = sig.fftconvolve(R, R[:, ::-1, ::-1], axes = (-2, -1))
+    autocorr = sig.fftconvolve(R, R[..., ::-1, ::-1], axes = (-2, -1))
     norm_factor = X * X * std_A ** 2
 
     return autocorr/norm_factor
@@ -271,8 +278,8 @@ def genBlueNoiseCoords(N, xlim = [0,1], ylim = [0,1]):
     for i in range(1, N):
         print(f"\rBlue noise coords: {i}/{N}", end = "")
         coord_opts = genWhiteNoiseCoords(i*m, xlim, ylim)
-        dists = np.linalg.norm(coords[:i, np.newaxis, :] - coord_opts, axis = 2)
-        ind = np.argmax(np.min(dists, 0))
+        thetas = np.linalg.norm(coords[:i, np.newaxis, :] - coord_opts, axis = 2)
+        ind = np.argmax(np.min(thetas, 0))
         coords[i] = coord_opts[ind]
     sys.stdout.write("\n")
     return(coords)
@@ -394,7 +401,7 @@ class CoordinateSamplers():
         A = self.act(X)
         S = generateSpikeTrainFromGaussian(A)
 
-def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, distribution = 'uniform', rate = 0.1, bvc_params = [12, 11], verbose = False):
+def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, bvc_params = [12, 11], distribution = 'uniform', rate = 0.1, verbose = False):
     # Return two lists, one of dendrite number, the other of bvc number.
     bvc_range = np.arange(n_bvcs)
     bvc_range = np.reshape(np.tile(bvc_range, n_dendrites2), (n_dendrites2, n_bvcs))
@@ -404,7 +411,23 @@ def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, distribution = 'uniform',
         temp_connections = np.random.randint(0, bvc_params[1], (n_dendrites2 * 2))*bvc_params[0]
         temp_connections += np.tile(np.arange(2), n_dendrites2)*(bvc_params[0]//4) + np.random.randint(0,2, n_dendrites2*2)*bvc_params[0]//2
         indices = np.repeat(np.arange(n_dendrites2), 2)
-        connections = np.array([indices, temp_connections])
+        connections = np.array([temp_connections, indices])
+    if distribution == 'orthoregular': # same as orthogonal, but carefully paired so that each dendrite will respond best to some x-y-position in a square environment
+        temp_connections = np.empty(2*n_dendrites2)
+        thetas = bvc_params[0]
+        dist = bvc_params[1]
+        ng = n_dendrites2 // (2*dist)**2
+        base = np.arange(0, n_bvcs, 4)
+        # horiz = np.concatenate((base+thetas, 4*thetas - 1 - base))
+        # vert = np.concatenate((base, 3*thetas - 1 - base))
+        horiz = np.concatenate((base + 2, n_bvcs - 4 - base))
+        vert = np.concatenate((base + 3, n_bvcs - 3 - base ))
+
+        temp_connections[::2] = np.tile(np.repeat(vert, 2*dist), ng)
+        temp_connections[1::2] = np.tile(horiz, ng * 2* dist)
+        
+        indices = np.repeat(np.arange(n_dendrites2), 2)
+        connections = np.array([temp_connections, indices], dtype = int)
     if verbose:
         print(connections)
     return connections
