@@ -18,15 +18,6 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
     # Set the rate of information from sensory to grid cells
     theta_rate = 1/10 # denominator is theta frequency used
 
-
-    # Prepare plot 
-    n_rows = 2
-    fig = plt.figure()
-    ax = []
-    for y in range (n_rows):
-        for z in range(Ng+1):
-            ax.append(plt.subplot2grid((n_rows,Ng+1),(y,z)))
-
     xs = np.linspace(0, 1, pxs)
     ys = np.linspace(0, 1, pxs)
     X = np.reshape(np.meshgrid(xs, ys, indexing='xy'), (2, -1)).T
