@@ -31,11 +31,12 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, conduct
     X = np.reshape(np.meshgrid(xs, ys, indexing='xy'), (2, -1)).T
     X = np.repeat(X, repeats, axis = 0)
     
-    # Input layer setup
-    filter = 18
 
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculate spatial input:")
+
+    # Input layer setup
+    filter = 18
 
     activity = np.round(spatialns.dist(X)/sigma*10 + np.max(2*np.random.rand(pxs**2, Ndendrites2)-1, 0), 1)
     act_indices = np.where(activity < filter)

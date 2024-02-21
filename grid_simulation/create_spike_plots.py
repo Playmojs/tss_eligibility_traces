@@ -15,8 +15,8 @@ import plotter
 #plotter.LinePlot(["data/ThetaMSimuls/regular0.npz"], "", False)
 
 
-file_base = 'noisy_white5'
-root_dir = 'grid_simulation/Results/data/24dend2'
+file_base = 'regular2'
+root_dir = 'grid_simulation/Results/data/multi-grid'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']
@@ -31,6 +31,7 @@ with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
 
 b = baseline*Ng*Ndendrites
 print(b)
+print(Ng)
 print(wmax)
 print(Apost)
 

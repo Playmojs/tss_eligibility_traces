@@ -81,7 +81,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
     taupre = 8*ms
     taupost = 80*ms
-    wmax_i = 90 / Ndendrites2
+    wmax_i = 3.5 / Ndendrites
     Apre = 0.01
     Apost = -0.007
     baseline_effect = baseline_effect
@@ -303,7 +303,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
 
 if __name__ == '__main__':
-    distrib = 'regular'
+    distrib = 'noisy_white'
     print(f"Input distribution: {distrib}")
     Ndendrites = 24
     Ng = 13

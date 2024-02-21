@@ -418,8 +418,6 @@ def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, bvc_params = [12, 11], di
         dist = bvc_params[1]
         ng = n_dendrites2 // (2*dist)**2
         base = np.arange(0, n_bvcs, 4)
-        # horiz = np.concatenate((base+thetas, 4*thetas - 1 - base))
-        # vert = np.concatenate((base, 3*thetas - 1 - base))
         horiz = np.concatenate((base + 2, n_bvcs - 4 - base))
         vert = np.concatenate((base + 3, n_bvcs - 3 - base ))
 

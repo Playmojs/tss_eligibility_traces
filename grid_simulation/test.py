@@ -2,6 +2,7 @@ import utils
 import numpy as np
 import matplotlib.pyplot as plt
 import LIF_theta_GJ_model2_NL as GJ_NL
+import LIF_theta_BVC_model3_NL as BVC_NL
 import time
 import plotter
 
@@ -36,25 +37,23 @@ import plotter
 # print(time_1)
 # print(grid_scores1.shape)
 
-# with np.load(f"grid_simulation/Results/test.npz", allow_pickle=True) as data:
-#     spike_trains = data['spike_times'].item()
-#     Ndendrites = data['Ndendrites']
-#     Ng = data['Ng']
-#     sigma = data['sigma']
-#     c = data['weights']
-#     save_tick = data['save_tick']
-#     input_positions = data['input_pos']
-#     baseline = data['baseline_effect']
-#     Apost = data['apost']
-#     wmax = data['wmax']
+with np.load(f"grid_simulation/Results/test.npz", allow_pickle=True) as data:
+    spike_trains = data['spike_times'].item()
+    Ndendrites = data['Ndendrites']
+    Ng = data['Ng']
+    sigma = data['sigma']
+    c = data['weights']
+    save_tick = data['save_tick']
+    input_positions = data['input_pos']
+    baseline = data['baseline_effect']
+    Apost = data['apost']
+    wmax = data['wmax']
+    BVC_connections = data['BVC_connections']
+    conductivities = data['weights']
 
-# Z = GJ_NL.gridSimulation(Ndendrites, Ng, sigma, 10, 1, input_positions, c[3], True, 'test2')
-# with np.load('grid_simulation/Results/test2.npz', allow_pickle=True) as data:
-#     spikes = data['spike_train'].item()
-#     pos = data['positions']
-# plotter.gridPlotFromSpikeData(spikes, pos, 10, 10, sigma, Ndendrites, 10, 100, 'Test', True, np.moveaxis(np.reshape(c[3], (Ng, Ndendrites **2)), 0, 1))
-# plt.show()
-
-z = utils.getBVCtoDendriteConnectivity(48, 24**2, [4, 12], 'orthoregular')
-with np.printoptions(threshold=10000):
-    print(z)
+Z = BVC_NL.gridSimulation(Ndendrites, Ng, sigma, 4, 12, 'orthoregular', 10, 1, BVC_connections, conductivities[5], True, 'Test2')
+with np.load('grid_simulation/Results/test2.npz', allow_pickle=True) as data:
+    spikes = data['spike_train'].item()
+    pos = data['positions']
+plotter.gridPlotFromSpikeData(spikes, pos, 10, 10, sigma, Ndendrites, 10, 100, 'Test', True, np.moveaxis(np.reshape(c[3], (Ng, Ndendrites **2)), 0, 1))
+plt.show()
