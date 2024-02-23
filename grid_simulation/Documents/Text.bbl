@@ -1,13 +1,108 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{Barry2006}
-C.~Barry, C.~Lever, R.~Hayman, T.~Hartley, S.~Burton, J.~O'Keefe, K.~Jeffery, and N.~Burgess.
+Caswell Barry, Colin Lever, Robin Hayman, Tom Hartley, Stephen Burton, John O'Keefe, Kate Jeffery, and Neil Burgess.
 \newblock The boundary vector cell model of place cell firing and spatial memory.
 \newblock {\em Reviews in the Neurosciences}, 17(1-2), January 2006.
+
+\bibitem{Buetfering2014}
+Christina Buetfering, Kevin Allen, and Hannah Monyer.
+\newblock Parvalbumin interneurons provide grid cell-driven recurrent inhibition in the medial entorhinal cortex.
+\newblock {\em Nature Neuroscience}, pages 710--718, May 2014.
+
+\bibitem{Burgess2007}
+Neil Burgess, Caswell Barry, and John O'Keefe.
+\newblock An oscillatory interference model of grid cell firing.
+\newblock {\em Hippocampus}, 17(9):801--812, 2007.
+
+\bibitem{Christensen2021}
+Ane~Charlotte Christensen, Kristian~Kinden Lensjø, Mikkel~Elle Lepperød, Svenn-Arne Dragly, Halvard Sutterud, Jan~Sigurd Blackstad, Marianne Fyhn, and Torkel Hafting.
+\newblock Perineuronal nets stabilize the grid cell network.
+\newblock {\em Nature Communications}, page 253, January 2021.
+
+\bibitem{Olafsdottir2016}
+Francis~Carpenter H~Freyja~Ólafsdóttir and Caswell Barry.
+\newblock Coordinated grid and place cell replay during rest.
+\newblock {\em Nature Neuroscience}, pages 792--794, June 2016.
+
+\bibitem{Hafting2008}
+Torkel Hafting, Marianne Fyhn, Tora Bonnevie, May-Britt Moser, and Edvard~I. Moser.
+\newblock The emergence of grid cells: Intelligent design or just adaptation?
+\newblock {\em Hippocampus}, 18(12):1256--1269, 2008.
+
+\bibitem{Hafting2005}
+Torkild Hafting, Marianne Fyhn, Sturla Molden, May-Britt Moser, and Edvard~I. Moser.
+\newblock Microstructure of a spatial map in the entorhinal cortex.
+\newblock {\em Nature}, pages 801--806, August 2005.
+
+\bibitem{Couey2013}
+Sheng-Jia Zhang Kang Zheng Jing Ye Benjamin Dunn Rafal Czajkowski May-Britt Moser Edvard I Moser Yasser~Roudi Jonathan J~Couey, Aree~Witoelar and Menno~P Witter.
+\newblock Recurrent inhibitory circuitry as a mechanism for grid formation.
+\newblock {\em Nature Neuroscience}, pages 318--324, March 2013.
+
+\bibitem{Yoon2013}
+Caswell Barry Robin Hayman Neil~Burgess KiJung~Yoon, Michael A~Buice and Ila~R Fiete.
+\newblock Specific evidence of low-dimensional continuous attractor dynamics in grid cells.
+\newblock {\em Nature Neuroscience}, 16:1077--1084, July 2013.
+
+\bibitem{Krupic2015}
+Julija Krupic, Marius Bauza, Stephen Burton, Caswell Barry, and John O'Keefe.
+\newblock Grid cell symmetry is shaped by environmental geometry.
+\newblock {\em Nature}, pages 232--235, February 2015.
+
+\bibitem{Langston2010}
+Rosamund~F. Langston, James~A. Ainge, Jonathan~J. Couey, Cathrin~B. Canto, Tale~L. Bjerknes, Menno~P. Witter, Edvard~I. Moser, and May-Britt Moser.
+\newblock Development of the spatial representation system in the rat.
+\newblock {\em Science}, 328(5985):1576--1580, 2010.
+
+\bibitem{Yartsev2011}
+Menno P.~Witter Michael M.~Yartsev and Nachum Ulanovsky.
+\newblock Grid cells without theta oscillations in the entorhinal cortex of bats.
+\newblock {\em Nature}, 479:103--107, November 2011.
 
 \bibitem{OKeefe1976}
 John O'Keefe.
 \newblock Place units in the hippocampus of the freely moving rat.
 \newblock {\em Experimental Neurology}, 51(1):78--109, 1976.
+
+\bibitem{OKeefe1971}
+John O'Keefe and Jonathan~O. Dostrovsky.
+\newblock The hippocampus as a spatial map: Preliminary evidence from unit activity in the freely-moving rat.
+\newblock {\em Brain Research}, pages 171--175, 1976.
+
+\bibitem{Raudies2012}
+Florian Raudies and Michael~E. Hasselmo.
+\newblock Modeling boundary vector cell firing given optic flow as a cue.
+\newblock {\em PLOS Computational Biology}, 8(6):1--17, 06 2012.
+
+\bibitem{Stensola2015}
+Tor Stensola, Hanne Stensola, May-Britt Moser, and Edvard~I. Moser.
+\newblock Shearing-induced asymmetry in entorhinal grid cells.
+\newblock {\em Nature}, pages 207--212, February 2015.
+
+\bibitem{Bonnevie2013}
+Marianne Fyhn Torkel Hafting Dori Derdikman John L Kubie Yasser Roudi Edvard I~Moser Tora~Bonnevie, Benjamin~Dunn and May-Britt Moser.
+\newblock Grid cells require excitatory drive from the hippocampus.
+\newblock {\em Nature Neuroscience}, pages 309--317, March 2013.
+
+\bibitem{Widloski2014}
+John Widloski and Ila~R. Fiete.
+\newblock A model of grid cell development through spatial exploration and spike time-dependent plasticity.
+\newblock {\em Neuron}, 83(2):481--495, 2014.
+
+\bibitem{Wills2012}
+Toham Wills, Caswell Barry, and Francesca Cacucci.
+\newblock The abrupt development of adult-like grid cell firing in the medial entorhinal cortex.
+\newblock {\em Frontiers in Neural Circuits}, 6, 2012.
+
+\bibitem{Wills2010}
+Tom~J. Wills, Francesca Cacucci, Neil Burgess, and John O'Keefe.
+\newblock Development of the hippocampal cognitive map in preweanling rats.
+\newblock {\em Science}, 328(5985):1573--1576, 2010.
+
+\bibitem{Zilli2010}
+Eric~A. Zilli and Michael~E. Hasselmo.
+\newblock Coupled noisy spiking neurons as velocity-controlled oscillators in a model of grid cell spatial firing.
+\newblock {\em Journal of Neuroscience}, 30(41):13850--13860, 2010.
 
 \end{thebibliography}
