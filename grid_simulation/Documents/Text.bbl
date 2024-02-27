@@ -1,108 +1,1311 @@
-\begin{thebibliography}{10}
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
 
-\bibitem{Barry2006}
-Caswell Barry, Colin Lever, Robin Hayman, Tom Hartley, Stephen Burton, John O'Keefe, Kate Jeffery, and Neil Burgess.
-\newblock The boundary vector cell model of place cell firing and spatial memory.
-\newblock {\em Reviews in the Neurosciences}, 17(1-2), January 2006.
+\datalist[entry]{ynt/global//global/global}
+  \entry{OKeefe1976}{article}{}
+    \name{author}{1}{}{%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{OJ1}
+    \strng{fullhash}{OJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{1976}
+    \field{labeldatesource}{}
+    \field{sortinit}{1}
+    \field{sortinithash}{1}
+    \verb{doi}
+    \verb https://doi.org/10.1016/0014-4886(76)90055-8
+    \endverb
+    \field{issn}{0014-4886}
+    \field{number}{1}
+    \field{pages}{78\bibrangedash 109}
+    \field{title}{Place units in the hippocampus of the freely moving rat}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/0014488676900558
+    \endverb
+    \field{volume}{51}
+    \field{journaltitle}{Experimental Neurology}
+    \field{year}{1976}
+  \endentry
 
-\bibitem{Buetfering2014}
-Christina Buetfering, Kevin Allen, and Hannah Monyer.
-\newblock Parvalbumin interneurons provide grid cell-driven recurrent inhibition in the medial entorhinal cortex.
-\newblock {\em Nature Neuroscience}, pages 710--718, May 2014.
+  \entry{OKeefe1971}{article}{}
+    \name{author}{2}{}{%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=DJO}{%
+         family={Dostrovsky},
+         familyi={D\bibinitperiod},
+         given={Jonathan\bibnamedelima O.},
+         giveni={J\bibinitperiod\bibinitdelim O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{OJDJO1}
+    \strng{fullhash}{OJDJO1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{1976}
+    \field{labeldatesource}{}
+    \field{sortinit}{1}
+    \field{sortinithash}{1}
+    \verb{doi}
+    \verb https://doi.org/10.1016/0006-8993(71)90358-1
+    \endverb
+    \field{pages}{171\bibrangedash 175}
+    \field{title}{The hippocampus as a spatial map: Preliminary evidence from unit activity in the freely-moving rat.}
+    \field{journaltitle}{Brain Research}
+    \field{year}{1976}
+  \endentry
 
-\bibitem{Burgess2007}
-Neil Burgess, Caswell Barry, and John O'Keefe.
-\newblock An oscillatory interference model of grid cell firing.
-\newblock {\em Hippocampus}, 17(9):801--812, 2007.
+  \entry{Wilson1993}{article}{}
+    \name{author}{2}{}{%
+      {{hash=WMA}{%
+         family={Wilson},
+         familyi={W\bibinitperiod},
+         given={Matthew\bibnamedelima A.},
+         giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=MBL}{%
+         family={McNaughton},
+         familyi={M\bibinitperiod},
+         given={Bruce\bibnamedelima L.},
+         giveni={B\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WMAMBL1}
+    \strng{fullhash}{WMAMBL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{1993}
+    \field{labeldatesource}{}
+    \field{sortinit}{1}
+    \field{sortinithash}{1}
+    \verb{doi}
+    \verb 10.1126/science.8351520
+    \endverb
+    \verb{eprint}
+    \verb https://www.science.org/doi/pdf/10.1126/science.8351520
+    \endverb
+    \field{number}{5124}
+    \field{pages}{1055\bibrangedash 1058}
+    \field{title}{Dynamics of the Hippocampal Ensemble Code for Space}
+    \verb{url}
+    \verb https://www.science.org/doi/abs/10.1126/science.8351520
+    \endverb
+    \field{volume}{261}
+    \field{journaltitle}{Science}
+    \field{year}{1993}
+  \endentry
 
-\bibitem{Christensen2021}
-Ane~Charlotte Christensen, Kristian~Kinden Lensjø, Mikkel~Elle Lepperød, Svenn-Arne Dragly, Halvard Sutterud, Jan~Sigurd Blackstad, Marianne Fyhn, and Torkel Hafting.
-\newblock Perineuronal nets stabilize the grid cell network.
-\newblock {\em Nature Communications}, page 253, January 2021.
+  \entry{Wilson1994}{article}{}
+    \name{author}{2}{}{%
+      {{hash=WMA}{%
+         family={Wilson},
+         familyi={W\bibinitperiod},
+         given={Matthew\bibnamedelima A.},
+         giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=MBL}{%
+         family={McNaughton},
+         familyi={M\bibinitperiod},
+         given={Bruce\bibnamedelima L.},
+         giveni={B\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WMAMBL1}
+    \strng{fullhash}{WMAMBL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{1994}
+    \field{labeldatesource}{}
+    \field{sortinit}{1}
+    \field{sortinithash}{1}
+    \verb{doi}
+    \verb 10.1126/science.8036517
+    \endverb
+    \verb{eprint}
+    \verb https://www.science.org/doi/pdf/10.1126/science.8036517
+    \endverb
+    \field{number}{5172}
+    \field{pages}{676\bibrangedash 679}
+    \field{title}{Reactivation of Hippocampal Ensemble Memories During Sleep}
+    \verb{url}
+    \verb https://www.science.org/doi/abs/10.1126/science.8036517
+    \endverb
+    \field{volume}{265}
+    \field{journaltitle}{Science}
+    \field{year}{1994}
+  \endentry
 
-\bibitem{Olafsdottir2016}
-Francis~Carpenter H~Freyja~Ólafsdóttir and Caswell Barry.
-\newblock Coordinated grid and place cell replay during rest.
-\newblock {\em Nature Neuroscience}, pages 792--794, June 2016.
+  \entry{Hafting2005}{article}{}
+    \name{author}{5}{}{%
+      {{hash=HT}{%
+         family={Hafting},
+         familyi={H\bibinitperiod},
+         given={Torkild},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=FM}{%
+         family={Fyhn},
+         familyi={F\bibinitperiod},
+         given={Marianne},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=MS}{%
+         family={Molden},
+         familyi={M\bibinitperiod},
+         given={Sturla},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I.},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HT+2}
+    \strng{fullhash}{HTFMMSMMBMEI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2005}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nature03721
+    \endverb
+    \field{pages}{801\bibrangedash 806}
+    \field{title}{Microstructure of a spatial map in the entorhinal cortex}
+    \field{journaltitle}{Nature}
+    \field{month}{08}
+    \field{year}{2005}
+  \endentry
 
-\bibitem{Hafting2008}
-Torkel Hafting, Marianne Fyhn, Tora Bonnevie, May-Britt Moser, and Edvard~I. Moser.
-\newblock The emergence of grid cells: Intelligent design or just adaptation?
-\newblock {\em Hippocampus}, 18(12):1256--1269, 2008.
+  \entry{Barry2006}{article}{}
+    \name{author}{8}{}{%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=LC}{%
+         family={Lever},
+         familyi={L\bibinitperiod},
+         given={Colin},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=HR}{%
+         family={Hayman},
+         familyi={H\bibinitperiod},
+         given={Robin},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HT}{%
+         family={Hartley},
+         familyi={H\bibinitperiod},
+         given={Tom},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=BS}{%
+         family={Burton},
+         familyi={B\bibinitperiod},
+         given={Stephen},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=JK}{%
+         family={Jeffery},
+         familyi={J\bibinitperiod},
+         given={Kate},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Burgess},
+         familyi={B\bibinitperiod},
+         given={Neil},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Walter de Gruyter GmbH}%
+    }
+    \strng{namehash}{BC+1}
+    \strng{fullhash}{BCLCHRHTBSOJJKBN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2006}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.1515/revneuro.2006.17.1-2.71
+    \endverb
+    \field{issn}{0334-1763}
+    \field{number}{1-2}
+    \field{title}{The Boundary Vector Cell Model of Place Cell Firing and Spatial Memory}
+    \verb{url}
+    \verb http://dx.doi.org/10.1515/revneuro.2006.17.1-2.71
+    \endverb
+    \field{volume}{17}
+    \field{journaltitle}{Reviews in the Neurosciences}
+    \field{month}{01}
+    \field{year}{2006}
+  \endentry
 
-\bibitem{Hafting2005}
-Torkild Hafting, Marianne Fyhn, Sturla Molden, May-Britt Moser, and Edvard~I. Moser.
-\newblock Microstructure of a spatial map in the entorhinal cortex.
-\newblock {\em Nature}, pages 801--806, August 2005.
+  \entry{Burgess2007}{article}{}
+    \name{author}{3}{}{%
+      {{hash=BN}{%
+         family={Burgess},
+         familyi={B\bibinitperiod},
+         given={Neil},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \keyw{entorhinal cortex, stellate cells, dendrites, hippocampus, place cells, theta rhythm}
+    \strng{namehash}{BNBCOJ1}
+    \strng{fullhash}{BNBCOJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2007}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1002/hipo.20327
+    \endverb
+    \verb{eprint}
+    \verb https://onlinelibrary.wiley.com/doi/pdf/10.1002/hipo.20327
+    \endverb
+    \field{number}{9}
+    \field{pages}{801\bibrangedash 812}
+    \field{title}{An oscillatory interference model of grid cell firing}
+    \verb{url}
+    \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/hipo.20327
+    \endverb
+    \field{volume}{17}
+    \field{journaltitle}{Hippocampus}
+    \field{year}{2007}
+  \endentry
 
-\bibitem{Couey2013}
-Sheng-Jia Zhang Kang Zheng Jing Ye Benjamin Dunn Rafal Czajkowski May-Britt Moser Edvard I Moser Yasser~Roudi Jonathan J~Couey, Aree~Witoelar and Menno~P Witter.
-\newblock Recurrent inhibitory circuitry as a mechanism for grid formation.
-\newblock {\em Nature Neuroscience}, pages 318--324, March 2013.
+  \entry{Hafting2008}{article}{}
+    \name{author}{5}{}{%
+      {{hash=HT}{%
+         family={Hafting},
+         familyi={H\bibinitperiod},
+         given={Torkel},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=FM}{%
+         family={Fyhn},
+         familyi={F\bibinitperiod},
+         given={Marianne},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Bonnevie},
+         familyi={B\bibinitperiod},
+         given={Tora},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I.},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+    }
+    \keyw{hippocampus, entorhinal cortex, firing rate adaptation, attractor network, memory}
+    \strng{namehash}{HT+1}
+    \strng{fullhash}{HTFMBTMMBMEI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2008}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1002/hipo.20520
+    \endverb
+    \verb{eprint}
+    \verb https://onlinelibrary.wiley.com/doi/pdf/10.1002/hipo.20520
+    \endverb
+    \field{number}{12}
+    \field{pages}{1256\bibrangedash 1269}
+    \field{title}{The emergence of grid cells: Intelligent design or just adaptation?}
+    \verb{url}
+    \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/hipo.20520
+    \endverb
+    \field{volume}{18}
+    \field{journaltitle}{Hippocampus}
+    \field{year}{2008}
+  \endentry
 
-\bibitem{Yoon2013}
-Caswell Barry Robin Hayman Neil~Burgess KiJung~Yoon, Michael A~Buice and Ila~R Fiete.
-\newblock Specific evidence of low-dimensional continuous attractor dynamics in grid cells.
-\newblock {\em Nature Neuroscience}, 16:1077--1084, July 2013.
+  \entry{Langston2010}{article}{}
+    \name{author}{8}{}{%
+      {{hash=LRF}{%
+         family={Langston},
+         familyi={L\bibinitperiod},
+         given={Rosamund\bibnamedelima F.},
+         giveni={R\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+      {{hash=AJA}{%
+         family={Ainge},
+         familyi={A\bibinitperiod},
+         given={James\bibnamedelima A.},
+         giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=CJJ}{%
+         family={Couey},
+         familyi={C\bibinitperiod},
+         given={Jonathan\bibnamedelima J.},
+         giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=CCB}{%
+         family={Canto},
+         familyi={C\bibinitperiod},
+         given={Cathrin\bibnamedelima B.},
+         giveni={C\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=BTL}{%
+         family={Bjerknes},
+         familyi={B\bibinitperiod},
+         given={Tale\bibnamedelima L.},
+         giveni={T\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=WMP}{%
+         family={Witter},
+         familyi={W\bibinitperiod},
+         given={Menno\bibnamedelima P.},
+         giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I.},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LRF+1}
+    \strng{fullhash}{LRFAJACJJCCBBTLWMPMEIMMB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2010}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.1126/science.1188210
+    \endverb
+    \verb{eprint}
+    \verb https://www.science.org/doi/pdf/10.1126/science.1188210
+    \endverb
+    \field{number}{5985}
+    \field{pages}{1576\bibrangedash 1580}
+    \field{title}{Development of the Spatial Representation System in the Rat}
+    \verb{url}
+    \verb https://www.science.org/doi/abs/10.1126/science.1188210
+    \endverb
+    \field{volume}{328}
+    \field{journaltitle}{Science}
+    \field{year}{2010}
+  \endentry
 
-\bibitem{Krupic2015}
-Julija Krupic, Marius Bauza, Stephen Burton, Caswell Barry, and John O'Keefe.
-\newblock Grid cell symmetry is shaped by environmental geometry.
-\newblock {\em Nature}, pages 232--235, February 2015.
+  \entry{Wills2010}{article}{}
+    \name{author}{4}{}{%
+      {{hash=WTJ}{%
+         family={Wills},
+         familyi={W\bibinitperiod},
+         given={Tom\bibnamedelima J.},
+         giveni={T\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=CF}{%
+         family={Cacucci},
+         familyi={C\bibinitperiod},
+         given={Francesca},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Burgess},
+         familyi={B\bibinitperiod},
+         given={Neil},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WTJ+1}
+    \strng{fullhash}{WTJCFBNOJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2010}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.1126/science.1188224
+    \endverb
+    \verb{eprint}
+    \verb https://www.science.org/doi/pdf/10.1126/science.1188224
+    \endverb
+    \field{number}{5985}
+    \field{pages}{1573\bibrangedash 1576}
+    \field{title}{Development of the Hippocampal Cognitive Map in Preweanling Rats}
+    \verb{url}
+    \verb https://www.science.org/doi/abs/10.1126/science.1188224
+    \endverb
+    \field{volume}{328}
+    \field{journaltitle}{Science}
+    \field{year}{2010}
+  \endentry
 
-\bibitem{Langston2010}
-Rosamund~F. Langston, James~A. Ainge, Jonathan~J. Couey, Cathrin~B. Canto, Tale~L. Bjerknes, Menno~P. Witter, Edvard~I. Moser, and May-Britt Moser.
-\newblock Development of the spatial representation system in the rat.
-\newblock {\em Science}, 328(5985):1576--1580, 2010.
+  \entry{Zilli2010}{article}{}
+    \name{author}{2}{}{%
+      {{hash=ZEA}{%
+         family={Zilli},
+         familyi={Z\bibinitperiod},
+         given={Eric\bibnamedelima A.},
+         giveni={E\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=HME}{%
+         family={Hasselmo},
+         familyi={H\bibinitperiod},
+         given={Michael\bibnamedelima E.},
+         giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Society for Neuroscience}%
+    }
+    \strng{namehash}{ZEAHME1}
+    \strng{fullhash}{ZEAHME1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2010}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.1523/JNEUROSCI.0547-10.2010
+    \endverb
+    \verb{eprint}
+    \verb https://www.jneurosci.org/content/30/41/13850.full.pdf
+    \endverb
+    \field{issn}{0270-6474}
+    \field{number}{41}
+    \field{pages}{13850\bibrangedash 13860}
+    \field{title}{Coupled Noisy Spiking Neurons as Velocity-Controlled Oscillators in a Model of Grid Cell Spatial Firing}
+    \verb{url}
+    \verb https://www.jneurosci.org/content/30/41/13850
+    \endverb
+    \field{volume}{30}
+    \field{journaltitle}{Journal of Neuroscience}
+    \field{year}{2010}
+  \endentry
 
-\bibitem{Yartsev2011}
-Menno P.~Witter Michael M.~Yartsev and Nachum Ulanovsky.
-\newblock Grid cells without theta oscillations in the entorhinal cortex of bats.
-\newblock {\em Nature}, 479:103--107, November 2011.
+  \entry{Dragoi2011}{article}{}
+    \name{author}{2}{}{%
+      {{hash=DG}{%
+         family={Dragoi},
+         familyi={D\bibinitperiod},
+         given={George},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=TS}{%
+         family={Tonegawa},
+         familyi={T\bibinitperiod},
+         given={Susumu},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DGTS1}
+    \strng{fullhash}{DGTS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2011}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nature09633
+    \endverb
+    \field{pages}{397\bibrangedash 401}
+    \field{title}{Preplay of future place cell sequences by hippocampal cellular assemblies}
+    \field{volume}{469}
+    \field{journaltitle}{Nature}
+    \field{month}{01}
+    \field{year}{2011}
+  \endentry
 
-\bibitem{OKeefe1976}
-John O'Keefe.
-\newblock Place units in the hippocampus of the freely moving rat.
-\newblock {\em Experimental Neurology}, 51(1):78--109, 1976.
+  \entry{Yartsev2011}{article}{}
+    \name{author}{3}{}{%
+      {{hash=YMM}{%
+         family={Yartsev},
+         familyi={Y\bibinitperiod},
+         given={Michael\bibnamedelima M.},
+         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=WMP}{%
+         family={Witter},
+         familyi={W\bibinitperiod},
+         given={Menno\bibnamedelima P.},
+         giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=UN}{%
+         family={Ulanovsky},
+         familyi={U\bibinitperiod},
+         given={Nachum},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YMMWMPUN1}
+    \strng{fullhash}{YMMWMPUN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2011}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nature10583
+    \endverb
+    \field{pages}{103\bibrangedash 107}
+    \field{title}{Grid cells without theta oscillations in the entorhinal cortex of bats}
+    \field{volume}{479}
+    \field{journaltitle}{Nature}
+    \field{month}{11}
+    \field{year}{2011}
+  \endentry
 
-\bibitem{OKeefe1971}
-John O'Keefe and Jonathan~O. Dostrovsky.
-\newblock The hippocampus as a spatial map: Preliminary evidence from unit activity in the freely-moving rat.
-\newblock {\em Brain Research}, pages 171--175, 1976.
+  \entry{Raudies2012}{article}{}
+    \name{author}{2}{}{%
+      {{hash=RF}{%
+         family={Raudies},
+         familyi={R\bibinitperiod},
+         given={Florian},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=HME}{%
+         family={Hasselmo},
+         familyi={H\bibinitperiod},
+         given={Michael\bibnamedelima E.},
+         giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Public Library of Science}%
+    }
+    \strng{namehash}{RFHME1}
+    \strng{fullhash}{RFHME1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2012}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.1371/journal.pcbi.1002553
+    \endverb
+    \field{number}{6}
+    \field{pages}{1\bibrangedash 17}
+    \field{title}{Modeling Boundary Vector Cell Firing Given Optic Flow as a Cue}
+    \verb{url}
+    \verb https://doi.org/10.1371/journal.pcbi.1002553
+    \endverb
+    \field{volume}{8}
+    \field{journaltitle}{PLOS Computational Biology}
+    \field{month}{06}
+    \field{year}{2012}
+  \endentry
 
-\bibitem{Raudies2012}
-Florian Raudies and Michael~E. Hasselmo.
-\newblock Modeling boundary vector cell firing given optic flow as a cue.
-\newblock {\em PLOS Computational Biology}, 8(6):1--17, 06 2012.
+  \entry{Wills2012}{article}{}
+    \name{author}{3}{}{%
+      {{hash=WTJ}{%
+         family={Wills},
+         familyi={W\bibinitperiod},
+         given={Tom\bibnamedelima J.},
+         giveni={T\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=CF}{%
+         family={Cacucci},
+         familyi={C\bibinitperiod},
+         given={Francesca},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WTJBCCF1}
+    \strng{fullhash}{WTJBCCF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2012}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb 10.3389/fncir.2012.00021
+    \endverb
+    \field{issn}{1662-5110}
+    \field{title}{The abrupt development of adult-like grid cell firing in the medial entorhinal cortex}
+    \verb{url}
+    \verb https://www.frontiersin.org/articles/10.3389/fncir.2012.00021
+    \endverb
+    \field{volume}{6}
+    \field{journaltitle}{Frontiers in Neural Circuits}
+    \field{year}{2012}
+  \endentry
 
-\bibitem{Stensola2015}
-Tor Stensola, Hanne Stensola, May-Britt Moser, and Edvard~I. Moser.
-\newblock Shearing-induced asymmetry in entorhinal grid cells.
-\newblock {\em Nature}, pages 207--212, February 2015.
+  \entry{Bonnevie2013}{article}{}
+    \name{author}{9}{}{%
+      {{hash=BT}{%
+         family={Bonnevie},
+         familyi={B\bibinitperiod},
+         given={Tora},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=DB}{%
+         family={Dunn},
+         familyi={D\bibinitperiod},
+         given={Benjamin},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=FM}{%
+         family={Fyhn},
+         familyi={F\bibinitperiod},
+         given={Marianne},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=HT}{%
+         family={Hafting},
+         familyi={H\bibinitperiod},
+         given={Torkel},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=DD}{%
+         family={Derdikman},
+         familyi={D\bibinitperiod},
+         given={Dori},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=KJL}{%
+         family={Kubie},
+         familyi={K\bibinitperiod},
+         given={John\bibnamedelima L.},
+         giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=RY}{%
+         family={Roudi},
+         familyi={R\bibinitperiod},
+         given={Yasser},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I.},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BT+1}
+    \strng{fullhash}{BTDBFMHTDDKJLRYMEIMMB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2013}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nn.3311
+    \endverb
+    \field{pages}{309\bibrangedash 317}
+    \field{title}{Grid cells require excitatory drive from the hippocampus}
+    \field{journaltitle}{Nature Neuroscience}
+    \field{month}{03}
+    \field{year}{2013}
+  \endentry
 
-\bibitem{Bonnevie2013}
-Marianne Fyhn Torkel Hafting Dori Derdikman John L Kubie Yasser Roudi Edvard I~Moser Tora~Bonnevie, Benjamin~Dunn and May-Britt Moser.
-\newblock Grid cells require excitatory drive from the hippocampus.
-\newblock {\em Nature Neuroscience}, pages 309--317, March 2013.
+  \entry{Couey2013}{article}{}
+    \name{author}{11}{}{%
+      {{hash=CJJ}{%
+         family={Couey},
+         familyi={C\bibinitperiod},
+         given={Jonathan\bibnamedelima J},
+         giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=WA}{%
+         family={Witoelar},
+         familyi={W\bibinitperiod},
+         given={Aree},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=ZSJ}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Sheng-Jia},
+         giveni={S\bibinithyphendelim J\bibinitperiod},
+      }}%
+      {{hash=ZK}{%
+         family={Zheng},
+         familyi={Z\bibinitperiod},
+         given={Kang},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=YJ}{%
+         family={Ye},
+         familyi={Y\bibinitperiod},
+         given={Jing},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=DB}{%
+         family={Dunn},
+         familyi={D\bibinitperiod},
+         given={Benjamin},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=CR}{%
+         family={Czajkowski},
+         familyi={C\bibinitperiod},
+         given={Rafal},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+      {{hash=RY}{%
+         family={Roudi},
+         familyi={R\bibinitperiod},
+         given={Yasser},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=WMP}{%
+         family={Witter},
+         familyi={W\bibinitperiod},
+         given={Menno\bibnamedelima P},
+         giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CJJ+1}
+    \strng{fullhash}{CJJWAZSJZKYJDBCRMMBMEIRYWMP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2013}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nn.3310
+    \endverb
+    \field{pages}{318\bibrangedash 324}
+    \field{title}{Recurrent inhibitory circuitry as a mechanism for grid formation}
+    \field{journaltitle}{Nature Neuroscience}
+    \field{month}{03}
+    \field{year}{2013}
+  \endentry
 
-\bibitem{Widloski2014}
-John Widloski and Ila~R. Fiete.
-\newblock A model of grid cell development through spatial exploration and spike time-dependent plasticity.
-\newblock {\em Neuron}, 83(2):481--495, 2014.
+  \entry{Dragoi2013}{article}{}
+    \name{author}{2}{}{%
+      {{hash=DG}{%
+         family={Dragoi},
+         familyi={D\bibinitperiod},
+         given={George},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=TS}{%
+         family={Tonegawa},
+         familyi={T\bibinitperiod},
+         given={Susumu},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DGTS1}
+    \strng{fullhash}{DGTS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2013}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1073/pnas.1306031110
+    \endverb
+    \field{title}{Distinct preplay of multiple novel spatial experiences in the rat}
+    \field{journaltitle}{PNAS}
+    \field{month}{05}
+    \field{year}{2013}
+  \endentry
 
-\bibitem{Wills2012}
-Toham Wills, Caswell Barry, and Francesca Cacucci.
-\newblock The abrupt development of adult-like grid cell firing in the medial entorhinal cortex.
-\newblock {\em Frontiers in Neural Circuits}, 6, 2012.
+  \entry{Yoon2013}{article}{}
+    \name{author}{6}{}{%
+      {{hash=YK}{%
+         family={Yoon},
+         familyi={Y\bibinitperiod},
+         given={KiJung},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=BMA}{%
+         family={Buice},
+         familyi={B\bibinitperiod},
+         given={Michael\bibnamedelima A},
+         giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=HR}{%
+         family={Hayman},
+         familyi={H\bibinitperiod},
+         given={Robin},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Burgess},
+         familyi={B\bibinitperiod},
+         given={Neil},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=FIR}{%
+         family={Fiete},
+         familyi={F\bibinitperiod},
+         given={Ila\bibnamedelima R},
+         giveni={I\bibinitperiod\bibinitdelim R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YK+1}
+    \strng{fullhash}{YKBMABCHRBNFIR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2013}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nn.3450
+    \endverb
+    \field{pages}{1077\bibrangedash 1084}
+    \field{title}{Specific evidence of low-dimensional continuous attractor dynamics in grid cells}
+    \field{volume}{16}
+    \field{journaltitle}{Nature Neuroscience}
+    \field{month}{07}
+    \field{year}{2013}
+  \endentry
 
-\bibitem{Wills2010}
-Tom~J. Wills, Francesca Cacucci, Neil Burgess, and John O'Keefe.
-\newblock Development of the hippocampal cognitive map in preweanling rats.
-\newblock {\em Science}, 328(5985):1573--1576, 2010.
+  \entry{Buetfering2014}{article}{}
+    \name{author}{3}{}{%
+      {{hash=BC}{%
+         family={Buetfering},
+         familyi={B\bibinitperiod},
+         given={Christina},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=AK}{%
+         family={Allen},
+         familyi={A\bibinitperiod},
+         given={Kevin},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=MH}{%
+         family={Monyer},
+         familyi={M\bibinitperiod},
+         given={Hannah},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BCAKMH1}
+    \strng{fullhash}{BCAKMH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2014}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nn.3696
+    \endverb
+    \field{pages}{710\bibrangedash 718}
+    \field{title}{Parvalbumin interneurons provide grid cell-driven recurrent inhibition in the medial entorhinal cortex}
+    \field{journaltitle}{Nature Neuroscience}
+    \field{month}{05}
+    \field{year}{2014}
+  \endentry
 
-\bibitem{Zilli2010}
-Eric~A. Zilli and Michael~E. Hasselmo.
-\newblock Coupled noisy spiking neurons as velocity-controlled oscillators in a model of grid cell spatial firing.
-\newblock {\em Journal of Neuroscience}, 30(41):13850--13860, 2010.
+  \entry{Widloski2014}{article}{}
+    \name{author}{2}{}{%
+      {{hash=WJ}{%
+         family={Widloski},
+         familyi={W\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=FIR}{%
+         family={Fiete},
+         familyi={F\bibinitperiod},
+         given={Ila\bibnamedelima R.},
+         giveni={I\bibinitperiod\bibinitdelim R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WJFIR1}
+    \strng{fullhash}{WJFIR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2014}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.neuron.2014.06.018
+    \endverb
+    \field{issn}{0896-6273}
+    \field{number}{2}
+    \field{pages}{481\bibrangedash 495}
+    \field{title}{A Model of Grid Cell Development through Spatial Exploration and Spike Time-Dependent Plasticity}
+    \field{volume}{83}
+    \field{journaltitle}{Neuron}
+    \field{year}{2014}
+  \endentry
 
-\end{thebibliography}
+  \entry{Krupic2015}{article}{}
+    \name{author}{5}{}{%
+      {{hash=KJ}{%
+         family={Krupic},
+         familyi={K\bibinitperiod},
+         given={Julija},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BM}{%
+         family={Bauza},
+         familyi={B\bibinitperiod},
+         given={Marius},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BS}{%
+         family={Burton},
+         familyi={B\bibinitperiod},
+         given={Stephen},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=OJ}{%
+         family={O'Keefe},
+         familyi={O\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KJ+1}
+    \strng{fullhash}{KJBMBSBCOJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2015}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nature14153
+    \endverb
+    \field{pages}{232\bibrangedash 235}
+    \field{title}{Grid cell symmetry is shaped by environmental geometry}
+    \field{journaltitle}{Nature}
+    \field{month}{02}
+    \field{year}{2015}
+  \endentry
+
+  \entry{Stensola2015}{article}{}
+    \name{author}{4}{}{%
+      {{hash=ST}{%
+         family={Stensola},
+         familyi={S\bibinitperiod},
+         given={Tor},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SH}{%
+         family={Stensola},
+         familyi={S\bibinitperiod},
+         given={Hanne},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=MMB}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={May-Britt},
+         giveni={M\bibinithyphendelim B\bibinitperiod},
+      }}%
+      {{hash=MEI}{%
+         family={Moser},
+         familyi={M\bibinitperiod},
+         given={Edvard\bibnamedelima I.},
+         giveni={E\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ST+1}
+    \strng{fullhash}{STSHMMBMEI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2015}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nature14151
+    \endverb
+    \field{pages}{207\bibrangedash 212}
+    \field{title}{Shearing-induced asymmetry in entorhinal grid cells}
+    \field{journaltitle}{Nature}
+    \field{month}{02}
+    \field{year}{2015}
+  \endentry
+
+  \entry{Olafsdottir2016}{article}{}
+    \name{author}{3}{}{%
+      {{hash=OHF}{%
+         family={Olafsdottir},
+         familyi={O\bibinitperiod},
+         given={H\bibnamedelima Freyja},
+         giveni={H\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+      {{hash=CF}{%
+         family={Carpenter},
+         familyi={C\bibinitperiod},
+         given={Francis},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Barry},
+         familyi={B\bibinitperiod},
+         given={Caswell},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{OHFCFBC1}
+    \strng{fullhash}{OHFCFBC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2016}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/nn.4291
+    \endverb
+    \field{pages}{792\bibrangedash 794}
+    \field{title}{Coordinated grid and place cell replay during rest}
+    \field{journaltitle}{Nature Neuroscience}
+    \field{month}{06}
+    \field{year}{2016}
+  \endentry
+
+  \entry{Waniek2018}{article}{}
+    \name{author}{1}{}{%
+      {{hash=WN}{%
+         family={Waniek},
+         familyi={W\bibinitperiod},
+         given={Nicolai},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WN1}
+    \strng{fullhash}{WN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2018}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1162/neco_a_01122
+    \endverb
+    \field{issue}{30}
+    \field{pages}{2691\bibrangedash 2725}
+    \field{title}{Hexagonal Grid Fields Optimall Encode Transitions in Spatiotemporal Sequences}
+    \field{journaltitle}{Neural Computation}
+    \field{year}{2018}
+  \endentry
+
+  \entry{Waniek2020}{article}{}
+    \name{author}{1}{}{%
+      {{hash=WN}{%
+         family={Waniek},
+         familyi={W\bibinitperiod},
+         given={Nicolai},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WN1}
+    \strng{fullhash}{WN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2020}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1162/neco_a_01255
+    \endverb
+    \field{issue}{32}
+    \field{pages}{330\bibrangedash 394}
+    \field{title}{Transition Scale-Spaces; A Computational Theory for the Discretized Entorhinal Cortex}
+    \field{journaltitle}{Neural Computation}
+    \field{year}{2020}
+  \endentry
+
+  \entry{Christensen2021}{article}{}
+    \name{author}{8}{}{%
+      {{hash=CAC}{%
+         family={Christensen},
+         familyi={C\bibinitperiod},
+         given={Ane\bibnamedelima Charlotte},
+         giveni={A\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=LKK}{%
+         family={Lensjø},
+         familyi={L\bibinitperiod},
+         given={Kristian\bibnamedelima Kinden},
+         giveni={K\bibinitperiod\bibinitdelim K\bibinitperiod},
+      }}%
+      {{hash=LME}{%
+         family={Lepperød},
+         familyi={L\bibinitperiod},
+         given={Mikkel\bibnamedelima Elle},
+         giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=DSA}{%
+         family={Dragly},
+         familyi={D\bibinitperiod},
+         given={Svenn-Arne},
+         giveni={S\bibinithyphendelim A\bibinitperiod},
+      }}%
+      {{hash=SH}{%
+         family={Sutterud},
+         familyi={S\bibinitperiod},
+         given={Halvard},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=BJS}{%
+         family={Blackstad},
+         familyi={B\bibinitperiod},
+         given={Jan\bibnamedelima Sigurd},
+         giveni={J\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=FM}{%
+         family={Fyhn},
+         familyi={F\bibinitperiod},
+         given={Marianne},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=HT}{%
+         family={Hafting},
+         familyi={H\bibinitperiod},
+         given={Torkel},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CAC+1}
+    \strng{fullhash}{CACLKKLMEDSASHBJSFMHT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelyear}{2021}
+    \field{labeldatesource}{}
+    \field{sortinit}{2}
+    \field{sortinithash}{2}
+    \verb{doi}
+    \verb https://doi.org/10.1038/s41467-020-20241-w
+    \endverb
+    \field{pages}{253}
+    \field{title}{Perineuronal nets stabilize the grid cell network}
+    \field{journaltitle}{Nature Communications}
+    \field{month}{01}
+    \field{year}{2021}
+  \endentry
+\enddatalist
+\endinput
