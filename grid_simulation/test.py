@@ -3,57 +3,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 import LIF_theta_GJ_model2_NL as GJ_NL
 import LIF_theta_BVC_model3_NL as BVC_NL
-import time
 import plotter
+import sys
+from brian2 import ms
 
-# with np.load(f"grid_simulation/Results/data/ThetaMSimuls/regular9.npz", allow_pickle=True) as data:
-#     spike_trains = data['spike_times'].item()
-#     Ndendrites = data['Ndendrites']
-#     Ng = data['Ng']
-#     sigma = data['sigma']
-#     weights = data['weights']
-#     save_tick = data['save_tick']
-#     input_positions = data['input_pos']
-#     baseline = data['baseline_effect']
-#     Apost = data['apost']
-#     wmax = data['wmax']
+pxs = 48
+times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95']
+appendix = 'min_Spikes.npz'
+base_path = 'grid_simulation/Results/data/simspam'
+# sub_dirs = utils.getSortedEntries(base_path, 'directory', True)
+sub_dirs = [base_path + "/regular10"]
 
-# weights_t = weights[540]
-# grid_weights = np.moveaxis(np.reshape(weights_t, (Ndendrites, Ndendrites, Ng)), 2, 0)
-# z = np.empty((1, Ng, Ndendrites, Ndendrites))
-# z[0] = grid_weights
-# grid_weights = z
+n_groups = 1
+n_simuls = 1 #len(sub_dirs) // n_groups
+n_times = len(times)
+ng = 13
+skip_calc = False
 
-# start_time = time.time()
-# auto_corr2 = np.zeros((Ng, 95, 95))
-# for z in range(Ng):
-#     auto_corr2[z] = utils.normcorr2d(grid_weights[0,z])
-# auto_corr1 = utils.autoCorr(grid_weights)
-# grid_scores1, _ = utils.gridnessScore(auto_corr1, Ndendrites, sigma)
-# time_1 = time.time() - start_time
-# grid_scores2 = np.zeros(Ng)
-# for z in range(Ng):
-#     grid_scores2[z], _ = utils.gridness_score(auto_corr1[0,z], Ndendrites, sigma)
-# print(time_1)
-# print(grid_scores1.shape)
+sim_data = {}
 
-with np.load(f"grid_simulation/Results/test.npz", allow_pickle=True) as data:
-    spike_trains = data['spike_times'].item()
-    Ndendrites = data['Ndendrites']
-    Ng = data['Ng']
-    sigma = data['sigma']
-    c = data['weights']
-    save_tick = data['save_tick']
-    input_positions = data['input_pos']
-    baseline = data['baseline_effect']
-    Apost = data['apost']
-    wmax = data['wmax']
-    BVC_connections = data['BVC_connections']
-    conductivities = data['weights']
+for j, sub_dir in enumerate(sub_dirs):
+    sys.stdout.write(f"\rProgress: {j + 1} / {n_groups * n_simuls}")
+    sys.stdout.flush()
+    if skip_calc:
+        continue
+    for i, time in enumerate(times):
+        time_data = {}
+        with np.load(sub_dir + '/' + time + appendix, allow_pickle = True) as data:
+            spike_trains = data['spike_train'].item()
+            X = data['positions']
+        for z in range(13):
+            x = 5
+            spike_times = spike_trains[z]/ms
+            time_data[z] = spike_times
+        sim_data[time + '_minutes'] = time_data
+    print('\n')
 
-Z = BVC_NL.gridSimulation(Ndendrites, Ng, sigma, 4, 12, 'orthoregular', 10, 1, BVC_connections, conductivities[5], True, 'Test2')
-with np.load('grid_simulation/Results/test2.npz', allow_pickle=True) as data:
-    spikes = data['spike_train'].item()
-    pos = data['positions']
-plotter.gridPlotFromSpikeData(spikes, pos, 10, 10, sigma, Ndendrites, 10, 100, 'Test', True, np.moveaxis(np.reshape(c[3], (Ng, Ndendrites **2)), 0, 1))
-plt.show()
+np.savez_compressed("grid_simulation/Results/spike_times", spike_data = sim_data)
+with np.load('grid_simulation/Results/spike_times.npz', allow_pickle=True) as data:
+    sim_data = data['spike_data'].item()
+    print(sim_data.keys())

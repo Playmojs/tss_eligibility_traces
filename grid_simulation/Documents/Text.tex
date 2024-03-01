@@ -1,14 +1,24 @@
 \documentclass{article}
 \usepackage[english]{babel}
+\usepackage{csquotes}
 \usepackage{url}
 \usepackage{comment}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{chngcntr}
+\counterwithin{figure}{section}
+\usepackage{tabularray}
+\usepackage{xcolor}
+\graphicspath{{./Figures/}}
+\usepackage{float}
+
 \usepackage[
 backend=bibtex,
 style=authoryear,
 sorting = ynt
 ]{biblatex}
-
-
 \addbibresource{Text.bib}
 
 \title{My masters}
@@ -69,12 +79,34 @@ sorting = ynt
 
     An ideal network has the following properties: it is simulated in a biologically plausible network, such as a spiking neural network. Most importantly, this means that communication happens at a delay, time is continuous and learning rules must be online and local. Simulations get inputs from some plausible spatially tuned neurons, more precisely boundary vector cells (BVCs), whose activity is based on real or simulated trajectory data. From these inputs, another layer of cells of arbitrary size learns center- and surrounding area information to represent transition-cells as described in the TSS-model, encoding transitions on a single scale. Under these constraints, the objective is whether the transitional neurons self-organize into single-cells with hexagonal activity patterns in space, and in which the population covers all possible environment transitions.
 
-    Both an ideal network and subsequent simplifications will have some common features to accommodate these limitations: first, spike timing dependent plasticity is a biologically plausible learning rule which both allows single transition cells to associate with spatial inputs associated with center, and dissociate with inputs associated with surround areas. To facilitate this, all inputs arrive in a theta-wave-like pulse, at 10 Hz, in which only spatial input with sufficiant relevance is active, and the input is phase coded so the less relevant, the higher the temporal offset is relative to theta. This means that a firing transition cell is likely to fire following center-inputs, and subsequently receive a burst of surrounding inputs. The STDP learning-rule will ensure that the center-activity which arrived pre-spike are potentiated, and the surround-activity arriving post-spike is depressed. Secondarily, all active inputs are slightly potentiated to encourage the transition cell to be active in as many center-areas across the environment as possible.
+    Both an ideal network and subsequent simplifications will have some common features to accommodate these limitations: first, spike timing dependent plasticity is a biologically plausible learning rule which both allows single transition cells to associate with spatial inputs associated with center, and dissociate with inputs associated with surround areas. To facilitate this, all inputs arrive in pulses at theta-wave frequency, 10 Hz, in which only spatial input with sufficiant relevance is active. The input is also phase coded, so the less relevant, the higher the temporal offset is relative to theta. This means that a transition cell is likely to fire following center-inputs, and subsequently receive a burst of inputs from cells representing surrounding locations. The STDP learning-rule will ensure that the center-activity which arrived pre-spike are potentiated, and the surround-activity arriving post-spike is depressed. Secondarily, all active inputs are slightly potentiated to encourage the transition cell to be active in as many center-areas across the environment as possible.
+
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[][][c]{0.6\textwidth}
+            \includegraphics[width = \textwidth]{mouse_plot.png}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[][][c]{0.33\textwidth}
+            \includegraphics[width = \textwidth]{input_STDP_plot.png}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[][][t]{0.33\textwidth}
+            \includegraphics[width = \textwidth]{input_inhibit_plot.png}
+        \end{subfigure}
+        \begin{subfigure}[][][b]{\textwidth}
+            \includegraphics[width = \textwidth]{input_plot.png}
+        \end{subfigure}
+
+        \caption{Spatial inputs from a region surrounding the mouse will be activated each theta-cycle, here shown as inputs within the two surrounding circles. This input is phase-coded, so cells responding to locations nearest to the mouse will arrive earlier. With a STDP learning rule, this can lead to association to the central inputs, and dissociation of the surround inputs, as shown by the innermost surrounding circle.}
+        \label{mouse_plot}
+    \end{figure}
+
     
     An inhibitory layer connects transition cells laterally, causing strong inhibition, but on a delay. This leaves a narrow window in which multiple transition cells can fire, followed by complete inhibition, so some transition cells partially associate to the same areas.
 
     Due to the high number of parameters available in such a network, the network would preferably see characteristics of the transition cells, such as grid-patterns, emerge quickly and without perfectly honing parameters.
-    This is both because a network structure that produces grid cells only with very particular parameters is less biologically plausible, and because testing the parameter space properly is very time consuming. On this note, there are reasons to think that a network in which grid cell activity occurs in transition cells based on linear summation of BVC input, as shown in figure 2.1, is difficult to achieve. For one, boundary vector inputs in neighboring areas are typically highly linearly correlated, so the transition cell would struggle to associate to one location and dissociate from another. Secondly, for instance in square environments, one could imagine picking two locations that the transition cell has associated with, denoted \((x_1, y_1)\) and \((x_2, y_2)\). In locations \((x_1, y_2)\) and \((x_2, y_1)\), the input would be highly similar to half the input from position 1 and half the input from position 2, but the transition cell should not fire in these locations, because that would lead to rectangular-grid firing patterns, not hexagonal. It should be noted here that the spiking neural network itself implies non-linear features that might have enabled such a network to produce grid-cells. One way to achieve this would be with other transition cells that are sufficiently active in location \((x_1, y_2)\) and \((x_2, y_1)\), so they inhibit the first transition cell. However, due to the fine-tuning such a network would require, this network structure was not directly pursued in this work.
+    This is both because a network structure that produces grid cells only with very particular parameters is less biologically plausible, and because testing the parameter space properly is time consuming. On this note, there are reasons to think that a network in which grid cell activity occurs in transition cells based on linear summation of BVC input, as shown in figure 2.1, is difficult to achieve. For one, boundary vector inputs in neighboring areas are typically highly linearly correlated, so the transition cell would struggle to associate to one location and dissociate from a neighboring one. Secondly, for instance in square environments, one could imagine picking two locations that the transition cell has associated with, denoted \((x_1, y_1)\) and \((x_2, y_2)\). In locations \((x_1, y_2)\) and \((x_2, y_1)\), the input would be highly similar to half the input from position 1 and half the input from position 2, but the transition cell should not fire in these locations, because that would lead to rectangular-grid firing patterns, not hexagonal. It should be noted here that the spiking neural network itself implies non-linear features that might have enabled such a network to produce grid-cells. One way to achieve this would be with other transition cells that are sufficiently active in location \((x_1, y_2)\) and \((x_2, y_1)\), so they inhibit the first transition cell. However, due to the fine-tuning such a network would require, this network structure was not pursued further.
 
     An appealing alternative, which highlights the advantage of biological neurons, was to consider nonlinear dendritic computation on transition cells in a multi compartment model. Under this idea, although boundary vector cells technically synapse onto transition cells directly, the simulation treats dendrites as separate units within one transition cell. Each dendrite would get inputs from some subset of BVCs, and the transition cell can associate and dissociate to all inputs on an entire dendrite. Similarly to the BVC-model, each dendrite would preferably be active in only single locations in the environment, for instance by responding non-linearly to inputs with a soft-max activation function (as in the other paper). In the example above, this would let the transition cell associate to dendrites responding highly to \((x_1, y_1)\) or \((x_2, y_2)\), while remaining dissociated from dendrites activated in \((x_1, y_2)\) or \((x_2, y_1)\), without sacrificing biological plausibility. This multi compartment model satisfies all requirements stated above. 
 
@@ -86,6 +118,8 @@ sorting = ynt
     \end{enumerate}
  
     Note that step 3 is highly similar to the already existing simulations by Waniek (citation?), just here in a spiking neural network. This was useful, because it allowed testing the hypothesis that transition cells can produce grid-like behavior in networks of more than three neurons if the inhibition is delayed, not showed in previous simulations. Then, networks could gradually be made more complex and biologically plausible, leading to a series of networks that could be tested sequentially from simple and less plausible to more complex and more plausible. The concrete implementation of each network and other considerations are treated in their own upcoming subsections.
+
+    \subsection{Simulation software} All models and implementations can be found on github(Insert link here?), and while the simulation data is not available on github due to storage capacity, it is available (somewhere else?). All simulations were implemented in python, using the brian2-library for its flexibility and easy implementation (cite brian2 here). Simulations used artificial trajectories, either simulated by an algorithm written by Waniek (how should I describe this - refer to sources on mouse trajectory data?) or using RatInABox  to also extract boundary vectors for BVC-inputs (cite ratinabox here). Spatial inputs were calculated prior to simulations, using either position-data or boundary-data from the trajectories, and added to a brian2 spikeGeneratorGroup. The network state was stored frequently during simulations, so the network-states could be reconstructed later for resampling. 
 
     \subsection{Rectangularly spaced inputs} This network structure is heavily inspired by previous TSS-simulations, with three layers: input neurons, transition cells and inhibitory neurons. The input neurons have a preferred spatial location, and have the chance of being activated each theta cycle, which is set to happen with a 10 Hz frequency. The activation function for input neuron \(i\) with position \((x_i, y_i)\) is \begin{equation} \label{key1} delay = \frac{\sqrt{(x_i - x)^2 + (y_i - y)^2}}{\sigma} + \mu\end{equation}
     in which x and y is the current location, \(\sigma\) is a scale parameter determining the width of input, \(\mu\) is noise and delay ends up in ms. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary. Each of these inputs synapsed on each transition cell, with weights randomly drawn from a uniform distribution between 0 and some maximum, \(w_{max}\). The transition cell had a voltage parameter which triggered spikes if it surpassed a treshhold, or updated according to the formula: \[ Insert formula here: I don't know how to get this into a single thing...\].
@@ -102,10 +136,63 @@ sorting = ynt
     White noise was made by generating the desired number of uniformly distributed points independently of each other.
 
     \subsection{Multi Compartment Model}
-    To further bridge the gap between the place-like inputs described thus far and BVCS, this network structure emulated the transition cell as a multi compartment model, in which each cell had multiple dendrites, each dendrite responsible for activity in one region of space. The way this was implemented in practice was to simulate dendrites as a separate layer, serving as an intermediary between input neurons and transition cells. In this model, input neurons were similar to the previous model, so each neuron were activated according to \ref*{key1}, but distributed according to some random process. To justify the two-layer neuron model with dendrites and soma as a multicompartment model, they had the following properties: each dendrite only synapsed onto a single transition cell bodies, dendrites were non-spiking, and the dendrite to soma connectivity was modelled as a gap junction, as in (reference). In this model, each dendrite only received input from a single input neuron, to simulate the place-oriented dendrite. Each dendrite had a voltage-parameter that would increment by a factor \(w\) when receiving inputs, and decaying to 0 over time. Then, the grid cell's voltage was determined by the following formula: \[ v_{soma} = \sum_{i}^{} c_i * tanh(v_i)\] Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not. \(c_i\) is the dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules \ref*{key3} and \ref*{key4} is here learning over conductances instead of synapse weights, but is otherwise similar.
+    To further bridge the gap between the place-like inputs described thus far and BVCS, this network structure emulated the transition cell as a multi compartment model, in which each cell had multiple dendrites, each dendrite responsible for activity in one region of space. The way this was implemented in practice was to simulate dendrites as a separate layer, serving as an intermediary between input neurons and transition cells. In this model, input neurons were similar to the previous model, so each neuron were activated according to \ref*{key1}, but distributed according to some random process. To justify the two-layer neuron model with dendrites and soma as a multicompartment model, they had the following properties: each dendrite only synapsed onto a single transition cell bodies, dendrites were non-spiking, and the dendrite to soma connectivity was modelled as a gap junction, as in (reference). In this model, each dendrite only received input from a single input neuron, to simulate the place-oriented dendrite. Each dendrite had a voltage-parameter that would increment by a factor \(w\) when receiving inputs, and decaying to 0 over time. Then, the grid cell's voltage was determined by the following formula: \[ v_{soma} = \sum_{i}^{} c_i \cdot tanh(v_i)\] Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not. \(c_i\) is the dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules \ref*{key3} and \ref*{key4} is here learning over conductances instead of synapse weights, but is otherwise similar.
 
     \subsection{Boundary vector cell inputs}
     This network structure was designed to be as biologically plausible as possible, but it builds directly on the past sections. As in the gap junction networks, this one has \textit{maybe actually commence this one before continuing, lol}
+
+    \subsection{Analysis}
+    To investigate whether the transition cells had hexagonal firing fields, the network activity was frequently sampled in the entire environment without any learning. This gave momentary pictures of the network state, which were sampled as spike trains and then converted to histograms of spatial firing fields. The measure used to evaluate the hexagonality of the transition cells was primarily the grid score, defined as \[gscore = min(a_{60\degree}, a_{120\degree}) - max(a_{30\degree}, a_{90\degree}, a_{150\degree})\] in which \(a_{n\degree}\) is the correlation between the autocorrelation and itself rotated \(n\) degrees.
+
+
+    \section{Results}
+
+    This study investigated the activity patterns of transition cells with different network models. The model quality was assessed by the mean grid-scores of the transition cells’ firing fields in space, because the hexagonal pattern captured in this score reflects a highly efficient transition cell under the TSS-model. One caveat of the grid score is that it is highly sensitive to shearing and rectangular patterns, so transition cells with distinct periodic firing fields, but without strict hexagonality, can have highly negative grid scores. As such, even if the grid score is used repeatedly here, it is not regarded as a perfect scoring metric.
+
+    Linear-summation models
+    All linear summation models had inputs directly calculated from animal position. Here, transition cells summarized inputs linearly. Each input had a single preferred location in the environment, but their spatial distribution varied. Three distributions were mapped - a regular distribution in which the different inputs preferred locations arranged on a rectangular grid, a white noise distribution in which each input was assigned a random preferential location independent of all other inputs, and a blue noise distribution in which each input was placed as far away from other inputs as possible, but without further structure. An example of each input type is shown in figure \ref{distribution_plot}.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=15cm]{distribution_plot.png}
+        \caption{Examples of the three kinds of input distributions. Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. Noisy blue distribution gives inputs placed sequentially so each is placed as far away from other inputs as possible. White noise distribution places inputs randomly, and independent of all other inputs.}
+        \label{distribution_plot}
+    \end{figure}
+
+    A set of typical parameters are shown in table 3.1, but nuances will be discussed in more detail.
+    \begin{table}[H]
+        \caption{Example parameters for simulations. The parameters are partially chosen for biological plausibility, and partly adapted to achieve desired firing dynamics.}
+        \begin{tblr}
+            {
+            colspec = {X[c,h]X[c]},
+            stretch = 0,
+            rowsep = 6pt,
+            hlines = {black, 1pt},
+            vlines = {black, 1pt},
+        }
+        
+            \textbf{Parameter} & \textbf{Value} \\
+            \# Transition cells & 13\\
+            \# Inputs & 576 (24x24) \\
+            Theta rate & 10 Hz \\
+            Phase-delay cutoff & 20 ms \\
+            \(\sigma\) & 0.012 \\
+            \(\mu\) & uniform[0-2] \\
+            Transition cell threshold & 1.0 \\
+            Transition cell \(\tau\) & 10 ms \\
+            \(w_{max}\) & 0.14 \\
+            \(w_{init}\) & uniform[0-0.75*\(w_{max}\)] \\
+            \(A_{pre}\) & 0.01 \\
+            \(A_{post}\) & -0.007 \\
+            \(\tau_{pre}\) & 8 ms \\
+            \(\tau_{post}\) & 80 ms \\
+            Baseline & 0.005 \\
+            Inhibitory delay & 0.6 ms \\
+        \end{tblr}
+    \end{table}
+
+    Some of these parameters were calibrated in order to achieve a wanted dynamic. Notably, the first transition cell would ideally spike about halfway between the first input and the phase-delay cutoff, in order to facilitate STDP, and the inhibitory delay was set to encourage some other transition cells to fire, while imposing strict inhibition nonetheless. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out. These parameters reflect one way of getting these dynamics to play out appropriately, and some of the models seemed to produce hexagonal transition-cells with a wider range of parameters than others.
+
 
     \printbibliography
 

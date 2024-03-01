@@ -71,7 +71,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.001, alg = 'simple')
 
     # Filter based on delay
-    indices = np.where(delays < 20) 
+    indices = np.where(delays < 22) 
     spike_times = delays[indices] + 100*indices[0]
     neuron_indices = indices[1]
 
@@ -82,8 +82,8 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     taupre = 8*ms
     taupost = 40*ms
     Apre = 0.01
-    Apost = -0.006
-    c_max = 40 / Ndendrites2
+    Apost = -0.005
+    c_max = 30 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
@@ -152,13 +152,24 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
             learning_speed = nu*np.exp(-(mean_speed-current_speed)**2/mean_speed)
         dendrite_layer.l_speed = learning_speed
 
+    class timer():
+        current_time = 0
+        last_time = 0
+        start_time = 0
+
     def plot_g(t):
         # Visualize grid weights if wanted
         if not visualize:
             return
-        last_time = current_time
-        current_time = time.time()
-        print(f"Total simulation time: {current_time - start_time}. Time since last visualization: {current_time - last_time}")
+        if t/ms == 0:
+            timer.start_time = time.time()
+            timer.last_time = timer.start_time
+        else:
+            timer.last_time = timer.current_time
+        timer.current_time = time.time()
+        total_time = timer.current_time - timer.start_time
+        middle_time = timer.current_time - timer.last_time
+        sys.stdout.write(f"\rTotal simulation time: {total_time//60} minutes {np.round(total_time%60, 0)} seconds. Time since last visualization: {middle_time // 60} minutes {np.round(round(middle_time % 60), 0)} seconds.")
         time_ms = t/ms
         # x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
         # i68, i95, i99 = spatialns.get68_95(np.array([x]))
@@ -331,8 +342,6 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         Gs = StateMonitor(grid_layer, ['v', 'Igap'], 0)
 
     print("Initialize done")
-    current_time = time.time()
-    start_time = current_time
     run(duration*ms)
 
     if save_data:

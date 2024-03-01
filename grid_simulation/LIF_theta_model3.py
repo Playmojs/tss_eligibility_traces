@@ -61,8 +61,9 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     print("Precalculate spatial input:")
 
     end_ix = int(duration*delta_t/theta_rate)
-    x = X[0:end_ix:int(1000 * theta_rate/delta_t), :] #TODO: add stationary here
-    activity = np.round(spatialns.dist(x)/sigma*10 + np.max(2*np.random.rand(end_ix, Ndendrites2)-1, 0), 1)
+    step = int(1000 * theta_rate/delta_t)
+    x = X[0:end_ix:step, :] #TODO: add stationary here
+    activity = np.round(spatialns.dist(x)/sigma*10 + (5*np.random.rand(end_ix//step, Ndendrites2)-2.5), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
     neuron_indices = act_indices[1]
@@ -257,6 +258,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
     if spike_plot:
         M = SpikeMonitor(input_layer)
+        I = SpikeMonitor(inhibit_layer)
     if spike_plot or plot_spike_hist or save_data:
         G = SpikeMonitor(grid_layer)
     print("Initialize done")
@@ -286,25 +288,34 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
         plt.show()
 
     if spike_plot:
+        import matplotlib.pyplot as plt
         # print(G.t/ms)
         # print(G.i)
         # print(R.t/ms)
         plt.figure(figsize = (12,12))
-        # plt.subplot(221)
         
-        # plt.vlines(R.t/ms, 0, Ndendrites2, colors = 'r')
+        plt.plot(M.t/ms, M.i, '.k')
+        plt.vlines(G.t/ms, 0, Ndendrites2)
+        plt.vlines(I.t/ms, 0, Ndendrites2, colors = 'r')
         # plt.subplot(222)
         # plt.plot(S.t/ms, S.v[0], 'C0')
         # plt.subplot(223)
         # plt.plot(S.t/ms, S.v[1], 'C0')
         # plt.subplot(224)
         # plt.plot(S.t/ms, S.v[2], 'C0')
+        np.savez_compressed("grid_simulation/Results/input_spikes", \
+                            input_spikes = M.t/ms, \
+                            input_id = M.i, \
+                            grid_spikes = G.t/ms, \
+                            grid_id = G.i, \
+                            inhibit_spikes = I.t/ms, \
+                            inhibit_id = I.i)
         plt.show()
 
 
 if __name__ == '__main__':
-    distrib = 'noisy_white'
+    distrib = 'regular'
     print(f"Input distribution: {distrib}")
     Ndendrites = 24
     Ng = 13
-    gridSimulation(Ndendrites, Ng, 0.12, 1.6 / (Ndendrites*Ng), 100, False, distrib, 10000, True, True, False, False, 10000, f'data/{distrib}_3000s.npz')
+    gridSimulation(Ndendrites, Ng, 0.12, 1.6 / (Ndendrites*Ng), 500, False, distrib, 10000, True, True, False, False, 10000, f'data/{distrib}_3000s.npz')
