@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.1.2)  1 MAR 2024 14:31
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.1.2)  3 MAR 2024 16:18
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"d:/Programs/Github Repositories/tss_eligibility_traces/grid_simulation/Documents/Text"
-(d:/Programs/Github Repositories/tss_eligibility_traces/grid_simulation/Documents/Text.tex
+**"d:/Programs/Github Repositories/tss_eligibility_traces/grid_simulation/Documents/Thesis"
+(d:/Programs/Github Repositories/tss_eligibility_traces/grid_simulation/Documents/Thesis.tex
 LaTeX2e <2023-11-01>
 L3 programming layer <2023-12-11>
 (d:/Programs/texlive/2023/texmf-dist/tex/latex/base/article.cls
@@ -501,23 +501,23 @@ Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... found 'babel' package.
 Package csquotes Info: Adjusting default style.
 Package csquotes Info: Redefining alias 'default' -> 'english'.
- (./Text.aux)
-\openout1 = `Text.aux'.
+ (./Thesis.aux)
+\openout1 = `Thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -553,13 +553,13 @@ LaTeX Font Info:    ... okay on input line 29.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \celsius on input line 29.
-Package gensymb Info: Faking symbols for \degree and \celsius on input line 29.
+LaTeX Info: Redefining \celsius on input line 30.
+Package gensymb Info: Faking symbols for \degree and \celsius on input line 30.
 
 Package gensymb Warning: Not defining \perthousand.
 
-LaTeX Info: Redefining \ohm on input line 29.
-Package gensymb Info: Using \Omega for \ohm on input line 29.
+LaTeX Info: Redefining \ohm on input line 30.
+Package gensymb Info: Using \Omega for \ohm on input line 30.
 
 Package gensymb Warning: Not defining \micro.
 
@@ -599,56 +599,67 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Input encoding 'utf8' detected.
 Package biblatex Info: Data encoding 'utf8' specified.
 (biblatex)             No need to reencode data.
-\openout4 = `Text-blx.bib'.
+\openout4 = `Thesis-blx.bib'.
 
 Package biblatex Info: Trying to load bibliographic data...
-Package biblatex Info: ... file 'Text.bbl' found.
- (./Text.bbl)
-Package biblatex Info: Reference section=0 on input line 29.
-Package biblatex Info: Reference segment=0 on input line 29.
+Package biblatex Info: ... file 'Thesis.bbl' found.
+ (./Thesis.bbl)
+Package biblatex Info: Reference section=0 on input line 30.
+Package biblatex Info: Reference segment=0 on input line 30.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 30.
+(Font)              <12> on input line 31.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 30.
+(Font)              <8> on input line 31.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 30.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 43.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 43.
+(Font)              <6> on input line 31.
  [1
 
-{d:/Programs/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5]
-<./Figures/mouse_plot.png, id=24, 281.56392pt x 281.56392pt>
+{d:/Programs/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 52.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 52.
+ [2]
+Overfull \hbox (3.49193pt too wide) in paragraph at lines 66--67
+\OT1/cmr/m/n/10 cells ex-pe-ri-enced prior to rest are ac-ti-vated again, but com-pressed tem-po-rally (Tona-gawa)([]Olafsdottir,
+ []
+
+[3] [4] [5]
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 116--116
+[] [] 
+ []
+
+<./Figures/mouse_plot.png, id=23, 281.56392pt x 281.56392pt>
 File: ./Figures/mouse_plot.png Graphic file (type png)
 <use ./Figures/mouse_plot.png>
-Package pdftex.def Info: ./Figures/mouse_plot.png  used on input line 87.
-(pdftex.def)             Requested size: 260.17464pt x 260.17186pt.
-<./Figures/input_STDP_plot.png, id=26, 386.49995pt x 295.15068pt>
+Package pdftex.def Info: ./Figures/mouse_plot.png  used on input line 117.
+(pdftex.def)             Requested size: 255.8342pt x 255.83258pt.
+
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 122--122
+[] [] 
+ []
+
+<./Figures/input_STDP_plot.png, id=25, 396.32867pt x 281.56392pt>
 File: ./Figures/input_STDP_plot.png Graphic file (type png)
 <use ./Figures/input_STDP_plot.png>
-Package pdftex.def Info: ./Figures/input_STDP_plot.png  used on input line 91.
-(pdftex.def)             Requested size: 143.09538pt x 109.2761pt.
-<./Figures/input_inhibit_plot.png, id=27, 386.49995pt x 295.15068pt>
+Package pdftex.def Info: ./Figures/input_STDP_plot.png  used on input line 123.
+(pdftex.def)             Requested size: 156.53831pt x 111.21007pt.
+
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 129--129
+[] [] 
+ []
+
+<./Figures/input_inhibit_plot.png, id=26, 396.32867pt x 304.9794pt>
 File: ./Figures/input_inhibit_plot.png Graphic file (type png)
 <use ./Figures/input_inhibit_plot.png>
-Package pdftex.def Info: ./Figures/input_inhibit_plot.png  used on input line 95.
-(pdftex.def)             Requested size: 143.09538pt x 109.2761pt.
-<./Figures/input_plot.png, id=28, 588.13326pt x 295.15068pt>
-File: ./Figures/input_plot.png Graphic file (type png)
-<use ./Figures/input_plot.png>
-Package pdftex.def Info: ./Figures/input_plot.png  used on input line 98.
-(pdftex.def)             Requested size: 433.62pt x 217.61095pt.
- [6]
-Overfull \vbox (80.89891pt too high) has occurred while \output is active []
-
- [7 <./Figures/mouse_plot.png> <./Figures/input_STDP_plot.png> <./Figures/input_inhibit_plot.png> <./Figures/input_plot.png>] [8] [9] [10]
+Package pdftex.def Info: ./Figures/input_inhibit_plot.png  used on input line 130.
+(pdftex.def)             Requested size: 156.53831pt x 120.45856pt.
+[6] [7 <./Figures/mouse_plot.png> <./Figures/input_STDP_plot.png> <./Figures/input_inhibit_plot.png>] [8] [9] [10]
 <./Figures/distribution_plot.png, id=54, 372.76866pt x 133.55496pt>
 File: ./Figures/distribution_plot.png Graphic file (type png)
 <use ./Figures/distribution_plot.png>
-Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 157.
+Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 191.
 (pdftex.def)             Requested size: 426.79134pt x 152.91653pt.
- [11]
 > Step: init table outer spec.
 > Step: parse table options.
 > Step: split table.
@@ -657,33 +668,39 @@ Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 157
 > Step: execute table commands.
 > Step: calculate cell and line sizes.
 > Step: build the whole table.
- [12 <./Figures/distribution_plot.png>] [13]
-Overfull \hbox (2.0341pt too wide) in paragraph at lines 198--198
+ [11 <./Figures/distribution_plot.png>] [12]
+<./Figures/spike_temp_plot.png, id=63, 369.73332pt x 295.15068pt>
+File: ./Figures/spike_temp_plot.png Graphic file (type png)
+<use ./Figures/spike_temp_plot.png>
+Package pdftex.def Info: ./Figures/spike_temp_plot.png  used on input line 236.
+(pdftex.def)             Requested size: 341.43306pt x 272.56876pt.
+ [13 <./Figures/spike_temp_plot.png>] [14]
+Overfull \hbox (2.0341pt too wide) in paragraph at lines 256--256
 [][]\OT1/cmr/m/n/10 Zilli, Eric A. and Michael E. Has-selmo (2010). \  Cou-pled Noisy Spik-ing Neu-rons as Velocity-Controlled
  []
 
-[14] [15] (./Text.aux)
+[15] [16] (./Thesis.aux)
  ***********
 LaTeX2e <2023-11-01>
 L3 programming layer <2023-12-11>
  ***********
-Package logreq Info: Writing requests to 'Text.run.xml'.
-\openout1 = `Text.run.xml'.
+Package logreq Info: Writing requests to 'Thesis.run.xml'.
+\openout1 = `Thesis.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 16495 strings out of 474174
- 332908 string characters out of 5745151
- 1962460 words of memory out of 5000000
- 38667 multiletter control sequences out of 15000+600000
- 564657 words of font info for 56 fonts, out of 8000000 for 9000
+ 16504 strings out of 474174
+ 333176 string characters out of 5745151
+ 1957460 words of memory out of 5000000
+ 38675 multiletter control sequences out of 15000+600000
+ 564965 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 67i,11n,99p,1954b,1732s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on Text.pdf (15 pages, 1024134 bytes).
+ 67i,11n,99p,1958b,1732s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on Thesis.pdf (16 pages, 1222501 bytes).
 PDF statistics:
- 139 PDF objects out of 1000 (max. 8388607)
- 81 compressed objects within 1 object stream
+ 147 PDF objects out of 1000 (max. 8388607)
+ 86 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

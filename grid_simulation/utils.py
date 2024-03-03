@@ -6,6 +6,8 @@ import scipy.signal as sig
 import sys
 import os
 import re
+from brian2 import second
+from scipy.ndimage import gaussian_filter
 
 def getSortedEntries(directory, file_type=None, full_path = True):
     entries = os.listdir(directory)
@@ -430,5 +432,22 @@ def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, bvc_params = [12, 11], di
         print(connections)
     return connections
 
+def getPopulationSpikePlot(file, ng, pxs, gaussian = True):
+    with np.load(file, allow_pickle = True) as data:
+        spike_trains = data['spike_train'].item()
+        X = data['positions']
+    hists = np.empty((ng, pxs, pxs))
+    for z in range(ng):
+        x = 5
+        spike_times = spike_trains[z]/second
+        spike_indices = np.floor(spike_times*int(1000/100))
+        spike_positions = X[np.ndarray.astype(spike_indices, int)]
+        spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
+        if not gaussian:
+            hists[z] = spike_hist
+            continue
+        hists[z] = gaussian_filter(spike_hist, 2)
+    return hists
+        
 
 #getBVCtoDendriteConnectivity(132, 15, distribution = 'orthogonal', verbose = True)

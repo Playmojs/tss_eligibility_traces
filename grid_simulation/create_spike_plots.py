@@ -15,8 +15,8 @@ import plotter
 #plotter.LinePlot(["data/ThetaMSimuls/regular0.npz"], "", False)
 
 
-file_base = 'regular18'
-root_dir = 'grid_simulation/Results/data/GJ_model'
+file_base = 'noisy_white13'
+root_dir = 'grid_simulation/Results/data/24dend2'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']
@@ -44,7 +44,7 @@ plt.axis('square')
 
 # spike_trains = LIF_theta_model3_NL.gridSimulation(Ndendrites, Ng, sigma, 48, reps, input_positions, weights[weights_index, ...], True, "data/ThetaMSimuls/regular0_70minSpikes")
 
-for i in range (10, 100, 10):
+for i in range (0, 100, 5):
     with np.load(f"{root_dir}/{file_base}/{i}min_Spikes.npz", allow_pickle=True) as data:
         spike_trains2 = data['spike_train'].item()
         pos = data['positions']

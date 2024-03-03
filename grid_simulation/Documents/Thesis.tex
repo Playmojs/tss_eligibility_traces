@@ -7,6 +7,7 @@
 \usepackage{gensymb}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\captionsetup[subfigure]{font={bf,small}, skip=1pt, margin=-0.25cm, singlelinecheck=false}
 \usepackage{chngcntr}
 \counterwithin{figure}{section}
 \usepackage{tabularray}
@@ -19,7 +20,7 @@ backend=bibtex,
 style=authoryear,
 sorting = ynt
 ]{biblatex}
-\addbibresource{Text.bib}
+\addbibresource{Thesis.bib}
 
 \title{My masters}
 \author{Simen Storesund}
@@ -29,43 +30,69 @@ sorting = ynt
 \begin{document}
     \maketitle
     \section{Introduction}
-    \textbf{Introduction} One baffling observation from the study of animal biology and neuroscience is how even seemingly simple animals are able to grossly outperform human-made robots, when animals operate with only limited spatial capability and the restraints of biological computations. This is true over a wide scale: not only are birds able to repeatedly and consistently trek thousands of miles between two locations each year, but a range of animal studies show how for instance mice flexibly and reliable learn to adapt to their novel environments, seemingly using a broad range of environmental cues to enhance their spatial understanding.
+    One baffling observation from the study of animal biology and neuroscience is how even seemingly simple animals are able to grossly outperform human-made robots, when animals operate with only limited spatial capability and the restraints of biological computations. This is true over a wide scale: not only are birds able to repeatedly and consistently trek thousands of miles between two locations each year, but a range of animal studies show how for instance mice flexibly and reliable learn to adapt to their novel environments, seemingly using a broad range of environmental cues to enhance their spatial understanding.
+
     Multiple studies have shown that mice navigate based on more than just experience - they are able to find novel shortcuts and navigate around new obstacles without much difficulty. This hints at the existence of some internal representation of the environment, which they can use to mentally compute possible paths to a destination, and somehow choose whichever path is best.
     [Maybe add some general observations about navigation, or other models for animal navigation here?]
+
     The transitional scale space model (TSS) seeks to explore how such a mental map would look, from a computational perspective \parencite{Waniek2020}. The model goes beyond spatial navigation, but the principles it operates under can easily be extended to a spatial environment, and posits, initially, that any model-based path finding system would require two separate memories: a mental map, or some internal representation of the environment, and some way to connect locations on this map together to get sequential routes between some start and some goal.
+
     While the physical space as experienced by mice is a continuous two-dimensional plane, any cognitive map of the environment must be represented by discrete neurons. This discretization of space could occur in many ways, but matching experimental observations, the TSS model suggests that this map could be a network of neurons in which each represents single locations in an environment. Part of the purpose of this network is storing information about each location, which is central for navigation: during path-planning, a mouse must be able to selectively avoid locations that are considered dangerous, which can be based on past experience of those locations. The cell in this map-network representing 'home' would elicit very different responses from the cell representing a dangerous territory, for instance if the mouse has encountered predators there previously.
+
     Such a network does not necessarily contain information about how locations are connected, spatially. Each node, or cell, in the network, does not know its own neighbors. This information is necessary for spatial navigation, and the TSS-model posits that this information can be stored in another network. In this network, each cell represents spatial transitions, to give information about which locations are available at a certain distance from a current location. However, due to the considerable number of possible spatial transitions, making each cell represent a single transition would require a high number of transitions, so the TSS model instead suggests letting each transition cell represent multiple transitions.
+
     The one constraint is that the network breaks down as soon as a transition cell represents a transition both to and from the same location - the domain of the transition cell, which are the places the transition cell transitions from, and the image, where it transitions to, must be disjunct. Apart from that, each transition cell should represent as many transitions as possible, to minimize the number of cells necessary in a working transition cell network.
+
     This argument stands at the center of the TSS model, because it posits that if a mouse brain indeed has these transition cells, they would be as efficient as they could be, appealing to the second level in Marr's three levels of analysis - in a biological network, any cell with a particular purpose should behave as to fulfill that purpose optimally, whatever the purpose is.
     Through mathematical derivations, the TSS shows that such a transition cell operating under the constraints listed above would have a striking spatial activity pattern. Although the mathematics won't be reproduced here, the logic behind an optimal transition cell is as following:
     a transition cell will be activated by all place cells in some limited region, referred to as a 'center' region, and will represent all transitions from that center to all place cells in a region surrounding this center, the 'surround' region. The transition cell will try to fit as many of these 'center-surround' regions into the environment as possible, as long as there is no overlap between center-areas and surround-areas.
+
     Indeed, in the limit of getting as many center-regions into the environment as possible, this transition cell will be active in a periodic, hexagonal pattern in an open environment, which is a solution derived from the sphere-packing problem in two dimensions \parencite{Waniek2018} [Cite sphere packing here?]. With optimal transition cells, all possible spatial transitions from center-areas to surrounding areas can be encoded in a network of only three such cells, highlighting how effectively these cells represent spatial transitions.
+
     A variable in these transition cells is the size of the center- and surround-areas, which in turn would influence the scale of the hexagonal activity pattern. A transition network as described in the TSS-model would work best with multiple separate scales, so larger scales can accelerate the retrieval of paths. In biological systems, where a transition cell has a rate coded activity in a gaussian for each center region, the ideal increment between scales is the \(\sqrt{2}\).
+
     On this basis, the TSS model predicts two memory structures in animals:  internal map, which consists of neurons representing single locations, and a network of transition cells trying to bundle as many transitions together without spurious transitions. Cells in the internal map-network should activate preferentially when the mouse is in some signature location, and cells in the transition-network should show a hexagonal firing pattern, representing available spatial transitions. This transition-network should also contain transition neurons on different scales, in which the increment from one scale to the next is the \(\sqrt{2}\).
     
     The following section will describe experimental results supporting and opposing these predictions made by the TSS model.
     Already fifty years ago, the place cell was observed in the mouse hippocampus, and this has led to a series of interesting experiments and observations \parencite{OKeefe1971,OKeefe1976}. Interestingly, the hippocampus was of interest because of its importance in episodic memory formation. The canonical hippocampal pathways divide the hippocampus in three regions that communicate in a feedforward manner: the dentate gyrus receives inputs from outside the hippocampus, and project these to CA3, which both has recurrent excitatory connections as well as projections to CA1 [Source here?]. The main output region from CA1 is the subiculum, which is outside the hippocampus and projects to the prefrontal cortex. Place cells have both been observed in CA3 and CA1, but have not been seen outside the hippocampus.
+
     The place cell typically fires with a rate that is distributed in a gaussian around one or a few locations in the environment, so a network of place cells can encode all positions in an environment \parencite{Wilson1993}.
     One line of evidence that suggests that place cells participate in navigation is sequential activity, observed both during and after navigation. Sequential place cell activity during rest or sleep after navigation, called replay, reflects both sequences of place cells in the order they were active during navigation, or reverse sequences \parencite{Wilson1994}. Interestingly, replay occurs during sharp wave ripples, in which the place cell activity is temporally compressed relative to their activity during navigation.
+
     Preplay refers to sequential place cell activity during navigation. During preplay, place cells corresponding to the current location is followed by place cells that will be active a short time into the future, indicating that the hippocampus has some information about upcoming place cells \parencite{Dragoi2011,Dragoi2013}.
+
     The hippocampus is also subject to oscillations in the local field potential, prominently in the 4-11 hZ region, called theta oscillations, or just theta. When preplay is viewed relative to theta, the place cells corresponding to the current locations are active at the trough of the wave, while past place cells activate in the descending part of the wave, and future place cells activate in the ascending part of the wave. This phenomenon is called theta wave precession (Mosers and Hafting on grid cells, someone else on place cells?).
+
     Replay typically occurs during rest or sleep following explorations, in which sequences of place cells experienced prior to rest are activated again, but compressed temporally (Tonagawa)\parencite{Olafsdottir2016} . Moreover, combinations of sequences are seen, which seems to produce novel trajectories in an already explored space.
+
     Interestingly, place cells can be active in multiple environments, but they remap independently of each other (O’Keefe, other sources here?). This implies that the place cell networks are modulated by the context, but the mechanisms for this are currently unknown.
+
     Grid cells were originally found in the search of afferents to the hippocampus place cell system, first found in layer II of the medial entorhinal cortex (mECII)\parencite{Hafting2005}. Grid cells are characterized by periodic spatial activity, arranged so that the firing fields make up hexagonal patterns spanning the environment, and this activity is found both in stellate- and pyramidal cells of mECII(Hafting, or someone else?). These cells are also firing independently of head direction or velocity, and have since been found in multiple other parts of the brain, such as in deeper layers of the medial entorhinal cortex (III - IV), as well as the pre- and para-subculum (Cite these here).
+
     Grid cells, too, have received a lot of attention, and a series of details about their firing properties has since been revealed. Grid cells seem to align with the boundaries of their environment with a small wall-angle offset, and grid cells located near each other in the entorhinal cortex also share the spacing, or size of each hexagon (Some other sources here?). However, along the dorsoventral axis, the spacing of the grid increases by a factor of the square root of two (Also, source?). Grid cell activity is strikingly robust across trials and time, and it also seems to persist when visual cues are removed (Source). However, their hexagonal gridness depends on the environment shape, and their firing pattern gets distorted in trapezoid or not-regular environments \parencite{Stensola2015,Krupic2015}.
+
     Grid cells also exhibit theta wave precession during navigation \parencite{Hafting2008}, and interestingly, when abolishing the theta rhythm by lesioning the medial septum, grid cell activity loses their spatial correlation in mice, so theta rhythm seems critical for the grid cell pattern (Brandon, 2011, and Koenig, 2011). However, this was not seen in similar experiments in bats \parencite{Yartsev2011}.
+
     Typical input regions to the medial entorhinal cortex are the post- and perirhinal cortices, as well as the pre- and parasubiculum, which seem to integrate information from multiple sensory modalities, but to the author's knowledge, the concrete input structure to grid cells is not known (Multiple sources required here, lol).
+
     Within mECII; grid cells seem to be interconnected by parvalbumin-positive interneurons, applying strong, lateral somatic inhibition, while excitatory connections have not been observed \parencite{Couey2013,Buetfering2014}. Moreover, maturation of this interneuron structure seems to reinforce and strengthen the spatial correlations of grid cells \parencite{Christensen2021}. 
     Connectivity between grid cells and place cells are only partially mapped, but in addition to the canonical tripartite synapse model, which understood the dentate gyrus as the main input region of the hippocampus, the mECII also projects directly to CA1 (Check Witter’s review, find sources there). This suggests that place cells might be formed based on summation of grid cell inputs on multiple scales, but this idea was contradicted when it was found that place cells mature earlier than grid cells in development (postnatal day 16-17 versus postnatal day 19-20) \parencite{Langston2010,Wills2010,Wills2012}. However, it has been established that CA1 also projects strongly back to mECII, and that grid cell activity depends on these connections \parencite{Bonnevie2013}.
+
     A multitude of models and model families already exist to explain the wealth of experimental data on grid cells, with differences in their suggested mechanisms for the grid pattern, as well as the purpose of the grid cell. Due to their persistent spiking in darkness, many models assume that grid cells do path integration, integrating self-movement information to predict current location in the absence of external inputs(Hafting, plus a bunch of models, or a review?). Oscillatory interference (OI) - models seek to explain the theta phase precession in grid cells, and have shown that grid-like activity can be achieved by the interference of multiple oscillators in membrane potential \parencite{Burgess2007,Zilli2010}. The OI-model can account for many activity patterns, but if the different oscillators differ in frequency by a sufficiently small margin, and adapt this margin based on speed- or velocity-signals, the cell can have a grid-cell-like activity with spacings as observed in experiments. Also, these methods effectively explain the phase precession observed in grid cells. 
+
     Another set of models explain the grid cell as a part of a continuous attractor network (CAN), which can explain persistent grid cell activity during rest or sleep \parencite{Yoon2013,Widloski2014}. These models can be implemented with lateral inhibition between grid cells, as observed in mECII, as long as the strength of the inhibition is inversely proportional to the overlap of firing fields, so the most active grid cell silences all other grid cells. When the animal moves, this activity is shifted to a grid cell with a neighboring phase.
+
     It has been demonstrated that any such system of path integration still needs regular external input to avoid drift, and the exact inhibitory structure predicted by CAN - networks have not been observed. Additionally, the velocity-based inputs have not been observed, although this might just stem from the unexplored input-space of grid cells (Some review claimed this).
     A third set of models predict that grid-patterns can be learnt by Hebbian mechanics, or by associating to the right spatial inputs and dissociating to other spatial inputs. Early methods found grid-like activity with neurons experiencing firing fatigue, and subsequent models have produced grid cells purely with spatial inputs. For instance, (Castro and Aguiar) showed that grid cells can occur from place cell inputs, and (Mercado and Leibold) made a model with center-surround inputs from place cells, arguing that grid cells is some turing pattern learnt on top of a place cell network. 
+
     It is this third set that is the most similar to the TSS model, because grid cells are not assumed to rely on velocity-signals to perform path integration. In the TSS model, the suggested mechanism by which transition cells learn is suggested to be similar to how place cells learn their receptive fields. The place cell learns to activate based on spatially modulated sensory inputs, in which each place cell associates to spatial inputs from one area, and lateral inhibition prevents other place cells from activating. This has been explored in numerous works prior to TSS, for instance using boundary vector cells or object vector cells as inputs \parencite{Barry2006}(am I correct saying this also exists for OBCs?). Boundary vector cells and object vector cells are similar in that they activate preferentially when the animal is at some distance and direction relative to an external structure. Cells are called boundary vector cells if this structure is an environment boundary, such as a wall or a cliff, while they are called object vector cells if the structure is some environment landmark. Using cells like these as spatial input in a feed-forward network is attractive because the cells can plausibly exist and be configured prior to exploration, and computed during exploration through optic flow \parencite{Raudies2012}.
+
     Under the TSS-model, grid cells, which are suggested transition cells, are also formed from spatially modulated inputs. As opposed to place cells, these associate to spatial inputs in center-regions, and dissociate to inputs from the surrounding-regions, while trying to fit as many center-regions into the environment as possible. These transition cells are also interconnected by strong lateral inhibition, to discourage overlapping center-regions.
     Notably, the TSS-model only assumes this learning rule for the lowest transition-scale, while subsequent scales can be learnt from inputs on the last scale.
+
     This learning rule has been proven in discrete-time simulations in networks of three transition cells, which received spatial inputs sampled from a regular, rectangular grid of spatial cells. However, the simulations did not produce grid cells with more than three transition cells, and it is unlikely that such an input-network of regularly distributed place cells actually exists prior to exploration. Both of these constraints need to be addressed for this learning rule to carry biological plausibility, in which any transition network probably would consist of more than three cells, possibly with overlapping center-areas, and in which the input-structure should be reasonable in a novel environment.
     In this work, the main objective is to establish this network structure in a more biologically plausible way, and explore under what conditions or constraints transition cells develop a hexagonal structure. The two main subgoals is to first see if a biologically plausible network can contain more than three grid cells, by simulating in continuous time to see if delayed inhibition can allow overlapping grid fields.
+
     Secondly, the way the structure of spatial input affects gridness is also explored. To allow for a center-surround learning rule, spatial input was always phase-coded, so the grid cells received pulses of inputs in simulated theta-cycles, in which the more relevant inputs arrived earlier, and a STDP-learning rule separated center from surround input. For highest biological plausibility, this input would be boundary vector cells or similar, and this was attempted with complex dendritic computations to allow differentiating vector-inputs, but place-cell like distributions were also attempted to reduce the simulation complexity and simulation times. With a simple STDP- based learning rule, robust gridness scores were observed with multiple network structures, showing that cells can learn spatial transitions effectively under biologically plausible conditions.
         
     \section{Methods} 
@@ -81,24 +108,31 @@ sorting = ynt
 
     Both an ideal network and subsequent simplifications will have some common features to accommodate these limitations: first, spike timing dependent plasticity is a biologically plausible learning rule which both allows single transition cells to associate with spatial inputs associated with center, and dissociate with inputs associated with surround areas. To facilitate this, all inputs arrive in pulses at theta-wave frequency, 10 Hz, in which only spatial input with sufficiant relevance is active. The input is also phase coded, so the less relevant, the higher the temporal offset is relative to theta. This means that a transition cell is likely to fire following center-inputs, and subsequently receive a burst of inputs from cells representing surrounding locations. The STDP learning-rule will ensure that the center-activity which arrived pre-spike are potentiated, and the surround-activity arriving post-spike is depressed. Secondarily, all active inputs are slightly potentiated to encourage the transition cell to be active in as many center-areas across the environment as possible.
 
-    \begin{figure}[H]
+    \begin{figure}[htbp]
         \centering
-        \begin{subfigure}[][][c]{0.6\textwidth}
-            \includegraphics[width = \textwidth]{mouse_plot.png}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[][][c]{0.33\textwidth}
-            \includegraphics[width = \textwidth]{input_STDP_plot.png}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[][][t]{0.33\textwidth}
-            \includegraphics[width = \textwidth]{input_inhibit_plot.png}
-        \end{subfigure}
-        \begin{subfigure}[][][b]{\textwidth}
-            \includegraphics[width = \textwidth]{input_plot.png}
-        \end{subfigure}
-
-        \caption{Spatial inputs from a region surrounding the mouse will be activated each theta-cycle, here shown as inputs within the two surrounding circles. This input is phase-coded, so cells responding to locations nearest to the mouse will arrive earlier. With a STDP learning rule, this can lead to association to the central inputs, and dissociation of the surround inputs, as shown by the innermost surrounding circle.}
+        
+        \begin{minipage}[b]{0.59\textwidth}
+            \centering
+            \subcaption{}
+            \includegraphics[width=\textwidth]{mouse_plot.png}
+        \end{minipage}
+        \begin{minipage}[b]{0.38\textwidth}
+            \centering
+            \begin{subfigure}{\textwidth}
+                \subcaption{}
+                \includegraphics[width=0.95\textwidth]{input_STDP_plot.png}
+            \end{subfigure}
+            
+            \medskip
+            
+            \begin{subfigure}{\textwidth}
+                \subcaption{}
+                \includegraphics[width=0.95\textwidth]{input_inhibit_plot.png}
+            \end{subfigure}
+        \end{minipage}%
+        
+        \caption{(a) Spatial inputs from a region surrounding the mouse will be activated each theta-cycle, here indicated by points within the two surrounding circles. This input is phase-coded, so cells responding to locations nearest to the mouse will arrive earlier. (b) The spike time of a transition cell spike (green vertical line) is central under the STDP learning rule. The transition cell will here associate to the inputs arriving prior to spiking, and dissociate from the inputs coming after the spike. In this case, that might lead to a center- surround adaptation dynamic. (c) Delayed inhibition (purple vertical line) can allow multiple transition cells (green vertical lines) to fire during the same theta-cycle.}
+        
         \label{mouse_plot}
     \end{figure}
 
@@ -149,17 +183,17 @@ sorting = ynt
 
     This study investigated the activity patterns of transition cells with different network models. The model quality was assessed by the mean grid-scores of the transition cells’ firing fields in space, because the hexagonal pattern captured in this score reflects a highly efficient transition cell under the TSS-model. One caveat of the grid score is that it is highly sensitive to shearing and rectangular patterns, so transition cells with distinct periodic firing fields, but without strict hexagonality, can have highly negative grid scores. As such, even if the grid score is used repeatedly here, it is not regarded as a perfect scoring metric.
 
-    Linear-summation models
+    \subsection{Linear-summation models}
     All linear summation models had inputs directly calculated from animal position. Here, transition cells summarized inputs linearly. Each input had a single preferred location in the environment, but their spatial distribution varied. Three distributions were mapped - a regular distribution in which the different inputs preferred locations arranged on a rectangular grid, a white noise distribution in which each input was assigned a random preferential location independent of all other inputs, and a blue noise distribution in which each input was placed as far away from other inputs as possible, but without further structure. An example of each input type is shown in figure \ref{distribution_plot}.
 
     \begin{figure}[H]
         \centering
         \includegraphics[width=15cm]{distribution_plot.png}
-        \caption{Examples of the three kinds of input distributions. Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. Noisy blue distribution gives inputs placed sequentially so each is placed as far away from other inputs as possible. White noise distribution places inputs randomly, and independent of all other inputs.}
+        \caption{Examples of the three kinds of input distributions. Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. A blue noise distribution places inputs sequentially so each is placed as far away from other inputs as possible, resulting in an even, unstructured distribution. White noise distribution places inputs randomly, and independent of all other inputs, so some locations produce more input activity than others.}
         \label{distribution_plot}
     \end{figure}
 
-    A set of typical parameters are shown in table 3.1, but nuances will be discussed in more detail.
+    Under these models, hyperparameters were made to be biologically plausible, but some sets of parameters were calibrated in order to achieve a wanted dynamic. Notably, the first transition cell would ideally spike about halfway between the first input and the phase-delay cutoff, in order to facilitate STDP, and the inhibitory delay was set to give a brief window for other cells to fire. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out. Table 3.1 shows one example set of parameter values that would allow these dynamics.
     \begin{table}[H]
         \caption{Example parameters for simulations. The parameters are partially chosen for biological plausibility, and partly adapted to achieve desired firing dynamics.}
         \begin{tblr}
@@ -181,7 +215,7 @@ sorting = ynt
             Transition cell threshold & 1.0 \\
             Transition cell \(\tau\) & 10 ms \\
             \(w_{max}\) & 0.14 \\
-            \(w_{init}\) & uniform[0-0.75*\(w_{max}\)] \\
+            \(w_{init}\) & uniform[0-0.75 \(\cdot w_{max}\)] \\
             \(A_{pre}\) & 0.01 \\
             \(A_{post}\) & -0.007 \\
             \(\tau_{pre}\) & 8 ms \\
@@ -189,9 +223,33 @@ sorting = ynt
             Baseline & 0.005 \\
             Inhibitory delay & 0.6 ms \\
         \end{tblr}
+        \label{param_table}
     \end{table}
 
-    Some of these parameters were calibrated in order to achieve a wanted dynamic. Notably, the first transition cell would ideally spike about halfway between the first input and the phase-delay cutoff, in order to facilitate STDP, and the inhibitory delay was set to encourage some other transition cells to fire, while imposing strict inhibition nonetheless. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out. These parameters reflect one way of getting these dynamics to play out appropriately, and some of the models seemed to produce hexagonal transition-cells with a wider range of parameters than others.
+    \subsection{Temporal development with a regular input distribution}
+    Running simulations with a regular input distribution and parameters as in \ref{param_table} give cells that develop spatial center-surround areas in multiple parts of the environment. Because of the regular input distribution, the features of these cells can be understood directly from weight-plots (insert weight plot here?), showing how the receptive fields of these cells develop from a random uniform distribution.
+    Looking at spike plots during learning-frozen sampling across the entire environment also shows the global development with time. These spike plots also have the advantage of working with non-regular input distributions, so they are also the main source of comparison between models. In these simulations, transition cells develop spatial fields within the first minutes of simulation, but become more regular and dense over time \ref{spike_temp_plot}. This satisfies two of the criteria for the model: in this network, more than three effective transition neurons can exist simultaneously, and transition cells exhibit clear center-surround fields, so they don't represent spurious transitions. In addition, as shown in the rightmost column, the firing fields of these grid cells are stable across the simulation, as shown by looking at all their spikes in the learning-frozen sampling taken every five minutes across the entire simulation.
+
+    \begin{figure}[H]
+        \centering
+        \begin{minipage}[b]{12cm}
+        \includegraphics[width=\linewidth]{spike_temp_plot.png}
+        \caption{Temporal development of firing fields in transition cells with regularly spaced inputs and parameters as in \ref{param_table}. Each row shows one grid cell taken from the same simulation. In each case, the network weights at the designated times were frozen, and the network activity was systematically sampled from the entire environment. In only a few minutes, the transition cells show clear spatial firing fields. Over time these firing fields become denser, but are also temporally stable, as the sum of all this activity taken every five minutes (0 to 95 minutes) still have clearly isolated firing fields.}
+        \label{spike_temp_plot}
+        \end{minipage}
+    \end{figure}
+
+    \subsection{Multiple transition cells}
+    The first question that was asked was whether the TSS model implemented in a spiking neural network could produce more than three transition cells with grid-like spatial activity patterns. As demonstrated in previous models, this would require transition cells to have partially overlapping areas of activity. This was attempted in networks of 13, 23 and 37 transition cells (figure 3.2), numbers chosen to be sufficiently far apart, and always primes to avoid any symmetry. Each of these networks had regularly distributed spatial inputs, and a quite fast-acting inhibitory control. Nonetheless, each of these networks showed a positive grid-score development over simulation time, showing that a network with inhibitory delay can sustain multiple transition cells. Moreover, topological analysis shows that these transition cells don’t have overlapping firing fields, distributing somewhat evenly across the network torus.
+
+
+    \subsection{Different input distributions}
+    To investigate the importance of input structure, regular input was compared to both blue noise inputs and white noise inputs. One central difference between blue noise and white noise is that blue noise inputs would be distributed approximately evenly across the environment, while white-noise inputs randomly cluster in some areas, while other areas would be more sparsely covered. The fewer inputs, the higher the chance that some locations are sparsely populated, which might lead to areas of global inactivity in the transition cell layer.
+    Although the parameter space was not tested exhaustively for all these models, the simulation results indicates that all input-distributions would produce periodic spatial activity (figure 3.3). However, while models with blue-noise distributed inputs and regularly distributed inputs produced similar grid scores, models with  white-noise rarely achieved higher mean gridness scores than 0.2 or 0.3. This seems to indicate that the evenness of the input-density plays a role in transition-cell learning, but that the exact spatial pattern does not.
+
+    \subsection{Multi-compartment dendrite model}
+    This model provided an intermediate step between the linear summation models described above and the boundary vector cell - input models. The transition cell firing dynamic was as above calibrated to obtain a certain firing dynamic, but now learning over conductances instead of synaptic weights, inspired by \citation{??}. However, more than this, network weights could simply be converted from the above models, giving largely similar results. 
+
 
 
     \printbibliography

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import utils
 
 def getFilteredInputSpikes(time_window):
     spike_data = [None]*3
@@ -20,8 +21,8 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ["input_plot"]
-save = False
+plots = ["spike_temp_plot"]
+save = True
 
 if("distribution_plot" in plots):
     inputs = ["grid_simulation/Results/data/24dend2/regular0.npz", "grid_simulation/Results/data/24dend2/noisy_blue0.npz", "grid_simulation/Results/data/24dend2/noisy_white0.npz"]
@@ -69,8 +70,7 @@ if("input_STDP_plot" in plots):
     ax.vlines(filtered_data[1][0], 100, 450, linewidth = 2, color = 'forestgreen')
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Input Cell')
+    ax.set_ylabel('Input Cell', fontsize = 20)
     [x.set_linewidth(2) for x in ax.spines.values()]
     if save:
         fig.savefig("grid_simulation/Documents/Figures/input_STDP_plot", dpi = 500, bbox_inches = 'tight')
@@ -85,8 +85,8 @@ if("input_inhibit_plot" in plots):
     ax.vlines(filtered_data[2][0], 100, 450, linewidth = 2, color = 'darkmagenta')
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Input Cell')
+    ax.set_xlabel('Time', fontsize = 20)
+    ax.set_ylabel('Input Cell', fontsize = 20)
     [x.set_linewidth(2) for x in ax.spines.values()]
     if save:
         fig.savefig("grid_simulation/Documents/Figures/input_inhibit_plot", dpi = 500, bbox_inches = 'tight')
@@ -126,8 +126,60 @@ if("mouse_plot" in plots):
     ax.set_ylim([lim_lo,lim_hi])
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
-    [x.set_linewidth(2) for x in ax.spines.values()]
+    [x.set_linewidth(1) for x in ax.spines.values()]
     if save:
         fig.savefig("grid_simulation/Documents/Figures/mouse_plot", dpi = 500, bbox_inches = 'tight')        
+
+if('spike_temp_plot' in plots):
+    base_path = "grid_simulation/Results/data/simspam/regular5"
+    ng = 13
+    pxs = 48
+    nrows = 5
+    rel_times = np.array([0,5,10,40,95])
+    all_times = np.arange(20)
+    rel_n = len(rel_times)
+    all_n = len(all_times)
+    # picks = np.random.choice(ng, nrows, False)
+    picks = np.array([0,1,3,4,5])
+    hist = np.empty((all_n, ng, pxs, pxs))
+
+    for i in all_times:
+        hist[i] = utils.getPopulationSpikePlot(f"{base_path}/{i*5}min_Spikes.npz", 13, 48)
+    fig, ax = plt.subplots(nrows, rel_n + 1)
+    for r in range (nrows):
+        ind = picks[r]
+        for z, rel_time in enumerate(rel_times):
+            ax[r,z].imshow(hist[rel_time//5, ind],  interpolation='none', origin = 'lower')
+            ax[r,z].axis('off')
+            ax[0,z].set_title(f"{rel_time} minutes", fontsize = 10)
+        ax[r, rel_n].imshow(np.sum(hist[:, ind], 0), interpolation='none', origin = 'lower')
+        ax[r,rel_n].axis('off')
+    ax[0, rel_n].set_title("Sum", fontsize = 10)
+    
+
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/spike_temp_plot", dpi = 500, bbox_inches = 'tight')      
+
+if('gscore_line_plot' in plots):
+    gscores = np.load('grid_simulation/Results/simspam.npz')['gscores']
+    shape = gscores.shape
+    mean_gscores = np.nanmean(gscores, axis = (1,3))
+    var_gscores = np.nanvar(gscores, axis = (1,3)) / (shape[1] * shape[3])
+    times = np.linspace(0, 100, shape[2], endpoint=False)
+    fig, ax = plt.subplots()
+    for line_mean, line_var in zip(mean_gscores, var_gscores):
+        ax.plot(times, line_mean)
+        ax.fill_between(times, line_mean + np.sqrt(line_var), line_mean - np.sqrt(line_var), alpha=0.4, interpolate=True)
+    ax.set_ylim([0, 0.55])
+    ax.set_xlim([0,95])
+    ax.set_xticks(times[::2])
+
+if('gscore_boxplot' in plots):
+    gscores = np.load('grid_simulation/Results/simspam.npz')['gscores']
+    shape = gscores.shape
+    end_gscores = np.reshape(gscores[:,:,-1,:],(shape[0], shape[1]*shape[3]))
+    fig, ax = plt.subplots()
+    ax.boxplot(end_gscores.T)
+
 
 plt.show()
