@@ -346,6 +346,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 
     if save_data:
         print()
+        weight_tracker[-1] = dendrite_layer.c
         spike_data = G.spike_trains()
         np.savez_compressed(f'grid_simulation/Results/{file_name}', \
             Ndendrites = Ndendrites, \
@@ -406,16 +407,16 @@ if __name__ == '__main__':
     Ng = 13
     sigma = 0.09
     stationary = False
-    plot_spike_hist =  True
-    plot_weights = True
+    plot_spike_hist =  False
+    plot_weights = False
     if stationary:
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.5 * 10**6  
+        duration = 0.01 * 10**6  
         visualize_tick = 10000
     spike_plot = not (plot_spike_hist or plot_weights)
-    save_data = False
+    save_data = True
     save_tick = 1000
     output_filename = 'test.npz'
     baseline_effect = 2.5 / (Ndendrites*Ng)

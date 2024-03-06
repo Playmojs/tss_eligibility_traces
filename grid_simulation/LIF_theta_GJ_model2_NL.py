@@ -38,7 +38,7 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, conduct
     # Input layer setup
     filter = 18
 
-    activity = np.round(spatialns.dist(X)/sigma*10 + np.max(2*np.random.rand(pxs**2, Ndendrites2)-1, 0), 1)
+    activity = np.round(spatialns.dist(X)/sigma*10 + (np.random.normal(0, 2,(pxs**2, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
     neuron_indices = act_indices[1]

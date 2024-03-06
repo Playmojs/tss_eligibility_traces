@@ -39,16 +39,16 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
 
 
     print("Precalculate spatial inputs")
-    delays = utils.BVC_act(boundary_cells,boundary_vectors, Nbvcs, sigma, noise_level= 0.005, alg = 'simple')
+    delays = utils.BVC_act(boundary_cells, boundary_vectors, Nbvcs, sigma, noise_level= 0.001, alg = 'simple')
 
     # Filter based on delay
-    indices = np.where(delays < 20) 
+    indices = np.where(delays < 22) 
     spike_times = delays[indices] + 100*indices[0]
     neuron_indices = indices[1]
 
     BVC_layer = SpikeGeneratorGroup(Nbvcs, neuron_indices, spike_times*ms)
 
-    tau_d = 10*ms 
+    tau_d = 15*ms 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     c : 1
                     Ve = int(v > 1.1) : 1'''
@@ -104,5 +104,19 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
         np.savez_compressed(f"grid_simulation/Results/{file_name}",  \
             spike_train = G.spike_trains(), \
             positions = X)
-    print()
+    print()   
     return G
+
+if __name__ == "__main__":
+    with np.load("grid_simulation/Results/test.npz", allow_pickle= True) as data:
+        Ndendrites = data["Ndendrites"]
+        sigma = data["sigma"]
+        Ng = data["Ng"]
+        conductivities = data["weights"]
+        Nthetas = data["Nthetas"]
+        Ndists = data["Ndists"]
+        BVC_connections = data["BVC_connections"]
+        distribution = data["distribution"]
+
+
+    gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, 5, 1,BVC_connections, conductivities[-1], True, "test2")
