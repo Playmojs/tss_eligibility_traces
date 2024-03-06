@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.1.2)  3 MAR 2024 16:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.1.2)  5 MAR 2024 10:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -616,49 +616,49 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 {d:/Programs/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 52.
+(Font)              <7> on input line 54.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 52.
+(Font)              <5> on input line 54.
  [2]
-Overfull \hbox (3.49193pt too wide) in paragraph at lines 66--67
+Overfull \hbox (3.49193pt too wide) in paragraph at lines 69--70
 \OT1/cmr/m/n/10 cells ex-pe-ri-enced prior to rest are ac-ti-vated again, but com-pressed tem-po-rally (Tona-gawa)([]Olafsdottir,
  []
 
 [3] [4] [5]
-Overfull \hbox (7.11317pt too wide) in paragraph at lines 116--116
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 122--122
 [] [] 
  []
 
 <./Figures/mouse_plot.png, id=23, 281.56392pt x 281.56392pt>
 File: ./Figures/mouse_plot.png Graphic file (type png)
 <use ./Figures/mouse_plot.png>
-Package pdftex.def Info: ./Figures/mouse_plot.png  used on input line 117.
+Package pdftex.def Info: ./Figures/mouse_plot.png  used on input line 123.
 (pdftex.def)             Requested size: 255.8342pt x 255.83258pt.
 
-Overfull \hbox (7.11317pt too wide) in paragraph at lines 122--122
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 128--128
 [] [] 
  []
 
 <./Figures/input_STDP_plot.png, id=25, 396.32867pt x 281.56392pt>
 File: ./Figures/input_STDP_plot.png Graphic file (type png)
 <use ./Figures/input_STDP_plot.png>
-Package pdftex.def Info: ./Figures/input_STDP_plot.png  used on input line 123.
+Package pdftex.def Info: ./Figures/input_STDP_plot.png  used on input line 129.
 (pdftex.def)             Requested size: 156.53831pt x 111.21007pt.
 
-Overfull \hbox (7.11317pt too wide) in paragraph at lines 129--129
+Overfull \hbox (7.11317pt too wide) in paragraph at lines 135--135
 [] [] 
  []
 
 <./Figures/input_inhibit_plot.png, id=26, 396.32867pt x 304.9794pt>
 File: ./Figures/input_inhibit_plot.png Graphic file (type png)
 <use ./Figures/input_inhibit_plot.png>
-Package pdftex.def Info: ./Figures/input_inhibit_plot.png  used on input line 130.
+Package pdftex.def Info: ./Figures/input_inhibit_plot.png  used on input line 136.
 (pdftex.def)             Requested size: 156.53831pt x 120.45856pt.
 [6] [7 <./Figures/mouse_plot.png> <./Figures/input_STDP_plot.png> <./Figures/input_inhibit_plot.png>] [8] [9] [10]
-<./Figures/distribution_plot.png, id=54, 372.76866pt x 133.55496pt>
+<./Figures/distribution_plot.png, id=53, 372.76866pt x 133.55496pt>
 File: ./Figures/distribution_plot.png Graphic file (type png)
 <use ./Figures/distribution_plot.png>
-Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 191.
+Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 197.
 (pdftex.def)             Requested size: 426.79134pt x 152.91653pt.
 > Step: init table outer spec.
 > Step: parse table options.
@@ -672,10 +672,10 @@ Package pdftex.def Info: ./Figures/distribution_plot.png  used on input line 191
 <./Figures/spike_temp_plot.png, id=63, 369.73332pt x 295.15068pt>
 File: ./Figures/spike_temp_plot.png Graphic file (type png)
 <use ./Figures/spike_temp_plot.png>
-Package pdftex.def Info: ./Figures/spike_temp_plot.png  used on input line 236.
+Package pdftex.def Info: ./Figures/spike_temp_plot.png  used on input line 242.
 (pdftex.def)             Requested size: 341.43306pt x 272.56876pt.
  [13 <./Figures/spike_temp_plot.png>] [14]
-Overfull \hbox (2.0341pt too wide) in paragraph at lines 256--256
+Overfull \hbox (2.0341pt too wide) in paragraph at lines 262--262
 [][]\OT1/cmr/m/n/10 Zilli, Eric A. and Michael E. Has-selmo (2010). \  Cou-pled Noisy Spik-ing Neu-rons as Velocity-Controlled
  []
 
@@ -697,7 +697,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  67i,11n,99p,1958b,1732s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb><d:/Programs/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on Thesis.pdf (16 pages, 1222501 bytes).
+Output written on Thesis.pdf (16 pages, 1223842 bytes).
 PDF statistics:
  147 PDF objects out of 1000 (max. 8388607)
  86 compressed objects within 1 object stream

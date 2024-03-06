@@ -21,7 +21,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ["spike_temp_plot"]
+plots = ["gscore_line_plot", "gscore_boxplot", "gscore_hist"]
 save = True
 
 if("distribution_plot" in plots):
@@ -161,7 +161,7 @@ if('spike_temp_plot' in plots):
         fig.savefig("grid_simulation/Documents/Figures/spike_temp_plot", dpi = 500, bbox_inches = 'tight')      
 
 if('gscore_line_plot' in plots):
-    gscores = np.load('grid_simulation/Results/simspam.npz')['gscores']
+    gscores = np.load('grid_simulation/Results/simspam2.npz')['gscores']
     shape = gscores.shape
     mean_gscores = np.nanmean(gscores, axis = (1,3))
     var_gscores = np.nanvar(gscores, axis = (1,3)) / (shape[1] * shape[3])
@@ -175,11 +175,18 @@ if('gscore_line_plot' in plots):
     ax.set_xticks(times[::2])
 
 if('gscore_boxplot' in plots):
-    gscores = np.load('grid_simulation/Results/simspam.npz')['gscores']
+    gscores = np.load('grid_simulation/Results/simspam2.npz')['gscores']
     shape = gscores.shape
     end_gscores = np.reshape(gscores[:,:,-1,:],(shape[0], shape[1]*shape[3]))
     fig, ax = plt.subplots()
     ax.boxplot(end_gscores.T)
+
+if('gscore_hist' in plots):
+    gscores = np.load('grid_simulation/Results/simspam2.npz')['gscores']
+    fig, ax = plt.subplots(1, len(gscores))
+    for i in range(len(gscores)):
+        hist, edge = np.histogram(gscores[i,:,-1,:])
+        ax[i].plot(edge[1:] - (edge[1:] - edge[:-1]) / 2, hist)
 
 
 plt.show()
