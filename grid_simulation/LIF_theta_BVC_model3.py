@@ -4,6 +4,7 @@ import numpy as np
 from numpy import tanh
 from numpy import exp
 import utils
+import time
 from scipy.ndimage import gaussian_filter
 import h5py
 import sys
@@ -19,7 +20,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     # Set up boundary cell values
     max_dist = 0.5
     Nbvcs = Nthetas*Ndists
-    boundary_cells = np.meshgrid(np.arange(0,180, int(180/Nthetas), dtype =int), np.linspace(0, max_dist, Ndists))
+    boundary_cells = np.meshgrid(np.arange(0,180, int(180/Nthetas), dtype =int), np.linspace(0, max_dist, Ndists, False))
     boundary_cells = np.reshape(boundary_cells, (2,-1))
 
     # Set up input locations
@@ -29,8 +30,8 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     theta_rate = 1/10 # denominator is theta frequency used
 
     if save_data:
-        weight_tracker = np.zeros((duration*1000 // save_tick + 1, Ng*Ndendrites2))
-        score_tracker = np.zeros((duration*1000 // save_tick + 1, Ng))
+        weight_tracker = np.zeros((int(duration // save_tick) + 1, Ng*Ndendrites2))
+        score_tracker = np.zeros((int(duration // save_tick) + 1, Ng))
     save_id = [0]
 
     # Prepare plot
@@ -67,30 +68,30 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculating spatial input")
-    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.005, alg = 'simple')
+    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.001, alg = 'simple')
 
     # Filter based on delay
-    indices = np.where(delays < 20) 
+    indices = np.where(delays < 22) 
     spike_times = delays[indices] + 100*indices[0]
     neuron_indices = indices[1]
 
     BVC_layer = SpikeGeneratorGroup(Nbvcs, neuron_indices, spike_times*ms)
 
    
-    tau_d = 10*ms
+    tau_d = 15*ms
     taupre = 8*ms
-    taupost = 80*ms
+    taupost = 40*ms
     Apre = 0.01
     Apost = -0.005
-    c_max = 50 / Ndendrites2
+    c_max = 30 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
                     dapre/dt = -apre/taupre : 1
                     c : 1
-                    Ve = tanh(exp(7*v)/30000) : 1
+                    Ve = int(v > 1.1) : 1
                     l_speed : 1'''
-    base_conductivity = 0.75*c_max
+    base_conductivity = 0.85*c_max
     dendrite_layer = NeuronGroup(Ndendrites2 * Ng, dendrite_eq, method = 'exact')
     conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
     dendrite_layer.c = conductivities 
@@ -98,11 +99,14 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     baseline_effect = baseline_effect
 
     BVC_synapses = Synapses(BVC_layer, dendrite_layer, 'w : 1', on_pre='''v_post +=w
-                            V = tanh(exp(7*v_post)/30000)
-                            c = clip(c + (apost*V), 0, c_max)
+                            V = int(v_post > 1.1)
+                            c = clip(c + V*l_speed_post*(apost + baseline_effect*(c_max-c)), 0, c_max)
                             apre += Apre*V''')
-    BVC_connections = utils.getBVCtoDendriteConnectivity(Nbvcs, Ndendrites2 * Ng, bvc_params = [Nthetas,Ndists], distribution = distribution, rate = 0.1)
-    BVC_synapses.connect(i = BVC_connections[0], j = BVC_connections[1])
+    if distribution == "uniform":
+        BVC_synapses.connect(p = 0.03)
+    else:
+        BVC_connections = utils.getBVCtoDendriteConnectivity(Nbvcs, Ndendrites2 * Ng, bvc_params = [Nthetas,Ndists], distribution = distribution, rate = 0.1)
+        BVC_synapses.connect(i = BVC_connections[0], j = BVC_connections[1])
     weights = 1
     BVC_synapses.w = weights
 
@@ -138,7 +142,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/200')
     inhibit_to_grid.connect()
 
-    nu = 1
+    nu = 0.5
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
@@ -148,11 +152,24 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
             learning_speed = nu*np.exp(-(mean_speed-current_speed)**2/mean_speed)
         dendrite_layer.l_speed = learning_speed
 
+    class timer():
+        current_time = 0
+        last_time = 0
+        start_time = 0
+
     def plot_g(t):
         # Visualize grid weights if wanted
         if not visualize:
             return
-        
+        if t/ms == 0:
+            timer.start_time = time.time()
+            timer.last_time = timer.start_time
+        else:
+            timer.last_time = timer.current_time
+        timer.current_time = time.time()
+        total_time = timer.current_time - timer.start_time
+        middle_time = timer.current_time - timer.last_time
+        sys.stdout.write(f"\rTotal simulation time: {total_time//60} minutes {np.round(total_time%60, 0)} seconds. Time since last visualization: {middle_time // 60} minutes {np.round(round(middle_time % 60), 0)} seconds.")
         time_ms = t/ms
         # x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
         # i68, i95, i99 = spatialns.get68_95(np.array([x]))
@@ -170,7 +187,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         spike_positions = X[np.ndarray.astype(spike_indices, int)]
         
         if len(spike_positions) == 0:
-            spike_positions = np.vstack((spike_positions, [0,0]))
+            spike_positions = np.vstack((spike_positions, [-10,-10]))
         spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
 
         ax[Ng+1].cla()
@@ -270,6 +287,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         ax[0].set_title("Mean:\n %3.4f" % (mean_score))
         fig.suptitle(f"{t/second // 60} mins {(t/second) % 60} seconds")
         plt.pause(10)
+
     # def plot_dendrite_activity(t, dendrite_state_monitor):
     #     if t == 0*second:
     #         return
@@ -324,11 +342,11 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         Gs = StateMonitor(grid_layer, ['v', 'Igap'], 0)
 
     print("Initialize done")
-
     run(duration*ms)
 
     if save_data:
         print()
+        weight_tracker[-1] = dendrite_layer.c
         spike_data = G.spike_trains()
         np.savez_compressed(f'grid_simulation/Results/{file_name}', \
             Ndendrites = Ndendrites, \
@@ -346,7 +364,11 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
             nu = nu, \
             wmax = c_max, \
             input_file = input_file, \
-            BVCs = boundary_cells)
+            distribution = distribution, \
+            BVCs = boundary_cells,\
+            BVC_connections = BVC_connections, \
+            Nthetas = Nthetas, \
+            Ndists = Ndists)
 
 
     if visualize or dendrite_plot:
@@ -383,26 +405,23 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 if __name__ == '__main__':
     Ndendrites = 24
     Ng = 13
-    sigma = 0.1
+    sigma = 0.09
     stationary = False
-    plot_spike_hist =  True
-    plot_weights = True
+    plot_spike_hist =  False
+    plot_weights = False
     if stationary:
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.5 * 10**6  
-        visualize_tick = 5000
+        duration = 0.01 * 10**6  
+        visualize_tick = 10000
     spike_plot = not (plot_spike_hist or plot_weights)
-    save_data = False
+    save_data = True
     save_tick = 1000
     output_filename = 'test.npz'
-    baseline_effect = 1.6 / (Ndendrites*Ng)
+    baseline_effect = 2.5 / (Ndendrites*Ng)
     input = "Square/900s.npz"
     distribution = 'orthoregular'
     Nthetas = 4
     Ndists = 12
     gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, distribution, duration, input, stationary, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, output_filename)
-
-
-

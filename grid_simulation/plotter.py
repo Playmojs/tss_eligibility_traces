@@ -243,13 +243,13 @@ def gridPlotFromSpikeData(spike_trains, X, time_s, duration_s, sigma, Ndendrites
 
 
 if __name__ == '__main__':
-    basepath = 'grid_simulation/Results/data/GJ_tests/'
+    basepath = 'grid_simulation/Results/data/24dend2/'
     files = utils.getSortedEntries(basepath, 'npz')
     # for entry in os.listdir(basepath):
     #     tot_entry = os.path.join(basepath, entry)
     #     if os.path.isfile(tot_entry):
     #         input_files.append(tot_entry)
-    groupings = None#np.repeat(np.arange(2), 5)
+    groupings = np.repeat(np.arange(6), 5)
 
     #legends = ['Low base', 'Normal', 'Lowest Wmax', 'Old', 'bla', 'blabla']
     LinePlot(files, 'legends', False, groupings = groupings)
