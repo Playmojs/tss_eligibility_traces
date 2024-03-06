@@ -269,8 +269,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
                 score_tracker[save_id[0],z] = gscore
             save_id[0]+=1
 
-    if spike_plot or plot_spike_hist:
-        G = SpikeMonitor(grid_layer)
+    G = SpikeMonitor(grid_layer)
 
     if spike_plot:
         M = SpikeMonitor(input_layer)
