@@ -34,6 +34,7 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
     activity = np.round(spatialns.dist(X)/sigma*10 + (np.random.normal(0, 2,(pxs**2, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
+    activation_times[activation_times<0] = 0
     neuron_indices = act_indices[1]
 
     input_layer = SpikeGeneratorGroup(Ndendrites2, neuron_indices, activation_times*ms)

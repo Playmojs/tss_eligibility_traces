@@ -8,3 +8,4 @@ grid_simulation/__pycache__/
 grid_simulation/CUDA_test.py
 grid_simulation/Simulation_runner.py
 grid_simulation/Simulation_GJ_runner.py
+grid_simulation/Simulation_BVC_runner.py
