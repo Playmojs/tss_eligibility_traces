@@ -286,6 +286,53 @@ def genBlueNoiseCoords(N, xlim = [0,1], ylim = [0,1]):
     sys.stdout.write("\n")
     return(coords)
 
+def gridOrientation(Acorr, Ndendrites, sigma):
+    """Compute the orientation of the grid using the cut-out of the
+    auto-correlation map which was used for gridness score computation""" 
+
+    # center of the correlogram
+    shape = Acorr.shape
+    cntr_xy = shape[-2] // 2
+
+    axes = (-2, -1)
+    Acorr = Acorr.reshape((np.prod(shape[:-2]), shape[-2], shape[-1]))
+
+    # find all maxima in the figure
+    nbr = 2 * sigma * Ndendrites
+    data_max = ndimage.maximum_filter(Acorr, nbr, axes=axes)
+    # maxima = (Tmp == data_max)
+
+    maxima = np.transpose(np.nonzero(Acorr==data_max))
+
+      # Extract y and x positions
+    x_positions, y_positions = maxima[...,-2], maxima[...,-1]
+
+    # Compute distances from center
+    distances = np.sqrt((x_positions - cntr_xy) ** 2 + (y_positions - cntr_xy) ** 2)
+
+    # Filter maxima based on conditions
+    filter_mask = (distances <= 2 * nbr) & (x_positions >= cntr_xy) & ~((x_positions == cntr_xy) & (y_positions == cntr_xy))
+    filtered_indices = maxima[filter_mask]
+
+    # Find first of the valid maxima
+    first = np.unique(filtered_indices[..., 0], return_index = True)[1]
+    filtered_indices = filtered_indices[first[:, np.newaxis]]
+    # Compute locations relative to autocorrelogram center
+    xs = filtered_indices[..., -2]
+    ys = filtered_indices[..., -1]
+    xo = xs - cntr_xy
+    yo = ys - cntr_xy
+
+    # Compute orientation and closest coordinate
+    orientation = np.arctan2(xo.T, yo.T)[0] * 180 / np.pi
+    orientation = np.append(orientation, np.empty(len(Acorr) - len(orientation)))
+    orientation = np.reshape(orientation, (shape[:-2]))
+    
+    closest_relative = np.array([xo, yo])
+    closest_absolute = np.array([xs, ys])
+
+    return orientation, closest_relative, closest_absolute
+
 def grid_orientation(Tmp, Ndendrites, sigma):
     """Compute the orientation of the grid using the cut-out of the
     auto-correlation map which was used forgridness score computation""" 
