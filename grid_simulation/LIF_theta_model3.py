@@ -45,8 +45,14 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
 
     # Read file to get trajectory and speed
-    X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_long.hdf5", "r"))
-    delta_t = 10 # Sampling frequency in the trajectory file
+    rb = False
+    if not rb:
+        X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_long.hdf5", "r"))
+        delta_t = 10 # Sampling frequency in the trajectory file
+    else:
+        X, speed, _, __ = utils.getTrajValues(f"grid_simulation/Trajectories/Square/7200s.npz")
+        X += 0.5
+        delta_t = 100
     mean_speed = np.mean(speed)
     tMax = len(X)
 
@@ -60,7 +66,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculate spatial input:")
 
-    end_ix = int(duration*delta_t/theta_rate)
+    end_ix = int(duration*100/(delta_t*theta_rate))
     step = int(1000 * theta_rate/delta_t)
     x = X[0:end_ix:step, :] #TODO: add stationary here
     activity = np.round(spatialns.dist(x)/sigma*10 + (np.random.normal(0, 2,(end_ix//step, Ndendrites2))), 1)
@@ -175,7 +181,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
 
                 spike_times = spike_trains[z]/ms
                 spike_times = spike_times[spike_times > time_filter]
-                spike_indices = np.floor(spike_times/10)
+                spike_indices = np.floor(spike_times/delta_t)
                 spike_positions = X[np.ndarray.astype(spike_indices, int)]
                 spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[0,1],[0,1]])
                 gauss_spike_hist = gaussian_filter(spike_hist, 1)
@@ -183,7 +189,6 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
                     spike_positions = np.vstack((spike_positions, [-10,-10]))
                 else: #lazily avoid divide by zero warnings by only doing gscore if the cells have spiked within the time window
                     # Get grid score:
-
                     corr_gauss = utils.normcorr2d(gauss_spike_hist)
                     gauss_gscore, _ = utils.gridness_score(corr_gauss, pxs, sigma)
                     ax[(i + 1) * (Ng + 1) + z + 1].set_title("%3.4f" % (gauss_gscore))
