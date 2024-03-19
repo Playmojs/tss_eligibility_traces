@@ -22,8 +22,6 @@ def generateTrajectory(dt, duration_s, output_file, boundary_shape = 'square', p
     BVCs = rb.BoundaryVectorCells(Agent = Ag)
     dists = np.zeros((int(duration_s/Ag.dt), 180))
     for i in range(int(duration_s/Ag.dt)):
-        sys.stdout.write("\rStatus: %3.4f" % ((i+1) * Ag.dt /duration_s))
-        sys.stdout.flush()
         
         if type(pos) == str and pos == 'rand':
             Ag.update()

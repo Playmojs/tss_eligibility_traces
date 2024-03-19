@@ -30,8 +30,8 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
     print("Generating trajectory")
     import trajectory_gen
     boundary_shape = 'square'
-    xs = np.linspace(0, 1, pxs)
-    ys = np.linspace(0, 1, pxs)
+    xs = np.linspace(-0.5, 0.5, pxs)
+    ys = np.linspace(-0.5, 0.5, pxs)
     X = np.reshape(np.meshgrid(xs, ys, indexing='xy'), (2, -1)).T
     X = np.repeat(X, repeats, axis = 0)
     

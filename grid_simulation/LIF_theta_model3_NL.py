@@ -18,15 +18,6 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
     # Set the rate of information from sensory to grid cells
     theta_rate = 1/10 # denominator is theta frequency used
 
-
-    # Prepare plot 
-    n_rows = 2
-    fig = plt.figure()
-    ax = []
-    for y in range (n_rows):
-        for z in range(Ng+1):
-            ax.append(plt.subplot2grid((n_rows,Ng+1),(y,z)))
-
     xs = np.linspace(0, 1, pxs)
     ys = np.linspace(0, 1, pxs)
     X = np.reshape(np.meshgrid(xs, ys, indexing='xy'), (2, -1)).T
@@ -43,6 +34,7 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
     activity = np.round(spatialns.dist(X)/sigma*10 + (np.random.normal(0, 2,(pxs**2, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
+    activation_times[activation_times<0] = 0
     neuron_indices = act_indices[1]
 
     input_layer = SpikeGeneratorGroup(Ndendrites2, neuron_indices, activation_times*ms)
