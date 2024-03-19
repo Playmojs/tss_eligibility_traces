@@ -68,7 +68,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculating spatial input")
-    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.001, alg = 'simple')
+    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.002, alg = 'simple')
 
     # Filter based on delay
     indices = np.where(delays < 22) 
@@ -80,10 +80,10 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
    
     tau_d = 15*ms
     taupre = 8*ms
-    taupost = 40*ms
+    taupost = 20*ms
     Apre = 0.01
-    Apost = -0.005
-    c_max = 30 / Ndendrites2
+    Apost = -0.007
+    c_max = 24 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
@@ -91,7 +91,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
                     c : 1
                     Ve = int(v > 1.1) : 1
                     l_speed : 1'''
-    base_conductivity = 0.85*c_max
+    base_conductivity = 0.75*c_max
     dendrite_layer = NeuronGroup(Ndendrites2 * Ng, dendrite_eq, method = 'exact')
     conductivities = np.random.rand(Ndendrites2 * Ng)*base_conductivity
     dendrite_layer.c = conductivities 
@@ -142,7 +142,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/200')
     inhibit_to_grid.connect()
 
-    nu = 0.5
+    nu = 0.6
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
@@ -152,10 +152,11 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
             learning_speed = nu*np.exp(-(mean_speed-current_speed)**2/mean_speed)
         dendrite_layer.l_speed = learning_speed
 
-    class timer():
+    class Timer():
         current_time = 0
         last_time = 0
         start_time = 0
+    timer = Timer()
 
     def plot_g(t):
         # Visualize grid weights if wanted
@@ -407,19 +408,19 @@ if __name__ == '__main__':
     Ng = 13
     sigma = 0.09
     stationary = False
-    plot_spike_hist =  False
-    plot_weights = False
+    plot_spike_hist =  True
+    plot_weights = True
     if stationary:
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.01 * 10**6  
+        duration = 0.5 * 10**6  
         visualize_tick = 10000
     spike_plot = not (plot_spike_hist or plot_weights)
-    save_data = True
+    save_data = False
     save_tick = 1000
     output_filename = 'test.npz'
-    baseline_effect = 2.5 / (Ndendrites*Ng)
+    baseline_effect = 1.6 / (Ndendrites*Ng)
     input = "Square/900s.npz"
     distribution = 'orthoregular'
     Nthetas = 4
