@@ -5,19 +5,9 @@ import LIF_theta_model3_NL
 import utils
 import plotter
 
-# score = np.load("grid_simulation\Results\data\mf3100_1_opt_g_score.npy")
-# with np.load('grid_simulation/Results/data/m3f100_1.npz') as data:
-#         old_scores = data['scores']
-# plt.plot(np.mean(score, axis = 1))
-# plt.plot(np.mean(old_scores, axis=1))
-# plt.show()
-
-#plotter.LinePlot(["data/ThetaMSimuls/regular0.npz"], "", False)
-
-
-file_base = 'no_delay_13_ng1'
+file_base = 'regular8'
 BVC = False
-root_dir = 'grid_simulation/Results/data/delay_sims'
+root_dir = 'grid_simulation/Results/data/rb_traj_test'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']

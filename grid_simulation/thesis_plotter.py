@@ -23,8 +23,8 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['distribution_plot']
-save = True
+plots = ['orientation_plot']
+save = False
 
 if("distribution_plot" in plots):
     inputs = ["grid_simulation/Results/data/24dend2/regular0.npz", "grid_simulation/Results/data/24dend2/noisy_blue0.npz", "grid_simulation/Results/data/24dend2/noisy_white0.npz"]
@@ -221,7 +221,7 @@ if ('orientation_plot' in plots):
     orientations = np.load("grid_simulation/Results/analysis/simspam/orientations3.npz")["orientations"]
     thetas = np.arange(60)
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    delta_t = 20
+    delta_t = 30
     thetas = np.linspace(-np.pi/6, np.pi/6, delta_t)
     histcount, _ = np.histogram((np.ndarray.flatten(orientations) + 30)%60, delta_t)
     X_Y_Spline = make_interp_spline(thetas, histcount)

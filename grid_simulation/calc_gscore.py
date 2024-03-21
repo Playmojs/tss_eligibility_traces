@@ -11,17 +11,17 @@ times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '
 # times = ['10', '20', '30', '40', '50', '60', '70', '80', '90']
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/data/'
-simulation = 'simspam'
+simulation = 'noise_sims2'
 sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
 
-n_simuls = np.array([30,30, 30]) #len(sub_dirs) // n_groups
+n_simuls = np.array([17,17]) #len(sub_dirs) // n_groups
 n_groups = len(n_simuls)
 n_times = len(times)
 Ndendrites = 24
-ngs = np.array([13, 13, 13])
+ngs = np.array([13, 13])
 
 skip_calc = False
-include_orientation = True
+include_orientation = False
 
 legends = np.empty(n_groups, dtype = object)
 multi_hists = np.empty((n_groups, np.max(n_simuls), n_times, np.max(ngs), pxs, pxs))
@@ -57,7 +57,7 @@ if not skip_calc:
     corr_gauss = utils.autoCorr(multi_hists)
     print("Calculate gridness scores")
     gauss_gscores, _ = utils.gridnessScore(corr_gauss, pxs, sigma)
-    # np.savez("grid_simulation/Results/analysis/" + simulation + "/gscores2", gscores = gauss_gscores)
+    np.savez("grid_simulation/Results/analysis/" + simulation + "/gscores", gscores = gauss_gscores)
     if include_orientation:
         print("Calculate orientation")
         mask = (gauss_gscores[:,:,-1]>0.5).nonzero()
@@ -66,7 +66,7 @@ if not skip_calc:
         np.savez("grid_simulation/Results/analysis/" + simulation + "/orientations3", orientations = orientations)
 
 
-gscores = np.load("grid_simulation/Results/analysis/" + simulation + "/gscores4.npz")['gscores']
+gscores = np.load("grid_simulation/Results/analysis/" + simulation + "/gscores.npz")['gscores']
 mean_gscores = np.nanmean(gscores, axis = (1,3))
 var_gscores = np.nanvar(gscores, axis = (1,3)) / (n_simuls * ngs)[:,np.newaxis]
 legends = np.arange(3)
