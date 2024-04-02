@@ -47,7 +47,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     # Read file to get trajectory and speed
     rb = False
     if not rb:
-        X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_long.hdf5", "r"))
+        X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_ultra.hdf5", "r"))
         delta_t = 10 # Sampling frequency in the trajectory file
     else:
         X, speed, _, __ = utils.getTrajValues(f"grid_simulation/Trajectories/Square/7200s.npz")
@@ -69,7 +69,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     end_ix = int(duration*100/(delta_t*theta_rate))
     step = int(1000 * theta_rate/delta_t)
     x = X[0:end_ix:step, :] #TODO: add stationary here
-    activity = np.round(spatialns.dist(x)/sigma*10 + (np.random.normal(0, 2,(end_ix//step, Ndendrites2))), 1)
+    activity = np.round(spatialns.dist(x)/sigma*10 + (np.random.normal(0, 1,(end_ix//step, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
     activation_times[activation_times<0] = 0
@@ -91,7 +91,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     taupost = 80*ms
     wmax_i = 3.5 / Ndendrites
     Apre = 0.01
-    Apost = -0.007
+    Apost = -0.008
     baseline_effect = baseline_effect
     input_weights = Synapses(input_layer, grid_layer, '''
                 w : 1
@@ -124,7 +124,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     inhibit_to_grid.connect(condition = 'i!=j')
     inhibit_to_grid.w = 2
 
-    nu = 1
+    nu = 0.6
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
