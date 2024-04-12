@@ -10,7 +10,7 @@ import h5py
 import sys
 
 
-def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, distribution, duration, input_file, stationary, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, file_name):
+def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, distribution, duration, input_file, dt, stationary, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, file_name):
     visualize = plot_spike_hist or plot_weights
     dendrite_plot = False
     
@@ -60,15 +60,17 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         pos = np.outer(np.linspace(0, 3*sigma, 3, True), np.array([np.cos(rand_theta), np.sin(rand_theta)]))
         X = np.concatenate((np.zeros((9,2)), pos, np.ones((int(duration // 100 - (np.size(pos, 0) + 9)), 2)) * pos[-1]), axis = 0)
         boundary_vectors = trajectory_gen.generateTrajectory(0.1, np.size(X, 0)/10, "", boundary_shape = boundary_shape, pos = X, save_to_f= False)
+        dt = 100
 
     else:
         # Read file to get trajectory and speed and boundaries. The positions are assumed to be sampled at the theta-frequency.
         X, speed, boundaries, boundary_vectors = utils.getTrajValues(f"grid_simulation/Trajectories/{input_file}")
         mean_speed = np.mean(speed)
+        dt = dt
 
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculating spatial input")
-    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//100)], Nbvcs, sigma, noise_level= 0.002, alg = 'simple')
+    delays = utils.BVC_act(boundary_cells,boundary_vectors[:int(duration//dt):int(100/dt)], Nbvcs, sigma, noise_level= 0.002, alg = 'simple')
 
     # Filter based on delay
     indices = np.where(delays < 22) 
@@ -80,10 +82,10 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
    
     tau_d = 15*ms
     taupre = 8*ms
-    taupost = 20*ms
+    taupost = 30*ms
     Apre = 0.01
-    Apost = -0.007
-    c_max = 24 / Ndendrites2
+    Apost = -0.005
+    c_max = 37 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
@@ -142,13 +144,13 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/200')
     inhibit_to_grid.connect()
 
-    nu = 0.6
+    nu = 0.5
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
             learning_speed = 1
         else:
-            current_speed = speed[int(t/(100*ms))]
+            current_speed = speed[int(t/(dt*ms))]
             learning_speed = nu*np.exp(-(mean_speed-current_speed)**2/mean_speed)
         dendrite_layer.l_speed = learning_speed
 
@@ -170,21 +172,21 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
         timer.current_time = time.time()
         total_time = timer.current_time - timer.start_time
         middle_time = timer.current_time - timer.last_time
-        sys.stdout.write(f"\rTotal simulation time: {total_time//60} minutes {np.round(total_time%60, 0)} seconds. Time since last visualization: {middle_time // 60} minutes {np.round(round(middle_time % 60), 0)} seconds.")
+        sys.stdout.write(f"\rRuntime: {total_time//60:.0f} minutes {total_time%60:.0f} seconds. Time since last visualization: {middle_time // 60:.0f} minutes {middle_time % 60:.0f} seconds.")
         time_ms = t/ms
         # x = X[int(time_ms/delta_t), :] if not stationary else X[0,:] +  np.array([sigma/2, sigma/2])* (np.floor(time_ms/1000))
         # i68, i95, i99 = spatialns.get68_95(np.array([x]))
         # ax[0].cla()
         # ax[0].imshow(np.reshape(spatialns.act(np.array([x])) * i68, (Ndendrites, Ndendrites)), interpolation='none', origin='lower')
         
-        position_hist, _, __ = (np.histogram2d(X[0:int(time_ms/100), 1], X[0:int(time_ms/100), 0], pxs, [[-0.5,0.5],[-0.5,0.5]]))
+        position_hist, _, __ = (np.histogram2d(X[0:int(time_ms/dt), 1], X[0:int(time_ms/dt), 0], pxs, [[-0.5,0.5],[-0.5,0.5]]))
 
         ax[0].cla()
         ax[0].imshow(position_hist, interpolation = 'none', origin = 'lower')
 
 
         spike_times = G.t/ms
-        spike_indices = np.floor(spike_times/100)
+        spike_indices = np.floor(spike_times/dt)
         spike_positions = X[np.ndarray.astype(spike_indices, int)]
         
         if len(spike_positions) == 0:
@@ -223,7 +225,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 
                 spike_times = spike_trains[z]/ms
                 spike_times = spike_times[spike_times > time_filter]
-                spike_indices = np.floor(spike_times/100)
+                spike_indices = np.floor(spike_times/dt)
                 spike_positions = X[np.ndarray.astype(spike_indices, int)]
                 spike_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
                 gauss_spike_hist = gaussian_filter(spike_hist, 1)
@@ -414,15 +416,16 @@ if __name__ == '__main__':
         duration = 3000
         visualize_tick = 200
     else:
-        duration = 0.5 * 10**6  
+        duration = 2 * 10**6  
         visualize_tick = 10000
     spike_plot = not (plot_spike_hist or plot_weights)
     save_data = False
     save_tick = 1000
     output_filename = 'test.npz'
-    baseline_effect = 1.6 / (Ndendrites*Ng)
-    input = "Square/900s.npz"
+    baseline_effect = 2 / (Ndendrites*Ng)
+    input = "Square/7200s_10ms.npz"
+    dt = 10
     distribution = 'orthoregular'
     Nthetas = 4
     Ndists = 12
-    gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, distribution, duration, input, stationary, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, output_filename)
+    gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, distribution, duration, input, dt, stationary, visualize_tick, plot_spike_hist, plot_weights, spike_plot, save_data, save_tick, output_filename)
