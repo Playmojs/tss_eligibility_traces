@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline
 from matplotlib.patches import ConnectionPatch
+import scipy.ndimage as ndimage
 import utils
 
 def getFilteredInputSpikes(time_window):
@@ -23,7 +24,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['orientation_plot']
+plots = ['phase_plot']
 save = False
 
 if("distribution_plot" in plots):
@@ -137,7 +138,7 @@ if('spike_temp_plot' in plots):
     base_path = "grid_simulation/Results/data/simspam/regular5"
     ng = 13
     pxs = 48
-    nrows = 5
+    nrows = 5 
     rel_times = np.array([0,5,10,40,95])
     all_times = np.arange(20)
     rel_n = len(rel_times)
@@ -148,16 +149,19 @@ if('spike_temp_plot' in plots):
 
     for i in all_times:
         hist[i] = utils.getPopulationSpikePlot(f"{base_path}/{i*5}min_Spikes.npz", 13, 48)
-    fig, ax = plt.subplots(nrows, rel_n + 1)
+    fig, ax = plt.subplots(nrows + 1, rel_n + 1)
     for r in range (nrows):
         ind = picks[r]
         for z, rel_time in enumerate(rel_times):
             ax[r,z].imshow(hist[rel_time//5, ind],  interpolation='none', origin = 'lower')
             ax[r,z].axis('off')
             ax[0,z].set_title(f"{rel_time} minutes", fontsize = 10)
+            ax[nrows, z].axis('off')
         ax[r, rel_n].imshow(np.sum(hist[:, ind], 0), interpolation='none', origin = 'lower')
         ax[r,rel_n].axis('off')
     ax[0, rel_n].set_title("Sum", fontsize = 10)
+    ax[nrows, rel_n].imshow(np.sum(hist, (0,1)), interpolation = 'none', origin = 'lower')
+    ax[nrows, rel_n].axis('off')
     
 
     if save:
@@ -218,7 +222,7 @@ if('mean_gscore_hist' in plots):
             ax[i].yaxis.set_ticks([])
 
 if ('orientation_plot' in plots):
-    orientations = np.load("grid_simulation/Results/analysis/simspam/orientations3.npz")["orientations"]
+    orientations = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")["orientations"]
     thetas = np.arange(60)
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     delta_t = 30
@@ -230,13 +234,69 @@ if ('orientation_plot' in plots):
     ax.plot(x_vals, y_vals, linewidth = 4, color = 'firebrick')
     ax.set_xlim([-np.pi/6, np.pi/6])
     ax.set_xticks(np.linspace(-np.pi/6, np.pi/6, 7))
-    ax.tick_params(axis='both', which='major', labelsize=12, labelcolor = "#adadad")
+    ax.tick_params(axis='both', which='major', labelsize=12)
     ax.set_yticks([])
     ax.grid(False)
     for i, spine in enumerate(ax.spines.values()):
         spine.set_linewidth(0)
     if save:
         fig.savefig("grid_simulation/Results/orientation_plot", dpi = 500, bbox_inches = 'tight', transparent = True)      
+
+if('phase_plot' in plots):
+    pxs = 48
+    appendix = 'min_Spikes.npz'
+    base_path = 'grid_simulation/Results/data/'
+    simulations = ['simspam', 'noise_sims', 'noise_sims2']
+    sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
+
+    n_simuls = 30 #len(sub_dirs) // n_groups
+    n_groups = 3
+    Ndendrites = 24
+    ng = 13
+
+    hists = np.empty((n_groups, n_simuls, ng, pxs, pxs))
+
+    for j, sub_dir in enumerate(sub_dirs):
+        j1 = j // n_simuls
+        j2 = j % n_simuls
+        hists[j1, j2] = utils.getPopulationSpikePlot(sub_dir + '/95' + appendix, ng, pxs, True)
+
+    gscore_mask = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")['mask']
+    orientations = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")['orientations']
+    norm_orientation = orientations%60
+    orientation_mask = np.logical_or(norm_orientation > 55, norm_orientation < 5).nonzero()
+    
+    masked_hists = hists[gscore_mask[0],gscore_mask[1],gscore_mask[2]]
+    orig_sim = gscore_mask[1] + gscore_mask[0]*30
+
+    masked_hists = masked_hists[orientation_mask]
+    orig_sim = orig_sim[orientation_mask]
+
+    data_max = ndimage.maximum_filter(masked_hists, size = 2*pxs*0.108, axes=(-2,-1))
+    maxima = np.transpose(np.nonzero(masked_hists==data_max))
+
+    grouped_maxima = {}
+    for maxima_entry in maxima:
+        neuron_index, x_val, y_val = maxima_entry
+        sim = orig_sim[neuron_index]
+
+        if sim not in grouped_maxima:
+            grouped_maxima[sim] = {}
+        if neuron_index not in grouped_maxima[sim]:
+            grouped_maxima[sim][neuron_index] = []
+        grouped_maxima[sim][neuron_index].append((x_val, y_val))
+            
+if ('model_comparison_gscore' in plots):
+    models = ['simspam', 'multi-grid', 'noise_sims', 'noise_sims2', 'GJ_model']
+    ngroups = [3, 2, 1, 1, 1]
+    nsimuls = [30, 30, 60, 60, 30]
+    gscore_file_app = ["4", "", "3", "3", ""]
+    gscores: list = []
+    
+    for i, model, ngroup, nsimul, app in enumerate(zip(models, ngroups, nsimuls, gscore_file_app)):
+        x = 1
+    
+        
 
 if ('yearbook_plot' in plots):
     base_path = "grid_simulation/Results/data/simspam/regular5"
