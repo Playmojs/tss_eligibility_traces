@@ -247,20 +247,110 @@ sorting = ynt
     \end{table}
 
     The trajectories tested were simulated (as described in method), and all simulations used a 1m x 1m square environment. Data from simulations was sampled by freezing learning and testing activity in each area in a 48x48 grid within the environment. 
-    Five primary variables were tested for each simulation: the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns and development of grid scores (figure 3.1). For most simulations, there was a slight preference for a \(0 \degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between - 5 and 5 degrees). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results).
+    Five primary variables were tested for each simulation: the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns and development of grid scores (figure 3.1). 
+
+    \begin{figure}[htbp]
+        \centering
+        
+        \begin{minipage}[b]{1\textwidth}
+            \centering
+            \subcaption{}
+            \includegraphics[width=\textwidth]{model_comparison/model_comparison_gscores.png}
+        \end{minipage}
+        \begin{minipage}[b]{1\textwidth}
+            \centering
+            \subcaption{}
+            \includegraphics[width = \textwidth]{model_comparison/model_comparison_sigmas.png} 
+        \end{minipage}
+        \begin{minipage}[t]{1\textwidth}
+            \centering
+            \subcaption{}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_regular.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_blue_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width =\textwidth]{model_comparison/model_comparison_orientation_white_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width= \textwidth]{model_comparison/model_comparison_orientation_37grid.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_23grid.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_no_delay.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_1ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_2ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_4ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_GJ.png}
+            \end{subfigure}
+        \end{minipage}
+        \begin{minipage}[t]{1\textwidth}
+            \centering
+            \subcaption{}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_regular.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_blue_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width =\textwidth]{model_comparison/model_comparison_phase_white_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width= \textwidth]{model_comparison/model_comparison_phase_37grid.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_23grid.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_no_delay.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_1ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_2ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_4ms_noise.png}
+            \end{subfigure}
+            \begin{subfigure}{0.08\textwidth}
+                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_GJ.png}
+            \end{subfigure}
+        \end{minipage}% 
+        
+        \caption{After simulation, models with different hyperparameters often share variables. (a) Gridness across models. Each dot represents the mean gridness score in one simulation, sorted by modeltype. While receiving blue noise-distributed inputs produces comparable gridness to regular inputs, white noise inputs scores significantly worse. Networks with 13 or 23 transition cells, as well as moderate noise levels also score highly, and having non-spiking dendritic input, instead of spiking, is also scoring highly. Meanwhile, 37 transition cells, no inhibitory delay and high levels of noise disrupt gridness. (b) The grid spacing across cells is typically between 10.5 and 12 cm for each simulation. This is not impacted by input distribution or number of transition cells, but noise seems increase spacing (10.8 cm mean to 11.8 cm mean), and the high input noise produces significantly higher spacing. (c) Generally, transition cells seem to prefer a \(0\degree\) wall angle offset. This seems to be more typical in highly performing models, but also in models with low amounts of noise. (d) The phase distribution seems to be uniformly distributed. Transition cells were filtered by positive gridness and \(0\degree\) wall angle offset. Within a simulation, one cell was chosen as a reference cell, and each dot is the relative phase of other transition cells.}
+        
+        \label{model_comparison}
+    \end{figure}
+
+    For most simulations, there was a slight preference for a \(0 \degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between - 5 and 5 degrees). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
+
     Curiously, simulations without noise and linear summation of place inputs had slightly smaller fields than models with noise or multi-compartment methods (10.8 cm vs 11.8 cm). All simulations also seemed to develop fields that were stable across time, evaluated by comparing the variance in pixel-value across time, compared to shuffled data.
 
     Although some similarities seemed to persist across models and hyperparameters, the mean gridness varied significantly. Comparing the structure of input patterns, while a regularly distributed blue-noise pattern scored as well as a regular distributed input pattern, white noise inputs performed significantly worse.  Using 23 transition cells also scored on level with 13 transition cells, while the gridness in a network of 37 transition cells was significantly worse. The same was true for noise level, in which moderate noise performed comparably to no noise, but sufficient noise reduced gridness. Interestingly, a network running on minimal inhibition delay (0.2 ms) produced the same gridness as a network with the standard 0.6 ms delay.
     In part, these results might correspond to the idea that parameters are somewhat fine-tuned in the working model, so any simulation with sufficiently different parameters will suffer in performance. This might be especially true for networks that primarily differ quantitatively, such as the one with 37 transition cells. With increased levels of noise, or white noise inputs, it is possible that the basic network dynamics described above break down. With white noise inputs, for instance, transition cells might simply not receive much input in some location, which hampers the transition cells' ability to associate to a center-area. 
 
-    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times \ref{spike_temp_plot}. This was the case despite observing that cells with negative gridness seemed to have the same temporal stability (is this true - I can quantify this, right?), as well as clearly defined center-surround areas. Highly negative scores were probably due to rectangular tendencies in gridcell formation, while scores closer to zero might stem from shearing the grid or other asymmetries. 
+    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times \ref{low-high_gscores}. This was the case despite observing that cells with negative gridness seemed to have the same temporal stability (is this true - I can quantify this, right?), as well as clearly defined center-surround areas. Highly negative scores were probably due to rectangular tendencies in gridcell formation, while scores closer to zero might stem from shearing the grid or other asymmetries. 
 
     \begin{figure}[H]
         \centering
-        \begin{minipage}[b]{12cm}
-        \includegraphics[width=\linewidth]{spike_temp_plot.png}
-        \caption{1:Temporal development of firing fields in transition cells with regularly spaced inputs and parameters as in \ref{param_table}. Each row shows one grid cell taken from the same simulation. In each case, the network weights at the designated times were frozen, and the network activity was systematically sampled from the entire environment. In only a few minutes, the transition cells show clear spatial firing fields. Over time these firing fields become denser, but are also temporally stable, as the sum of all this activity taken every five minutes (0 to 95 minutes) still have clearly isolated firing fields.}
-        \label{spike_temp_plot}
+        \begin{minipage}[b]{\linewidth}
+        \includegraphics[width=\linewidth]{low-high_gscores.png}
+        \caption{Temporal development of firing fields in transition cells with regularly spaced inputs and parameters as in \ref{param_table}. Each column represents one cell, and cells were grouped in pairs depending on gridness score. The two leftmost cells have low gridness, the two middling cells middling gridness, and the two on the right have a high gridness score. The rows show activity at 0, 5, 10, 40 and 95 minutes of simulation time. Gridness score reflects the tendency of \(60\degree\) periodicity and lack of \(30\degree\) or \(90\degree\) periodicitiy. The learning rule in these networks encourages maximizing the number isolated firing fields, which, while encouraging hexagonal fields(column 5, 6), also produces rectangular or shared fields as shown in columns 1-4.} 
+        \label{low-high_gscores}
         \end{minipage}
     \end{figure}
 

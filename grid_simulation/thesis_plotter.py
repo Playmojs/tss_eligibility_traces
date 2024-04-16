@@ -24,7 +24,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['model_comparison_gscore']
+plots = ['model_comparison_phase']
 save = True
 
 if("distribution_plot" in plots):
@@ -243,7 +243,7 @@ def make_orientation_plot(file: str, output: str, save: bool = False) -> None:
         fig.savefig(output, dpi = 500, bbox_inches = 'tight', transparent = True)      
  
 
-if ('model_comparison_corientation' in plots):
+if ('model_comparison_orientation' in plots):
     models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims2', 'noise_sims', 'noise_sims3', 'GJ_model']
     ngroups = [3, 2, 1, 1, 1, 1, 1]
     gscore_file_app = ["_reg", "_bn", "_wn", "_37", "_23", "1", "3", "2", "", ""]
@@ -274,7 +274,7 @@ def make_phase_plot(file: str, output: str, save: bool = False):
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
-    ax.set_xlim([0, 5*sigma*pxs])
+    ax.set_xlim([0, 4.35*sigma*pxs])
     ax.set_ylim([-0.2, 5*sigma*pxs])
     [x.set_linewidth(0) for x in ax.spines.values()]
 
