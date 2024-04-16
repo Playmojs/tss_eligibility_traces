@@ -24,8 +24,8 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['phase_plot']
-save = False
+plots = ['model_comparison_gscore']
+save = True
 
 if("distribution_plot" in plots):
     inputs = ["grid_simulation/Results/data/24dend2/regular0.npz", "grid_simulation/Results/data/24dend2/noisy_blue0.npz", "grid_simulation/Results/data/24dend2/noisy_white0.npz"]
@@ -221,8 +221,8 @@ if('mean_gscore_hist' in plots):
         if i != 0:
             ax[i].yaxis.set_ticks([])
 
-if ('orientation_plot' in plots):
-    orientations = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")["orientations"]
+def make_orientation_plot(file: str, output: str, save: bool = False) -> None:
+    orientations = np.load(file)["orientations"]
     thetas = np.arange(60)
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     delta_t = 30
@@ -231,7 +231,7 @@ if ('orientation_plot' in plots):
     X_Y_Spline = make_interp_spline(thetas, histcount)
     x_vals = np.linspace(-np.pi/6, np.pi/6, 6*delta_t)
     y_vals = X_Y_Spline(x_vals)
-    ax.plot(x_vals, y_vals, linewidth = 4, color = 'firebrick')
+    ax.plot(x_vals, y_vals, linewidth = 4, color = 'black')
     ax.set_xlim([-np.pi/6, np.pi/6])
     ax.set_xticks(np.linspace(-np.pi/6, np.pi/6, 7))
     ax.tick_params(axis='both', which='major', labelsize=12)
@@ -240,67 +240,211 @@ if ('orientation_plot' in plots):
     for i, spine in enumerate(ax.spines.values()):
         spine.set_linewidth(0)
     if save:
-        fig.savefig("grid_simulation/Results/orientation_plot", dpi = 500, bbox_inches = 'tight', transparent = True)      
+        fig.savefig(output, dpi = 500, bbox_inches = 'tight', transparent = True)      
+ 
 
-if('phase_plot' in plots):
+if ('model_comparison_corientation' in plots):
+    models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims2', 'noise_sims', 'noise_sims3', 'GJ_model']
+    ngroups = [3, 2, 1, 1, 1, 1, 1]
+    gscore_file_app = ["_reg", "_bn", "_wn", "_37", "_23", "1", "3", "2", "", ""]
+    output_app = ["_regular", "_blue_noise", "_white_noise", "_37grid", "_23grid", "_no_delay", "_1ms_noise", "_2ms_noise", "_4ms_noise", "_GJ"]
+    iter = 0
+    for i, model in enumerate(models):
+        for j in range(ngroups[i]):
+            make_orientation_plot(f'grid_simulation/Results/analysis/{model}/orientations{gscore_file_app[iter]}.npz', f'grid_simulation/Documents/Figures/model_comparison/model_comparison_orientation{output_app[iter]}', save)
+            iter += 1
+
+def make_phase_plot(file: str, output: str, save: bool = False):
+    with np.load(file) as data:
+        phases = data["phases"]
+        sigma = data["sigma"]
+    
     pxs = 48
-    appendix = 'min_Spikes.npz'
-    base_path = 'grid_simulation/Results/data/'
-    simulations = ['simspam', 'noise_sims', 'noise_sims2']
-    sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
+    base_length = 3*sigma*pxs
+    x0, x1 = 0, base_length
+    y0, y1 = 0, base_length*(np.sqrt(3)/2)
 
-    n_simuls = 30 #len(sub_dirs) // n_groups
-    n_groups = 3
-    Ndendrites = 24
-    ng = 13
+    fig, ax = plt.subplots()
 
-    hists = np.empty((n_groups, n_simuls, ng, pxs, pxs))
-
-    for j, sub_dir in enumerate(sub_dirs):
-        j1 = j // n_simuls
-        j2 = j % n_simuls
-        hists[j1, j2] = utils.getPopulationSpikePlot(sub_dir + '/95' + appendix, ng, pxs, True)
-
-    gscore_mask = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")['mask']
-    orientations = np.load("grid_simulation/Results/analysis/simspam/orientations4.npz")['orientations']
-    norm_orientation = orientations%60
-    orientation_mask = np.logical_or(norm_orientation > 55, norm_orientation < 5).nonzero()
+    ax.scatter(phases[0], phases[1])
     
-    masked_hists = hists[gscore_mask[0],gscore_mask[1],gscore_mask[2]]
-    orig_sim = gscore_mask[1] + gscore_mask[0]*30
+    ax.plot([x0, x1, x1 + 0.5 * y1], [y0, y0, y1], c = "black", linewidth = 3)
+    ax.plot([x0, 0.5 * y1, x1 + 0.5 * y1], [y0, y1, y1], c = "black", linewidth = 3)
+    ax.set_aspect('equal')
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
 
-    masked_hists = masked_hists[orientation_mask]
-    orig_sim = orig_sim[orientation_mask]
+    ax.set_xlim([0, 5*sigma*pxs])
+    ax.set_ylim([-0.2, 5*sigma*pxs])
+    [x.set_linewidth(0) for x in ax.spines.values()]
 
-    data_max = ndimage.maximum_filter(masked_hists, size = 2*pxs*0.108, axes=(-2,-1))
-    maxima = np.transpose(np.nonzero(masked_hists==data_max))
+    if save:
+        fig.savefig(output, dpi = 500, bbox_inches = 'tight', transparent = True)      
 
-    grouped_maxima = {}
-    for maxima_entry in maxima:
-        neuron_index, x_val, y_val = maxima_entry
-        sim = orig_sim[neuron_index]
 
-        if sim not in grouped_maxima:
-            grouped_maxima[sim] = {}
-        if neuron_index not in grouped_maxima[sim]:
-            grouped_maxima[sim][neuron_index] = []
-        grouped_maxima[sim][neuron_index].append((x_val, y_val))
-            
+if('model_comparison_phase' in plots):
+    models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims2', 'noise_sims', 'noise_sims3', 'GJ_model']
+    ngroups = [3, 2, 1, 1, 1, 1, 1]
+    gscore_file_app = ["_reg", "_bn", "_wn", "_37", "_23", "", "", "", "", ""]
+    output_app = ["_regular", "_blue_noise", "_white_noise", "_37grid", "_23grid", "_no_delay", "_1ms_noise", "_2ms_noise", "_4ms_noise", "_GJ"]
+    iter = 0
+    for i, model in enumerate(models):
+        for j in range(ngroups[i]):
+            make_phase_plot(f'grid_simulation/Results/analysis/{model}/phase{gscore_file_app[iter]}.npz', f'grid_simulation/Documents/Figures/model_comparison/model_comparison_phase{output_app[iter]}', save)
+            iter += 1
+
 if ('model_comparison_gscore' in plots):
-    models = ['simspam', 'multi-grid', 'noise_sims', 'noise_sims2', 'GJ_model']
-    ngroups = [3, 2, 1, 1, 1]
-    nsimuls = [30, 30, 60, 60, 30]
-    gscore_file_app = ["4", "", "3", "3", ""]
-    gscores: list = []
-    
-    for i, model, ngroup, nsimul, app in enumerate(zip(models, ngroups, nsimuls, gscore_file_app)):
-        x = 1
-    
+    models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims', 'noise_sims2', 'noise_sims3', 'GJ_model']
+    order = np.array([1, 2, 0, 3, 4, 5, 7, 6, 8, 9], dtype = int)
+    ngroups = [3, 2, 1, 1, 1, 1, 1]
+    n_col = sum(ngroups)
+    concatenate = [False, False, False, True, True, False, False]
+    gscore_file_app = ["4", "", '1', "3", "3", "", ""]
+    gscores_container = np.empty(0)
+    ind_container = np.empty(0)
+    means = np.empty(n_col)
+    iter = 0
+
+    for model, ngroup, concat, app in zip(models, ngroups, concatenate, gscore_file_app):
+        gscores =  np.load('grid_simulation/Results/analysis/' + model + '/gscores' + app + '.npz')['gscores']
+        if concat:
+            s0, s1, s2, s3 = gscores.shape
+            gscores = np.reshape(gscores, (1, s0 * s1, s2, s3))
+        for group in gscores:
+            data = np.nanmean(group[:, -1, :], 1)
+            data = data[~np.isnan(data)]
+            gscores_container = np.append(gscores_container, data)
+            means[order[iter]] = np.mean(data)
+            ind_container = np.append(ind_container, np.full(data.size, order[iter]))
+            iter += 1
         
+    scatter_ind = ind_container + (np.random.random(len(ind_container)) - 0.5) * 0.2
+    fig, ax = plt.subplots()
+
+    cmap = plt.get_cmap('tab10')
+    darkened_colors = [cmap(i) for i in np.linspace(0, 1, n_col)]
+    darkened_colors = [(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in darkened_colors]
+
+    ax.scatter(scatter_ind, gscores_container, c = ind_container, cmap = 'tab10')
+    ax.hlines(means, xmin = np.arange(n_col) - 0.3, xmax = np.arange(n_col) + 0.3, linewidth = 3, colors = darkened_colors)
+    ax.hlines(0, xmin = -1, xmax = 11, colors = 'black')
+    ax.set_xlim([-0.7, 9.7])
+    ax.set_xticks([])
+
+    plt.gcf().set_size_inches(15, 5)
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_gscores", dpi = 500, bbox_inches = 'tight', transparent = True)      
+
+if ('model_comparison_sigma' in plots):
+    models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims', 'noise_sims2', 'noise_sims3', 'GJ_model']
+    order = np.array([1, 2, 0, 3, 4, 5, 7, 6, 8, 9], dtype = int)
+    ngroups = [3, 2, 1, 1, 1, 1, 1]
+    n_cols = sum(ngroups)
+    concatenate = [False, False, False, True, True, False, False]
+    gscore_file_app = ["4", "", '1', "3", "3", "", ""]
+    sigma_container = np.empty(0)
+    ind_container = np.empty(0)
+    means = np.empty(n_cols)
+    iter = 0
+    
+    for model, ngroup, concat in zip(models, ngroups, concatenate):
+        gscores =  np.load('grid_simulation/Results/analysis/' + model + '/sigmas.npz')['sigma_gscores']
+        sigmas =  np.load('grid_simulation/Results/analysis/' + model + '/sigmas.npz')['sigmas']
+        if concat:
+            s0, s1, s2, s3 = gscores.shape
+            gscores = np.reshape(gscores, (1, s0 * s1, s2, s3))
+        for group in gscores:
+            best_sigma = sigmas[np.argmax(group, axis = 1)]
+            best_sigma = best_sigma[~np.isnan(best_sigma)]
+            sigma_container = np.append(sigma_container, best_sigma)
+            means[order[iter]] = np.mean(best_sigma)
+            ind_container = np.append(ind_container, np.full(len(best_sigma), order[iter]))
+            iter += 1
+
+    scatter_ind = ind_container + (np.random.random(len(ind_container)) - 0.5) * 0.2
+    scatter_sig = sigma_container + (np.random.random(len(ind_container)) - 0.5) * 0.01
+    
+    fig, ax = plt.subplots()
+    cmap = plt.get_cmap('tab10')
+    darkened_colors = [cmap(i) for i in np.linspace(0, 1, n_cols)]
+    darkened_colors = [(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in darkened_colors]
+
+    ax.set_ylim([0.07, 0.2])
+    ax.set_xlim([-0.7, 9.7])
+    ax.scatter(scatter_ind, scatter_sig, c = ind_container, s = 5, linewidth = 0.1, cmap = 'tab10')
+    ax.hlines(means, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
+    ax.set_xticks([])
+
+    plt.gcf().set_size_inches(15, 5)
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_sigmas", dpi = 500, bbox_inches = 'tight', transparent = True)      
+    
+
+if ('model_comparison_temporal_stability' in plots):
+    models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims', 'noise_sims2', 'noise_sims3', 'GJ_model']
+    order = np.array([1, 2, 0, 3, 4, 5, 7, 6, 8, 9], dtype = int)
+    ngroups = [3, 2, 1, 1, 1, 1, 1]
+    n_cols = sum(ngroups)
+    concatenate = [False, False, False, True, True, False, False]
+    gscore_file_app = ["", "", '', "", "", "", ""]
+    values_container = np.empty(n_cols)
+    shuffle_container = np.empty(n_cols)
+    x_vals = np.arange(n_cols)
+    x_data = x_vals - 0.3
+    x_shuffle = x_vals + 0.3
+    
+    iter = 0
+    
+    for model, ngroup, concat in zip(models, ngroups, concatenate):
+        with np.load('grid_simulation/Results/analysis/' + model + '/temporal_stability.npz') as data:
+            temporal_stability =  data['temporal_stability']
+            shuffled_stability =  data['shuffled_stability']
+        if concat:
+            s0, s1, s2 = temporal_stability.shape
+            temporal_stability = np.reshape(temporal_stability, (1, s0 * s1, s2))
+            shuffled_stability = np.reshape(shuffled_stability, (1, s0 * s1, s2))
+        for temp, shuffle in zip(temporal_stability, shuffled_stability):
+            values_container[iter] = np.mean(temp, axis = (-2, -1))
+            shuffle_container[iter] = np.mean(shuffle, axis = (-2, -1))
+            iter += 1
+    
+    fig, ax = plt.subplots()
+    # cmap = plt.get_cmap('tab10')
+    # darkened_colors = [cmap(i) for i in np.linspace(0, 1, n_col)]
+    # darkened_colors = [(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in darkened_colors]
+
+    ax.bar(x_data, values_container)
+    ax.bar(x_shuffle, shuffle_container)
+
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_temporal_stability", dpi = 500, bbox_inches = 'tight', transparent = True)
+
+
+if('low-high_gscores' in plots):
+    base_path = "grid_simulation/Results/data/simspam/regular8"
+    ng = 13
+    pxs = 48
+    rel_times = np.array([0, 5, 10, 40, 95])
+    rel_n = len(rel_times)
+    picks = np.array([10, 8, 11, 2, 0, 1])
+    n_cols = len(picks)
+    hist = np.empty((rel_n, 13, pxs, pxs))
+
+    for i, time in enumerate(rel_times):
+        hist[i] = utils.getPopulationSpikePlot(f"{base_path}/{time}min_Spikes.npz", 13, 48)
+    fig, ax = plt.subplots(rel_n, n_cols)
+    for r in range(n_cols):
+        ind = picks[r]
+        for z in range(rel_n):
+            ax[z,r].imshow(hist[z, ind],  interpolation='none', origin = 'lower')
+            ax[z,r].axis('off')
+
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/low-high_gscores", dpi = 500, bbox_inches = 'tight') 
 
 if ('yearbook_plot' in plots):
     base_path = "grid_simulation/Results/data/simspam/regular5"
-    gscores = gscores = np.load('grid_simulation/Results/simspam3.npz')['gscores'][2]
+    gscores = np.load('grid_simulation/Results/simspam3.npz')['gscores'][2]
     ng = 13
     pxs = 48
     rel_times = np.array([0,5,15,40,95])

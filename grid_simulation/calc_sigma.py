@@ -7,20 +7,20 @@ from brian2 import second
 from scipy.ndimage import gaussian_filter
 
 pxs = 48
-# times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95']
+times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95']
 # times = ['10', '20', '30', '40', '50', '60', '70', '80', '90']
-times = np.linspace(0, 100, 20, False)
+# times = np.linspace(0, 100, 20, False)
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/'
-simulation = 'noise_sims2'
+simulation = 'no_delay'
 sub_dirs = utils.getSortedEntries(base_path +'data/' + simulation, 'directory', True)
 
-n_groups = 2
+n_groups = 1
 n_simuls = 30 #len(sub_dirs) // n_groups
 n_times = len(times)
-ngs = np.array([13, 13])
+ngs = np.array([13])
 sigma = 0.12
-sigmas = np.linspace(0.08, 0.13, 20)
+sigmas = np.linspace(0.08, 0.12, 20)
 skip_calc = False
 
 multi_hists = np.empty((n_groups, n_simuls, np.max(ngs), pxs, pxs))

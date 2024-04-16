@@ -24,25 +24,27 @@ def unsheared_modulus(points, base):
 pxs = 48
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/data/'
-simulation = 'GJ_model'
+simulation = 'multi-grid'
 sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
 
 n_simuls = 30
-n_groups = 1
+n_groups = 2
 Ndendrites = 24
-ng = np.array([13])
-orientation_num = ""
-sigma = 0.118
+ng = np.array([37, 23])
+orientation_app = "_23"
+sigma = 0.108
 
 hists = np.empty((n_groups, n_simuls, np.max(ng), pxs, pxs))
 
 for j, sub_dir in enumerate(sub_dirs):
     j1 = j // n_simuls
     j2 = j % n_simuls
-    hists[j1, j2, :ng[j1]] = utils.getPopulationSpikePlot(sub_dir + '/90' + appendix, ng[j1], pxs, True)
+    hists[j1, j2, :ng[j1]] = utils.getPopulationSpikePlot(sub_dir + '/95' + appendix, ng[j1], pxs, True)
 
-gscore_mask = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_num}.npz")['mask']
-orientations = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_num}.npz")['orientations']
+ind = 1
+hists = hists[ind][np.newaxis]
+gscore_mask = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_app}.npz")['mask']
+orientations = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_app}.npz")['orientations']
 norm_orientation = orientations%60
 orientation_mask = np.logical_or(norm_orientation > 55, norm_orientation < 5).nonzero()
 
@@ -78,7 +80,7 @@ for i, hist in enumerate(masked_hists):
 # plt.show()
 
 phase_array = np.empty((0, 2))
-cell_count = np.zeros(n_simuls * n_groups, dtype = int)
+cell_count = np.zeros(n_simuls * 1, dtype = int)
 
 for sim, cells in grouped_hists.items():
     cell_count[sim] = int(len(cells))
@@ -98,10 +100,10 @@ modulated_array = unsheared_modulus(phase_array.T, base_length)
 x0, x1 = 0, base_length
 y0, y1 = 0, base_length*(np.sqrt(3)/2)
 
-np.savez("grid_simulation/Results/analysis/" + simulation + "/phase",
+np.savez("grid_simulation/Results/analysis/" + simulation + "/phase_23",
         phases = modulated_array, \
         sigma = sigma, \
-        orientation_ind = orientation_num, \
+        orientation_ind = orientation_app, \
         cell_count = cell_count, \
         sim_ind = orig_sim)
 
