@@ -14,6 +14,7 @@
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
 \usepackage{tabularray}
+\usepackage{pgffor}
 \usepackage{xcolor}
 \graphicspath{{./Figures/}}
 \usepackage{float}
@@ -180,16 +181,10 @@ sorting = ynt
  
     Note that step 3 is highly similar to the already existing simulations by Waniek (citation?), just here in a spiking neural network. This was useful, because it allowed testing the hypothesis that transition cells can produce grid-like behavior in networks of more than three neurons if the inhibition is delayed, not showed in previous simulations. Then, networks could gradually be made more complex and biologically plausible, leading to a series of networks that could be tested sequentially from simple and less plausible to more complex and more plausible. The concrete implementation of each network and other considerations are treated in their own upcoming subsections.
 
-    \subsection{Simulation software} All models and implementations can be found on github(Insert link here?), and while the simulation data is not available on github due to storage capacity, it is available (somewhere else?). All simulations were implemented in python, using the brian2-library for its flexibility and easy implementation (cite brian2 here). 
-    
-    Simulations used self-written simulated trajectories, simulated with 10 ms time steps and a square environment. Position was treated like a continuous variable, with velocity and rotational velocity determined by normal distributions from one time step to the next. In simulations using boundary vectors, the external RatInABox library was used (cite ratinabox here). 
-    
-    From the trajectories, spatial inputs were calculated prior to simulations, using either position- or boundary information, and added to a brian2 spikeGeneratorGroup. The network state and weights was stored frequently during simulations.
+ 
 
     \subsection{Rectangularly spaced inputs} This network structure is heavily inspired by previous TSS-simulations, with three layers: input neurons, transition cells and inhibitory neurons. The input neurons have a preferred spatial location, and have the chance of being activated each theta cycle, which is set to happen with a 10 Hz frequency. The activation function for input neuron \(i\) with position \((x_i, y_i)\) is \begin{equation} \label{key1} delay = \frac{\sqrt{(x_i - x)^2 + (y_i - y)^2}}{\sigma} + \mu\end{equation}
-    in which x and y is the current location, \(\sigma\) is a scale parameter determining the width of input, \(\mu\) is noise and delay ends up in ms. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary. Each of these inputs synapsed on each transition cell, with weights randomly drawn from a uniform distribution between 0 and some maximum, \(w_{max}\). The transition cell had a voltage parameter which triggered spikes if it surpassed a treshhold, or updated according to the formula: \[ v(t+1) =  \begin{cases} 0, & \text{if } v(t) > \text{threshold}\\ v(t) - e^{-(v(t) - threshold) / \tau} + \sum_{0}^{i} i, & \text{otherwise}  
-    \end{cases}
-        \].
+    in which x and y is the current location, \(\sigma\) is a scale parameter determining the width of input, \(\mu\) is noise and delay ends up in ms. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary. Each of these inputs synapsed on each transition cell, with weights randomly drawn from a uniform distribution between 0 and some maximum, \(w_{max}\). The transition cell had a voltage parameter which triggered spikes if it surpassed a treshhold, or updated according to the formula: \begin{equation} \label{key2} v(t+1) =  \begin{cases} 0, & \text{if } v(t) > \text{threshold}\\ v(t) - e^{-(v(t) - threshold) / \tau} + \sum_{0}^{i} i, & \text{otherwise} \end{cases} \end{equation}
     The STDP learning rule was implemented by separating potentiation and depression: upon transition cell firing, potentiation for weight \(i\) worked according to the formula \begin{equation} \label{key3} w_i = clip(w_i + a^{pre}_i \cdot \nu, 0, w_{max})\end{equation} in which \(a^{pre}_i\) is a variable incremented when input \(i\) fires, and decays with time. \(\nu\) is here a learning rate, which can be constant or variable. 
     Similarly, upon presynaptic input from input \(i\), weights are depressed, but also increased according to a baseline parameter, according to \begin{equation} \label{key4} w_i = clip(w_i + (a^{post}_i + \alpha \cdot (w_{max}-w_i)) \cdot \nu, 0, w_{max})\end{equation} where \(a^{post}_i\) is a symmetric parameter to \(a^{pre}_i\), but which decrements upon post synaptic firing and decays at a separate rate. The baseline weight increase operates with rate \(\alpha\).
     Transition cells then interact by activating inhibitory neurons which inhibit all transition cells for a time, typically by reducing their voltage by a large, constant amount, but which is small enough so the voltage returns to zero by the next theta.
@@ -208,6 +203,11 @@ sorting = ynt
     \subsection{Boundary vector cell inputs}
     This network structure was designed to be as biologically plausible as possible, but it builds directly on the past sections. As in the gap junction networks, this one has \textit{maybe actually commence this one before continuing, lol}
 
+    \subsection{Simulation software} All models and implementations can be found on github(Insert link here?), and while the simulation data is not available on github due to storage capacity, it is available (somewhere else?). All simulations were implemented in python, using the brian2-library for its flexibility and easy implementation \parencite{Brian2}. 
+    
+    Simulations used self-written simulated trajectories, simulated with 10 ms time steps and a square environment. Position was treated like a continuous variable, with velocity and rotational velocity determined by normal distributions from one time step to the next. In simulations using boundary vectors, the external RatInABox library was used \parencite{RatInABox}. 
+    
+    From the trajectories, spatial inputs were calculated prior to simulations, using either position- or boundary information, and added to a brian2 spikeGeneratorGroup. The network state and weights was stored frequently during simulations.
 
     \subsection{Analysis}
     To investigate the firing properties of the network of transition cells, weights were frozen, and the activity of the network was sampled from each position in an even 48 x 48 grid across the environment. In simulations with noise, each position was sampled 5 times, while they were sampled only once without noise. This gave momentary pictures of the network state, which were subsequently stored as spike trains and then converted to histograms of spatial firing fields. Due to the time in took to get one sample, each simulation was typically sampled each 5 minutes of simulation time.
@@ -220,7 +220,7 @@ sorting = ynt
 
     Orientation was determined only in cells with a positive gridness score. Orientation was determined as the angle between the horizontal line and the first maxima within the annulus, extracted similarly to in the gridness score.
 
-    Phase distribution was only evaluated for cells with positive gridness and an orientation between \(-5\degree\) and \(5\degree\), as this seemed to be dominant for most simulations. In simulations with multiple cells passing this criterion, one cell was chosen at random as a basis for comparison. All other cells would be evaluated relative to this basis by doing a cross correlation, and finding the maximal value. To find all positions relative to the rhombus, the phase-difference was unsheared, so the rhombus would be a rectangle. Then, phase differences could be reduced to the within the rectangle by a modulo-operation, and sheared again to be placed within the rhombus.
+    Phase distribution was only evaluated for cells with positive gridness and an orientation between \(-5\degree\) and \(5\degree\), as this seemed to be dominant for most simulations. In simulations with multiple cells passing these criteria, one cell was chosen at random as a basis for comparison. All other cells would be evaluated relative to this basis by doing a cross correlation, and finding the maximal value. To find all positions relative to the rhombus, the phase-difference was unsheared, so the rhombus would be a rectangle. Then, phase differences could be reduced to the within the rectangle by a modulo-operation, and sheared again to be placed within the rhombus.
     
     Temporal stability was estimated by getting the variance in pixel-values across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values. 
 
@@ -231,7 +231,7 @@ sorting = ynt
 
     \subsection{Model parameters and variations}
     A few models were tested in this work. In most of these, overall network structure was kept the same, varying instead on certain parameters that were perceived as critical: the distribution of inputs, inhibition delay, the number of transition cells in a network and the role of noise in the spatial inputs. In addition to these variants, this section will show results from a multi-compartment model with non-spiking dendrites, both with place-like inputs and boundary vector cell inputs. Most hyperparameters were not tested, or not tested thoroughly, for reasons related to time constraints. In that light, this section will describe typical parameters of a basic model, and some of the considerations made in setting some of the parameters. This set of typical parameters ends up making out a standard model, which will be used as a baseline for comparison in the rest of the article.
-    Table 3.1 shows a typical set of hyperparameters, partially chosen to be biologically plausible, but some sets of parameters were calibrated in order to achieve a wanted dynamic [see equations in methods to find what the parameters mean?]. Since the input was phase-coded relative to theta, weights and spiking threshold were set so the first transition cell would spike typically about halfway between the first input and the phase-delay cutoff. This was thought to encourage even center- surround fields under a STDP learning rule. Inhibitory delay was set to give a brief window for other cells to fire, and is probably shorter than expected biologically [source?]. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out [see equations?]. This model also assumed zero noise in the phase delay.
+    Table 3.1 shows a typical set of hyperparameters, partially chosen to be biologically plausible, but some sets of parameters were calibrated in order to achieve a wanted dynamic. Since the input was phase-coded relative to theta, weights and spiking threshold were set so the first transition cell would spike typically about halfway between the first input and the phase-delay cutoff. This was thought to encourage even center- surround fields under a STDP learning rule. Inhibitory delay was set to give a brief window for other cells to fire, and is probably shorter than expected biologically [source?]. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out, according to equations \ref{key3} and \ref{key4}. This model also assumed zero noise in the phase delay.
 
     \begin{table}[H]
         \caption{Example parameters for simulations. The parameters are partially chosen for biological plausibility, and partly adapted to achieve desired firing dynamics.}
@@ -279,90 +279,64 @@ sorting = ynt
         \begin{minipage}[b]{1\textwidth}
             \centering
             \subcaption{}
-            \includegraphics[width = \textwidth]{model_comparison/model_comparison_sigmas.png} 
+            \includegraphics[width =\textwidth]{model_comparison/model_comparison_sigmas.png} 
         \end{minipage}
         \begin{minipage}[t]{1\textwidth}
             \centering
             \subcaption{}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_regular.png}
+            \hspace*{0.02\textwidth}
+            \foreach \filename in {
+                model_comparison/model_comparison_orientation_regular.png,
+                model_comparison/model_comparison_orientation_blue_noise.png,
+                model_comparison/model_comparison_orientation_white_noise.png,
+                model_comparison/model_comparison_orientation_37grid.png,
+                model_comparison/model_comparison_orientation_23grid.png,
+                model_comparison/model_comparison_orientation_no_delay.png,
+                model_comparison/model_comparison_orientation_1ms_noise.png,
+                model_comparison/model_comparison_orientation_2ms_noise.png,
+                model_comparison/model_comparison_orientation_4ms_noise.png,
+                model_comparison/model_comparison_orientation_GJ.png}
+            {
+            \begin{subfigure}{0.077\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
             \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_blue_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width =\textwidth]{model_comparison/model_comparison_orientation_white_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width= \textwidth]{model_comparison/model_comparison_orientation_37grid.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_23grid.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_no_delay.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_1ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_2ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_4ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_orientation_GJ.png}
-            \end{subfigure}
+            }
         \end{minipage}
         \begin{minipage}[t]{1\textwidth}
             \centering
             \subcaption{}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_regular.png}
+            \hspace*{0.02\textwidth}
+            \foreach \filename in {
+                model_comparison/model_comparison_phase_regular.png,
+                model_comparison/model_comparison_phase_blue_noise.png,
+                model_comparison/model_comparison_phase_white_noise.png,
+                model_comparison/model_comparison_phase_37grid.png,
+                model_comparison/model_comparison_phase_23grid.png,
+                model_comparison/model_comparison_phase_no_delay.png,
+                model_comparison/model_comparison_phase_1ms_noise.png,
+                model_comparison/model_comparison_phase_2ms_noise.png,
+                model_comparison/model_comparison_phase_4ms_noise.png,
+                model_comparison/model_comparison_phase_GJ.png}
+            {
+            \begin{subfigure}{0.077\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
             \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_blue_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width =\textwidth]{model_comparison/model_comparison_phase_white_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width= \textwidth]{model_comparison/model_comparison_phase_37grid.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_23grid.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_no_delay.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_1ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_2ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_4ms_noise.png}
-            \end{subfigure}
-            \begin{subfigure}{0.08\textwidth}
-                \includegraphics[width = \textwidth]{model_comparison/model_comparison_phase_GJ.png}
-            \end{subfigure}
+            }
         \end{minipage}% 
         
-        \caption{Grid score, spacing, orientation, phase distribution and temporal stability in transition cells after 95 minutes simulation time. Each column represents some network structure or hyperparameter setting. (a) Gridness across models. Each dot represents the mean gridness score in one simulation, sorted by modeltype. While receiving blue noise-distributed inputs produces comparable gridness to regular inputs, white noise inputs scores significantly worse. Networks with 13 or 23 transition cells, as well as moderate noise levels also score highly, and having non-spiking dendritic input, instead of spiking, is also scoring highly. Meanwhile, 37 transition cells, no inhibitory delay and high levels of noise disrupt gridness. (b) The grid spacing across cells is typically between 10.5 and 12 cm for each simulation. This is not impacted by input distribution or number of transition cells, but noise seems increase spacing (10.8 cm mean to 11.8 cm mean), and the high input noise produces significantly higher spacing. (c) Generally, transition cells seem to prefer a \(0\degree\) wall angle offset. This seems to be more typical in highly performing models, but also in models with low amounts of noise. (d) The phase distribution seems to be uniformly distributed. Transition cells were filtered by positive gridness and \(0\degree\) wall angle offset. Within a simulation, one cell was chosen as a reference cell, and each dot is the relative phase of other transition cells.}
+        \caption{Grid score, spacing, orientation, phase distribution and temporal stability in transition cells after 95 minutes simulation time. Each column represents some network structure or hyperparameter setting. (a) Gridness across models. Each dot represents the mean gridness score in one simulation, sorted by modeltype. While receiving blue noise-distributed inputs produces comparable gridness to regular inputs, white noise inputs scores significantly worse. Networks with 13 or 23 transition cells, as well as moderate noise levels also score highly, and having non-spiking dendritic input, instead of spiking, is also scoring highly. Meanwhile, 37 transition cells, no inhibitory delay and high levels of noise disrupt gridness. (b) The grid spacing across cells is typically between 10.5 and 12 cm for each simulation. This is not impacted by input distribution or number of transition cells, but noise seems increase spacing (10.8 cm mean to 11.8 cm mean), and the high input noise produces significantly higher spacing. (c) Generally, transition cells seem to prefer a \(0\degree\) wall angle offset. This seems to be more typical in highly performing models, but also in models with low amounts of noise. (d) The phase distribution seems to be uniformly distributed. Transition cells were filtered by positive gridness and wall angle offset between \(-5\degree\) and \(5\degree\). Within a simulation, one cell was chosen as a reference cell, and each dot is the relative phase of other transition cells.}
         
         \label{model_comparison}
     \end{figure}
 
-    For most simulations, there was a slight preference for a \(0\degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between - 5 and 5 degrees). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
+    For most simulations, there was a slight preference for a \(0\degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between \(-5\degree\) and \(5 \degree\)). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
 
     Curiously, simulations without noise and linear summation of place inputs had slightly smaller fields than models with noise or multi-compartment methods (10.8 cm vs 11.8 cm). All simulations also seemed to develop fields that were stable across time, evaluated by comparing the variance in pixel-value across time, compared to shuffled data.
 
     Although some similarities seemed to persist across models and hyperparameters, the mean gridness varied significantly. Comparing the structure of input patterns, while a regularly distributed blue-noise pattern scored as well as a regular distributed input pattern, white noise inputs performed significantly worse.  Using 23 transition cells also scored on level with 13 transition cells, while the gridness in a network of 37 transition cells was significantly worse. The same was true for noise level, in which moderate noise performed comparably to no noise, but sufficient noise reduced gridness. Interestingly, a network running on minimal inhibition delay (0.2 ms) produced the same gridness as a network with the standard 0.6 ms delay.
     In part, these results might correspond to the idea that parameters are somewhat fine-tuned in the working model, so any simulation with sufficiently different parameters will suffer in performance. This might be especially true for networks that primarily differ quantitatively, such as the one with 37 transition cells. With increased levels of noise, or white noise inputs, it is possible that the basic network dynamics described above break down. With white noise inputs, for instance, transition cells might simply not receive much input in some location, which hampers the transition cells' ability to associate to a center-area. 
 
-    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times (figure \ref{low-high_gscores}). This was the case despite observing that cells with negative gridness seemed to have the same temporal stability (is this true - I can quantify this, right?), as well as clearly defined center-surround areas. Highly negative scores were probably due to rectangular tendencies in gridcell formation, while scores closer to zero might stem from shearing the grid or other asymmetries. 
+    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times (figure \ref{low-high_gscores}). This was the case despite observing that cells with negative gridness seemed to have the same temporal stability (is this true - I can quantify this, right?), as well as clearly defined center-surround areas. Highly negative scores moste likely stem from rectangular firing fields, while scores closer to zero might stem from shearing effects or other asymmetries. 
 
     \begin{figure}[H]
         \centering
@@ -372,7 +346,6 @@ sorting = ynt
         \label{low-high_gscores}
         \end{minipage}
     \end{figure}
-
 
     \subsection{Multiple grid cells and delay}
     The first question that was asked was whether the TSS model implemented in a spiking neural network could produce more than three transition cells with grid-like spatial activity patterns. As demonstrated in previous models, this would require transition cells to have partially overlapping areas of activity. This was attempted in networks of 13, 23 and 37 transition cells (figure 3.3), numbers chosen to be sufficiently far apart, and always primes to avoid any symmetry. Each of these networks had regularly distributed spatial inputs, and a quite fast-acting inhibitory control. Nonetheless, each of these networks showed a positive gridness score development over simulation time, with clear center- and surround fields in all cases. This showed that the networks could sustain multiple transition cells. Mean gridness was somewhat reduced for 37 transition cell networks, compared to networks of 13 and 23, and while this wasn't further investigated due to time constraints, larger networks will typically imply higher competition between transition cells. This reduction in gridness might not reflect an upper limit on the network size, but might rather reflect a shift in the parameter-space. 
@@ -395,8 +368,17 @@ sorting = ynt
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=15cm]{distribution_plot.png}
-        \caption{Examples of the three kinds of input distributions. Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. A blue noise distribution places inputs sequentially so each is placed as far away from other inputs as possible, resulting in an even, unstructured distribution. White noise distribution places inputs randomly, and independent of all other inputs, so some locations produce more input activity than others.}
+        \begin{minipage}[t]{\linewidth}
+            \centering 
+            \subcaption{}
+            \hspace*{0.06\linewidth}\includegraphics[width=0.83\linewidth]{distribution_plot.png}
+        \end{minipage}
+        \begin{minipage}[t]{\linewidth}
+            \centering
+            \subcaption{}
+            \includegraphics[width=0.9\linewidth]{gscore_line_plot.png}
+        \end{minipage}
+        \caption{Examples of the three kinds of input distributions, and the respective development in gridness. (a)Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. A blue noise distribution places inputs sequentially so each is placed as far away from other inputs as possible, resulting in an even, unstructured distribution. White noise distribution places inputs randomly, and independent of all other inputs, so some locations produce more input activity than others. (b) While transition cells develop clear gridness at a relatively even rate with inputs either regularly or blue noise distributed, networks with inputs distributed in a white noise pattern do not develop the same hexagonality.} 
         \label{distribution_plot}
     \end{figure}
 
@@ -404,7 +386,6 @@ sorting = ynt
     One goal of this work was to investigate the nature of spatial inputs. While the section above describes how transition cells can obtain hexagonal activity with place-like inputs, previous work assumed that this input was conveyed to the transition cell through active computation in a dendritic tree. The spatial inputs given to this dendritic tree could have some other form, such as boundary vectors. To test the plausibility of this claim, this work made a network receiving direct spatial location, but instead of synapsing directly on the transition cell, it was transmitted through a non-spiking layer of dendrites. Dendritic activity would impact transition cells in ways like a gap-junction, modeling a continuously moving depolarization from the former to the latter. Nonlinear dendritic computation, in which the voltage of the dendrite was modulated both by a softmax function, and then a learned conductance, before impacting transition cell voltage, gave results comparable to the other models [figure 3.1, 3.6, see supplementary methods for a not-working model]. This indicates that dendrites can be used as units of active computation, but it depends heavily on the nonlinear dynamics of the dendrite.
 
     Notably, this multi-compartment model increases the computational load significantly, so this method was only attempted with the first set of parameters that gave decent results. This also impacts the upcoming section using BVCs as inputs.
-
 
     \section{Discussion}
 

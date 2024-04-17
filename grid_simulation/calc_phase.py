@@ -24,14 +24,14 @@ def unsheared_modulus(points, base):
 pxs = 48
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/data/'
-simulation = 'multi-grid'
+simulation = 'simspam'
 sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
 
 n_simuls = 30
-n_groups = 2
+n_groups = 3
 Ndendrites = 24
-ng = np.array([37, 23])
-orientation_app = "_23"
+ng = np.array([13, 13, 13])
+orientation_app = "_reg"
 sigma = 0.108
 
 hists = np.empty((n_groups, n_simuls, np.max(ng), pxs, pxs))
@@ -41,7 +41,7 @@ for j, sub_dir in enumerate(sub_dirs):
     j2 = j % n_simuls
     hists[j1, j2, :ng[j1]] = utils.getPopulationSpikePlot(sub_dir + '/95' + appendix, ng[j1], pxs, True)
 
-ind = 1
+ind = 0
 hists = hists[ind][np.newaxis]
 gscore_mask = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_app}.npz")['mask']
 orientations = np.load(f"grid_simulation/Results/analysis/{simulation}/orientations{orientation_app}.npz")['orientations']
@@ -100,7 +100,7 @@ modulated_array = unsheared_modulus(phase_array.T, base_length)
 x0, x1 = 0, base_length
 y0, y1 = 0, base_length*(np.sqrt(3)/2)
 
-np.savez("grid_simulation/Results/analysis/" + simulation + "/phase_23",
+np.savez("grid_simulation/Results/analysis/" + simulation + "/phase_reg",
         phases = modulated_array, \
         sigma = sigma, \
         orientation_ind = orientation_app, \

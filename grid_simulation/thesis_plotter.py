@@ -24,26 +24,29 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['model_comparison_phase']
-save = True
+plots = ['phase_dist']
+save = False
 
 if("distribution_plot" in plots):
     inputs = ["grid_simulation/Results/data/24dend2/regular0.npz", "grid_simulation/Results/data/24dend2/noisy_blue0.npz", "grid_simulation/Results/data/24dend2/noisy_white0.npz"]
     ax_title = ["Regular", "Blue noise", "White noise"]
     fig, axs = plt.subplots(1, 3)
-    fig.set_facecolor("#212121")
-    for input, ax, title in zip(inputs, axs, ax_title):
+    cmap = plt.get_cmap('nipy_spectral')
+    col_vals = [cmap(0.9), cmap(0.2), cmap(0.47)]
+
+    for input, ax, title, color in zip(inputs, axs, ax_title, col_vals):
         input_positions = np.load(input, allow_pickle=True)['input_pos']
-        ax.scatter(input_positions[:, 0], input_positions[:, 1], s = 3, color ='steelblue')
+        ax.scatter(input_positions[:, 0], input_positions[:, 1], s = 3, color =color)
         ax.axis('square')
         ax.set_xlim([-0.025,1.025])
         ax.set_ylim([-0.025,1.025])
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
-        ax.set_title(title, size = 10, color = "#adadad")
+        ax.set_title(title, size = 10)
         [x.set_linewidth(2) for x in ax.spines.values()]
+    plt.gcf().set_size_inches(8, 2.67)
     if save:
-        fig.savefig("grid_simulation/Results/distribution_plot", dpi = 500, bbox_inches = 'tight')
+        fig.savefig("grid_simulation/Documents/Figures/distribution_plot", dpi = 500, bbox_inches = 'tight')
 
 
 if("input_plot" in plots):
@@ -169,21 +172,27 @@ if('spike_temp_plot' in plots):
 
 if('gscore_line_plot' in plots):
     gscores = np.load('grid_simulation/Results/analysis/simspam/gscores4.npz')['gscores']
+    gscores = np.array([gscores[2], gscores[0], gscores[1]])
     shape = gscores.shape
     mean_gscores = np.nanmean(gscores, axis = (1,3))
     var_gscores = np.nanvar(gscores, axis = (1,3)) / (shape[1] * shape[3])
     times = np.linspace(0, 100, shape[2], endpoint=False)
     fig, ax = plt.subplots()
-    legends = ["Blue Noise", "White Noise", "Regular"]
-    for line_mean, line_var in zip(mean_gscores, var_gscores):
-        ax.plot(times, line_mean)
-        ax.fill_between(times, line_mean + np.sqrt(line_var), line_mean - np.sqrt(line_var), alpha=0.4, interpolate=True, label = '_nolegend_')
+    cmap = plt.get_cmap('nipy_spectral')
+    col_vals = [cmap(0.9), cmap(0.2), cmap(0.47)]
+
+    legends = ["Regular", "Blue Noise", "White Noise"]
+    for color, line_mean, line_var in zip(col_vals, mean_gscores, var_gscores):
+        ax.plot(times, line_mean, linewidth = 2, c = color, zorder = 2)
+        ax.fill_between(times, line_mean + 2*np.sqrt(line_var), line_mean - 2*np.sqrt(line_var), alpha=0.4, interpolate=True, label = '_nolegend_', color = color, zorder = 1)
     ax.set_ylim([0, 0.65])
     ax.set_xlim([0,95])
-    ax.legend(legends)
-    ax.set_xlabel("Time (minutes)")
-    ax.set_ylabel("Gridness Score")
+    ax.legend(legends, fontsize = 10)
+    ax.set_xlabel("Time (minutes)", size = 10)
+    ax.set_ylabel("Gridness Score", size = 10)
     ax.set_xticks(times[::2])
+    [x.set_linewidth(2) for x in ax.spines.values()]
+    plt.gcf().set_size_inches(8, 4)
     if save:
         fig.savefig("grid_simulation/Documents/Figures/gscore_line_plot", dpi = 500, bbox_inches = 'tight')  
 
@@ -234,7 +243,7 @@ def make_orientation_plot(file: str, output: str, save: bool = False) -> None:
     ax.plot(x_vals, y_vals, linewidth = 4, color = 'black')
     ax.set_xlim([-np.pi/6, np.pi/6])
     ax.set_xticks(np.linspace(-np.pi/6, np.pi/6, 7))
-    ax.tick_params(axis='both', which='major', labelsize=12)
+    ax.tick_params(axis='both', which='major', labelsize=40)
     ax.set_yticks([])
     ax.grid(False)
     for i, spine in enumerate(ax.spines.values()):
@@ -325,13 +334,14 @@ if ('model_comparison_gscore' in plots):
     darkened_colors = [cmap(i) for i in np.linspace(0, 1, n_col)]
     darkened_colors = [(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in darkened_colors]
 
-    ax.scatter(scatter_ind, gscores_container, c = ind_container, cmap = 'tab10')
+    ax.scatter(scatter_ind, gscores_container, c = ind_container, cmap = 'tab10', s = 7)
     ax.hlines(means, xmin = np.arange(n_col) - 0.3, xmax = np.arange(n_col) + 0.3, linewidth = 3, colors = darkened_colors)
     ax.hlines(0, xmin = -1, xmax = 11, colors = 'black')
     ax.set_xlim([-0.7, 9.7])
+    ax.set_ylabel("Mean gridness score", size = 10)
     ax.set_xticks([])
 
-    plt.gcf().set_size_inches(15, 5)
+    plt.gcf().set_size_inches(8, 2.67)
     if save:
         fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_gscores", dpi = 500, bbox_inches = 'tight', transparent = True)      
 
@@ -369,13 +379,14 @@ if ('model_comparison_sigma' in plots):
     darkened_colors = [cmap(i) for i in np.linspace(0, 1, n_cols)]
     darkened_colors = [(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in darkened_colors]
 
-    ax.set_ylim([0.07, 0.2])
+    ax.set_ylim([7, 20])
     ax.set_xlim([-0.7, 9.7])
-    ax.scatter(scatter_ind, scatter_sig, c = ind_container, s = 5, linewidth = 0.1, cmap = 'tab10')
-    ax.hlines(means, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
+    ax.scatter(scatter_ind, scatter_sig * 100, c = ind_container, s = 5, linewidth = 0.1, cmap = 'tab10')
+    ax.hlines(means * 100, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
+    ax.set_ylabel("Grid Spacing (cm)", size = 10)
     ax.set_xticks([])
 
-    plt.gcf().set_size_inches(15, 5)
+    plt.gcf().set_size_inches(8, 2.67)
     if save:
         fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_sigmas", dpi = 500, bbox_inches = 'tight', transparent = True)      
     
@@ -441,6 +452,48 @@ if('low-high_gscores' in plots):
 
     if save:
         fig.savefig("grid_simulation/Documents/Figures/low-high_gscores", dpi = 500, bbox_inches = 'tight') 
+
+if('phase_dist' in plots):
+    models = ['simspam', 'multi-grid']
+    model_ind = [0, 1, 1]
+    file_app = ['_reg', '_37', '_23']
+    cell_counts = np.zeros((3, 30))
+    phases = [None, None, None]
+    fig, ax = plt.subplots()
+
+    sigma = np.load(f"grid_simulation/Results/analysis/simspam/phase_reg.npz")["sigma"]
+    pxs = 48
+    base_length = 3*sigma*pxs
+    x0, x1 = 0, base_length
+    y0, y1 = 0, base_length*(np.sqrt(3)/2)
+
+    for i in range(3):
+        phases = np.load(f"grid_simulation/Results/analysis/{models[model_ind[i]]}/phase{file_app[i]}.npz")["phases"]
+
+        noise = np.random.random(phases.shape) * 2 - 1
+        noised_vals = phases + noise
+        x_shear_val = noised_vals[0] - noised_vals[1]/2
+        x_condition = np.logical_and(x_shear_val > 0, x_shear_val < x1)
+
+        y_condition = np.logical_and(noised_vals[1] > 0, noised_vals[1] < y1)
+        phases[0, x_condition] = noised_vals[0, x_condition]
+        phases[1, y_condition] = noised_vals[1, y_condition]
+        
+        ax.scatter(phases[0], phases[1])
+    
+    ax.plot([x0, x1, x1 + 0.5 * y1], [y0, y0, y1], c = 'black')
+    ax.plot([x0, 0.5 * y1, x1 + 0.5 * y1], [y0, y1, y1], c = 'black')
+    ax.set_aspect('equal')
+
+    ax.set_xlim([-0.2, 4.35*sigma*pxs])
+    ax.set_ylim([-0.5, 5*sigma*pxs])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    [x.set_linewidth(0) for x in ax.spines.values()]
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/phase_dist", dpi = 500, bbox_inches = 'tight') 
+
+
 
 if ('yearbook_plot' in plots):
     base_path = "grid_simulation/Results/data/simspam/regular5"
