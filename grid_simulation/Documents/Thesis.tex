@@ -54,15 +54,15 @@ sorting = ynt
 
     While the physical space as experienced by mice is a continuous two-dimensional plane, any cognitive map of the environment must be represented by discrete neurons. This discretization of space could occur in many ways, but matching experimental observations, the TSS model suggests that this map could be a network of neurons in which each represents single locations in an environment. Part of the purpose of this network is storing information about each location, which is central for navigation: during path-planning, a mouse must be able to selectively avoid locations that are considered dangerous, which can be based on experience of those locations. The cell in this map-network representing 'home' would elicit very different responses from the cell representing a dangerous territory, for instance if the mouse has encountered predators there previously.
 
-    Such a network does not necessarily contain information about how locations are connected, spatially. Each node, or cell, in the network, does not know its own neighbors. This information is necessary for spatial navigation, and the TSS-model posits that this information can be stored in another network. In this network, each cell represents spatial transitions, to give information about which locations are available at a certain distance from a current location. However, due to the considerable number of possible spatial transitions, making each cell represent a single transition would require a high number of transitions, so the TSS model instead suggests letting each transition cell represent multiple transitions.
+    Such a network does not necessarily contain information about how locations are connected, spatially. Each node, or cell, in the network, does not know its own neighbors. This information is necessary for spatial navigation, and the TSS-model posits that this information can be stored in a separate network. In this network, each cell represents spatial transitions, to give information about which locations are available at a certain distance from a current location. However, due to the considerable number of possible spatial transitions, making each cell represent a single transition would require a high number of cells, so the TSS model instead suggests letting each transition cell represent multiple transitions.
 
-    The one constraint is that the network breaks down as soon as a transition cell represents a transition both to and from the same location - the domain of the transition cell, which are the places the transition cell transitions from, and the image, where it transitions to, must be disjunct. Apart from that, each transition cell should represent as many transitions as possible, to minimize the number of cells necessary in a working transition cell network.
+    The TSS model asserts that a transition cell can't represent transitions both to and from the same location - the domain of the transition cell, which are the places the transition cell transitions from, and the image, where it transitions to, must be disjunct. Apart from that, each transition cell should represent as many transitions as possible, to minimize the number of cells necessary in a working transition cell network.
 
-    This argument stands at the center of the TSS model, because it posits that if a mouse brain indeed has these transition cells, they would be as efficient as they could be, appealing to the second level in Marr's three levels of analysis - in a biological network, any cell with a particular purpose should behave as to fulfill that purpose optimally, whatever the purpose is.
+    This argument sits at the center of the TSS model, because it posits that if a mouse brain indeed has these transition cells, they would be as efficient as they could be, appealing to the second level in Marr's three levels of analysis - in a biological network, any cell with a particular purpose should behave as to fulfill that purpose optimally, whatever the purpose is.
     Through mathematical derivations, the TSS shows that such a transition cell operating under the constraints listed above would have a striking spatial activity pattern. Although the mathematics won't be reproduced here, the logic behind an optimal transition cell is as following:
-    a transition cell will be activated by all place cells in some limited region, referred to as a 'center' region, and will represent all transitions from that center to all place cells in a region surrounding this center, the 'surround' region. The transition cell will try to fit as many of these 'center-surround' regions into the environment as possible, as long as there is no overlap between center-areas and surround-areas.
+    a transition cell will be activated in all locations within in some confined spatial area, referred to as a 'center' region, and will represent all transitions from that center to all places in the region surrounding this center, the 'surround' region. The transition cell will try to fit as many of these 'center-surround' regions into the environment as possible, as long as there is no overlap between center-areas and surround-areas.
 
-    Indeed, in the limit of getting as many center-regions into the environment as possible, this transition cell will be active in a periodic, hexagonal pattern in an open environment, which is a solution derived from the sphere-packing problem in two dimensions \parencite{Waniek2018} [Cite sphere packing here?]. With optimal transition cells, all possible spatial transitions from center-areas to surrounding areas can be encoded in a network of only three such cells, highlighting how effectively these cells represent spatial transitions.
+    Indeed, in the limit of getting as many center-surround-regions into the environment as possible, this transition cell will be active in a periodic, hexagonal pattern in an open environment, which is a solution derived from the sphere-packing problem in two dimensions \parencite{Waniek2018} [Cite sphere packing here?]. With optimal transition cells, all possible spatial transitions from center-areas to surrounding areas can be encoded in a network of only three such cells, highlighting how effectively these cells represent spatial transitions.
 
     A variable in these transition cells is the size of the center- and surround-areas, which in turn would influence the scale of the hexagonal activity pattern. A transition network as described in the TSS-model would work best with multiple separate scales, so larger scales can accelerate the retrieval of paths. In biological systems, where a transition cell has a rate coded activity in a gaussian for each center region, the ideal increment between scales is the \(\sqrt{2}\).
 
@@ -79,7 +79,7 @@ sorting = ynt
 
     The hippocampus is also subject to oscillations in the local field potential, prominently in the 4-11 Hz region, called theta oscillations, or just theta. When preplay is viewed relative to theta, the place cells corresponding to the current locations are active at the trough of the wave, while past place cells activate in the descending part of the wave, and future place cells activate in the ascending part of the wave. This phenomenon is called theta phase precession \parencite{OKeefe1993, Skaggs1996,Hafting2008}.
 
-    Replay typically occurs during rest or sleep following explorations, in which sequences of place cells experienced prior to rest are activated again, but compressed temporally (Tonagawa)\parencite{Olafsdottir2016} . Moreover, combinations of sequences are seen, which seems to produce novel trajectories in an already explored space.
+    Replay typically occurs during rest or sleep following explorations, in which sequences of place cells experienced prior to rest are activated again, but compressed temporally \parencite{Olafsdottir2016}. Moreover, combinations of sequences are seen, which seems to produce novel trajectories in an already explored space.
 
     Interestingly, place cells can be active in multiple environments, but they remap independently of each other \parencite{Muller1987}. This implies that the place cell networks are modulated by the context, but the mechanisms for this are currently unknown.
 
@@ -99,7 +99,7 @@ sorting = ynt
 
     Another set of models explain the grid cell as a part of a continuous attractor network (CAN), which can explain persistent grid cell activity during rest or sleep \parencite{Yoon2013,Widloski2014}. These models can be implemented with lateral inhibition between grid cells, as observed in mECII, as long as the strength of the inhibition is inversely proportional to the overlap of firing fields, so the most active grid cell silences all other grid cells. When the animal moves, this activity is shifted to a grid cell with a neighboring phase.
 
-    It has been demonstrated that any such system of path integration still needs regular external input to avoid drift, and the exact inhibitory structure predicted by CAN - networks have not been observed. Additionally, the velocity-based inputs have not been observed, although this might just stem from the unexplored input-space of grid cells (Some review claimed this).
+    It has been demonstrated that any such system of path integration still needs regular external input to avoid drift \parencite{Mulas2016}, and the exact inhibitory structure predicted by CAN - networks have not been observed. Additionally, the velocity-based inputs have not been observed, although this might just stem from the unexplored input-space of grid cells (Some review claimed this).
 
     A third group of models predict that grid-patterns can be learnt by Hebbian learning, which is by associating to the right spatial inputs and dissociating from other spatial inputs. As opposed to the OI- and CAN-models, the driving mechanism of grid cell activity in these feed-forward models is not necessarily self-motion inputs, put that doesn't necessarily exclude the possibility that grid cells participate in path-integration. 
     
@@ -108,7 +108,7 @@ sorting = ynt
 
     Some models produce grid cells with a center-surround learning rule from place-cell inputs. In these models, grid cells typically associate to place cell inputs with firing fields with a given distance, and dissociate from place cells with firing fields outside this distance. Mercade and Leibold showed that this learning rule, combined with lateral inhibition, reduced boundary-effects on grid formation and showed a high level of gridness \parencite{Mercado2020}. While the grid cells prefered an orientation around 7.5 degrees, in line with experimental results, but all grid cells were found in one of three distinct phases. Another feedforward model added a second ring around the center-surround area, and place cells within this narrow ring were tagged so new firing fields can only occur on the narrow ring. Moreover, if a place cell gets tagged from two separate firing fields of one grid cell, the weights would potentiate. While this was robust to noise, it is unclear if orientations and phases would align between grid cell \parencite{Castro2014}.
 
-    The observation that center-surround plasticity can lead to gridness is reminiscent of ideas from the TSS model. In the TSS model, the suggested mechanism by which transition cells learn is suggested to be similar to how place cells learn their receptive fields. The place cell learns to activate based on spatially modulated sensory inputs, in which each place cell associates to spatial inputs from one area, and lateral inhibition prevents other place cells from activating. This has been explored in numerous works prior to TSS, for instance using boundary vector cells or object vector cells as inputs \parencite{Barry2006}(am I correct saying this also exists for OBCs?). Boundary vector cells and object vector cells are similar in that they activate preferentially when the animal is at some distance and direction relative to an external structure. Cells are called boundary vector cells if this structure is an environment boundary, such as a wall or a cliff, while they are called object vector cells if the structure is some environment landmark. Using cells like these as spatial input in a feed-forward network is attractive because the cells can plausibly exist and be configured prior to exploration, and computed during exploration through optic flow \parencite{Raudies2012}.
+    The observation that center-surround plasticity can lead to gridness is reminiscent of ideas from the TSS model. In the TSS model, the suggested mechanism by which transition cells learn is suggested to be similar to how place cells learn their receptive fields. The place cell learns to activate based on spatially modulated sensory inputs, in which each place cell associates to spatial inputs from one area, and lateral inhibition prevents other place cells from activating. This has been explored previously, for instance using boundary vector cells as inputs \parencite{Barry2006}. Boundary vector cells and other vector-based location cells, such as object vector cells, are similar in that they activate preferentially when the animal is at some distance and direction relative to an external structure. Cells are called boundary vector cells if this structure is an environment boundary, such as a wall or a cliff, while they are called object vector cells if the structure is some environment landmark. Using cells like these as spatial input in a feed-forward network is attractive because the cells can plausibly exist and be configured prior to exploration, and computed during exploration through optic flow \parencite{Raudies2012}.
 
     \subsection{Grid Cells as Potential Transition Neurons}
     Under the TSS-model, grid cells, which are suggested transition cells, are also formed from spatially modulated inputs. As opposed to place cells, these associate to spatial inputs in center-regions, and dissociate to inputs from the surrounding-regions, while trying to fit as many center-regions into the environment as possible. These transition cells are also interconnected by strong lateral inhibition, to discourage overlapping center-regions.
@@ -118,12 +118,20 @@ sorting = ynt
     A rationale for the three learning rules is that the first rule provides the center-surround effect necessary for transitions, the baseline encourages transition cells to be active as frequently as possible to encourage effective transition cells, and the interaction rule discourages excessive overlap between transition areas.
     
     Although this network gave cells with high gridness in networks of three transition cells, demonstrating that the TSS-model can give rise to transition cells, it did not work in bigger networks. This is necessary in a biological network. Additionally, it is unlikely that a biological network providing the spatial inputs shows regularly distributed, place like activity. Both of these constraints need to be addressed for this network to be considered biologically plausible.
-    In this work, the main objective is to build upon these simulations, and establish this network structure in a more biologically plausible way, and explore under what conditions or constraints transition cells develop a hexagonal structure. 
-    This task is divided in two. First, to see if a biologically plausible network can contain more than three grid cells, by simulating in continuous time with delayed inhibition, so the grid-dissociation is partial instead of complete.
-    Second, the way the structure of spatial input affects gridness is also explored. To allow for a center-surround learning rule, spatial input was always phase-coded, so the grid cells received pulses of inputs in simulated theta-cycles, in which the more relevant inputs arrived earlier, and a STDP-learning rule separated center from surround input. For highest biological plausibility, this input would be boundary vector cells or similar, and this was attempted with complex dendritic computations to allow differentiating vector-inputs, but place-cell like distributions were also attempted to reduce the simulation complexity and simulation times. With a simple STDP- based learning rule, robust gridness scores were observed with multiple network structures, showing that cells can learn spatial transitions effectively under biologically plausible conditions.
+
+    \subsection{Thesis Goal}
+    In this work, the main objective is to build upon the simulations already conducted in the TSS-model, and establish this network structure in a more biologically plausible way, and explore under what conditions or constraints transition cells develop a hexagonal structure.
+
+    This task is divided in two. First, to see if a biologically plausible network can contain more than three grid cells, by simulating in continuous time with delayed inhibition, so multiple transition cells can associate to the same place. The network should resemble the previous simulation as much as possible, to allow some level of comparison.
+
+    Second, the way the structure of spatial input affects gridness is also explored. This was both to see if using rectangularly spaced inputs was necessary to produce gridness, and to evaluate the possibility of vector-based inputs such as BVCs, instead of place-like inputs. To allow a center-surround learning rule, spatial input was always phase-coded, so the grid cells received pulses of inputs in simulated theta-cycles. Within a cycle, inputs only arrived in a limited time window, and the more spatially relevant inputs arrived earlier. In addition to rectangularly spaced inputs, inputs distributed randomly with either a blue noise or a white noise distribution was also tested.
+
+    For highest biological plausibility, though, this input would be boundary vector cells or similar, and this was attempted with complex dendritic computations to allow differentiating vector-inputs. With these different distributions of inputs, the main interest was whether transition cells developed high levels of gridness, and compare it to other results.
+
+    With a simple STDP- based learning rule, along with a baseline weight modulation, transition cells developed high gridness levels in larger networks than previously obserev, and in with multiple network structures. This is an argument that cells can learn spatial transitions effectively under biologically plausible conditions. However, gridness did not occur in models with BVC-inputs, and more work is necessary to link these observed
         
     \section{Methods} 
-    \subsection{Overall model design and -goals}
+    \subsection{Overall model design}
     The purpose of this thesis is to test gridness in transition neurons as described by the TSS-model with biologically plausible spatial inputs and conditions (continuous time). To achieve this, transition cells were simulated in a spiking neural network, which are artificial networks with certain properties:
     \begin{enumerate}
         \item The network is simulated with continuous time, or in time steps that are significantly shorter than the mean firing rate of neurons.
@@ -132,9 +140,13 @@ sorting = ynt
     
     Different network structures have been tested over the course of the thesis, and the results of different structures are treated in the results section. This section will first describe an ideal network, and describe the different assumptions that network would operate under. The further sections will describe other network structures that were used to simplify and test different levels of plausibility.
 
-    An ideal network has the following properties: it is simulated in a biologically plausible network, such as a spiking neural network. Most importantly, this means that communication happens at a delay, time is continuous, and learning rules must be online and local. Simulations get inputs from some plausible spatially tuned neurons, more precisely boundary vector cells (BVCs), whose activity is based on real or simulated trajectory data. From these inputs, another layer of cells of arbitrary size learns center- and surrounding area information to represent transition-cells as described in the TSS-model, encoding transitions on a single scale. Under these constraints, the objective is whether the transition neurons self-organize into single-cells with hexagonal activity patterns in space, and in which the population covers all possible environment transitions.
+    An ideal network has the following properties: it is simulated in a biologically plausible setting, such as a spiking neural network. Most importantly, this means that communication happens with delays, time is continuous, and learning rules must be online and local. Online and local learning rules mean that all variables necessary for learning must be available at the time of learning (online) and in the location where learning occurs (local). Spike timing dependent plasticity (STDP) satisfies all these learning rules.
+    
+    Moreover, simulations get inputs from some plausible spatially tuned neurons, more precisely boundary vector cells (BVCs), whose activity is based on real or simulated trajectory data. From these inputs, another layer of cells of arbitrary size learns center- and surrounding area information to represent transition-cells as described in the TSS-model, encoding transitions on a single scale. Under these constraints, the objective is whether the transition neurons self-organize into single-cells with hexagonal activity patterns in space, and in which the population covers all possible environment transitions on a given scale.
 
-    Both an ideal network and subsequent simplifications will have some common features to accommodate these limitations: first, spike timing dependent plasticity is a biologically plausible learning rule which both allows single transition cells to associate with spatial inputs associated with center, and dissociate with inputs associated with surround areas. To facilitate this, all inputs arrive in pulses at theta-wave frequency, 10 Hz, in which only spatial input with sufficient relevance is active. The input is also phase coded, so the less relevant, the higher the temporal offset is relative to theta. This means that a transition cell is likely to fire following center-inputs, and subsequently receive a burst of inputs from cells representing surrounding locations. The STDP learning-rule will ensure that the center-activity which arrived pre-spike are potentiated, and the surround-activity arriving post-spike is depressed. Secondarily, all active inputs are slightly potentiated to encourage the transition cell to be active in as many center-areas across the environment as possible.
+    Finally, an ideal network is not dependent on highly specific parameters, and is rather robust to noise and variability, which is likely necessary for any actual brain network.
+
+    Both an ideal network and subsequent simplifications will have some common features to accommodate these limitations: first, spike timing dependent plasticity is a biologically plausible learning rule which both allows single transition cells to associate with spatial inputs associated with center, and dissociate with inputs associated with surround areas. To facilitate this, all inputs arrive in pulses at theta-wave frequency, 10 Hz, in which only spatial input with sufficient relevance is active (Figure \ref{mouse_plot} (a) and (b)). The input is also phase coded, so the less relevant, the higher the temporal offset is relative to theta. This means that a transition cell is likely to fire following center-inputs, and subsequently receive a burst of inputs from cells representing surrounding locations. The STDP learning-rule will ensure that the center-activity which arrived pre-spike are potentiated, and the surround-activity arriving post-spike is depressed. Secondarily, all active inputs are slightly potentiated to encourage the transition cell to be active in as many center-areas across the environment as possible.
 
     \begin{figure}[htbp]
         \centering
@@ -165,12 +177,15 @@ sorting = ynt
     \end{figure}
 
     
-    An inhibitory layer connects transition cells laterally, causing strong inhibition, but on a delay. This leaves a narrow window in which multiple transition cells can fire, followed by complete inhibition, so some transition cells partially associate to the same areas.
+    An inhibitory layer connects transition cells laterally, causing strong inhibition, but on a delay. This leaves a narrow window in which multiple transition cells can fire, followed by complete inhibition, so some transition cells partially associate to the same areas (Figure \ref{mouse_plot} (c)).
 
-    Due to the high number of parameters available in such a network, the network would preferably see characteristics of the transition cells, such as grid-patterns, emerge quickly and without perfectly honing parameters.
-    This is both because a network structure that produces grid cells only with very particular parameters is less biologically plausible, and because testing the parameter space properly is time consuming. On this note, there are reasons to think that a network in which grid cell activity occurs in transition cells based on linear summation of BVC input, as shown in figure 2.1, is difficult to achieve. For one, boundary vector inputs in neighboring areas are typically highly linearly correlated, so the transition cell would struggle to associate to one location and dissociate from a neighboring one. Secondly, for instance in square environments, one could imagine picking two locations that the transition cell has associated with, denoted \((x_1, y_1)\) and \((x_2, y_2)\). In locations \((x_1, y_2)\) and \((x_2, y_1)\), the input would be highly similar to half the input from position 1 and half the input from position 2, but the transition cell should not fire in these locations, because that would lead to rectangular-grid firing patterns, not hexagonal. It should be noted here that the spiking neural network itself implies non-linear features that might have enabled such a network to produce grid-cells. One way to achieve this would be with other transition cells that are sufficiently active in location \((x_1, y_2)\) and \((x_2, y_1)\), so they inhibit the first transition cell. However, due to the fine-tuning such a network would require, this network structure was not pursued further.
+    \subsection{Considering BVC inputs}
 
-    An appealing alternative, which highlights the advantage of biological neurons, was to consider nonlinear dendritic computation on transition cells in a multi compartment model. Under this idea, although boundary vector cells technically synapse onto transition cells directly, the simulation treats dendrites as separate units within one transition cell. Each dendrite would get inputs from some subset of BVCs, and the transition cell can associate and dissociate to all inputs on an entire dendrite. Similarly to the BVC-model, each dendrite would preferably be active in only single locations in the environment, for instance by responding non-linearly to inputs with a soft-max activation function (as in the other paper). In the example above, this would let the transition cell associate to dendrites responding highly to \((x_1, y_1)\) or \((x_2, y_2)\), while remaining dissociated from dendrites activated in \((x_1, y_2)\) or \((x_2, y_1)\), without sacrificing biological plausibility. This multi compartment model satisfies all requirements stated above. 
+    One goal of this work was to obtain gridlike transition cells with BVC inputs, and the simplest way to do this is with a direct connection between the two, so transition cell activity is based on linear summation of BVC inputs. There are reasons to think that such a network is difficult to achieve. The following idea explains this: in square environments, one could imagine picking two locations that the transition cell has associated to, denoted \((x_1, y_1)\) and \((x_2, y_2)\), and that should make up two firing fields in the hexagonal pattern. In locations \((x_1, y_2)\) and \((x_2, y_1)\), the input would be highly similar to half the input from position 1 and half the input from position 2, due to the nature of BVCs. Notably, though, the transition cell should not fire in these locations, because that would lead to rectangular grid firing patterns, not hexagonal. This would be true for all pairs of firing fields that are not parallel to one of the walls. In other words, square environments and linear summation of BVC inputs encourage rectangular fields, not hexagonal.
+    
+    It should be noted here that the spiking neural network itself implies non-linear features that might have enabled such a network to produce grid-cells. One way to achieve this would be with other transition cells that are sufficiently active in location \((x_1, y_2)\) and \((x_2, y_1)\), so they inhibit the first transition cell. However, due to the fine-tuning such a network would require, this network structure was not pursued further.
+
+    An appealing alternative, which highlights an advantage of biological neurons over simplified artificial ones, appears after considering nonlinear dendritic computation on transition cells in a multi compartment model. Under this idea, although boundary vector cells technically synapse onto transition cells directly, the simulation treats dendrites as separate units within one transition cell. Each dendrite would get inputs from some subset of BVCs, and the transition cell can associate and dissociate to all inputs on an entire dendrite. Similarly to the BVC-model \parencite{Barry2006}, each dendrite would preferably be active in only single locations in the environment. This could be achieved by for instance responding non-linearly to BVC-inputs with a soft-max activation function. In the example above, this would let the transition cell associate to dendrites responding highly to \((x_1, y_1)\) or \((x_2, y_2)\), while remaining dissociated from dendrites activated in \((x_1, y_2)\) or \((x_2, y_1)\), without sacrificing biological plausibility. This multi compartment model is in line with the ideal model described in section 2.1.
 
     However, to shorten simulation time and reduce complexity, this kind of network can be simplified. This can be done incrementally, in which each step simplifies complexity but also reduces plausibility:
     \begin{enumerate}
@@ -183,25 +198,44 @@ sorting = ynt
 
  
 
-    \subsection{Rectangularly spaced inputs} This network structure is heavily inspired by previous TSS-simulations, with three layers: input neurons, transition cells and inhibitory neurons. The input neurons have a preferred spatial location, and have the chance of being activated each theta cycle, which is set to happen with a 10 Hz frequency. The activation function for input neuron \(i\) with position \((x_i, y_i)\) is \begin{equation} \label{key1} delay = \frac{\sqrt{(x_i - x)^2 + (y_i - y)^2}}{\sigma} + \mu\end{equation}
-    in which x and y is the current location, \(\sigma\) is a scale parameter determining the width of input, \(\mu\) is noise and delay ends up in ms. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary. Each of these inputs synapsed on each transition cell, with weights randomly drawn from a uniform distribution between 0 and some maximum, \(w_{max}\). The transition cell had a voltage parameter which triggered spikes if it surpassed a treshhold, or updated according to the formula: \begin{equation} \label{key2} v(t+1) =  \begin{cases} 0, & \text{if } v(t) > \text{threshold}\\ v(t) - e^{-(v(t) - threshold) / \tau} + \sum_{0}^{i} i, & \text{otherwise} \end{cases} \end{equation}
-    The STDP learning rule was implemented by separating potentiation and depression: upon transition cell firing, potentiation for weight \(i\) worked according to the formula \begin{equation} \label{key3} w_i = clip(w_i + a^{pre}_i \cdot \nu, 0, w_{max})\end{equation} in which \(a^{pre}_i\) is a variable incremented when input \(i\) fires, and decays with time. \(\nu\) is here a learning rate, which can be constant or variable. 
-    Similarly, upon presynaptic input from input \(i\), weights are depressed, but also increased according to a baseline parameter, according to \begin{equation} \label{key4} w_i = clip(w_i + (a^{post}_i + \alpha \cdot (w_{max}-w_i)) \cdot \nu, 0, w_{max})\end{equation} where \(a^{post}_i\) is a symmetric parameter to \(a^{pre}_i\), but which decrements upon post synaptic firing and decays at a separate rate. The baseline weight increase operates with rate \(\alpha\).
-    Transition cells then interact by activating inhibitory neurons which inhibit all transition cells for a time, typically by reducing their voltage by a large, constant amount, but which is small enough so the voltage returns to zero by the next theta.
+    \subsection{Rectangularly spaced inputs} 
+    This network structure carries significancy in this work for two reasons: it is closely related to previous TSS-simulations, and is an ideal place to investigate if larger networks still give gridness. Moreover, as outlined in the previous section, it makes out an important stepping stone in subsequent models.
+    
+    The network has three main layers: input neurons, transition cells and inhibitory neurons. The input neurons have a preferred spatial location, and have the chance of being activated each theta cycle, which is set to happen with a 10 Hz frequency. The activation function for input neuron \(i\) with position \((x_i, y_i)\) is \begin{equation} \label{key1} delay = \frac{\sqrt{(x_i - x)^2 + (y_i - y)^2}}{\sigma} + \mu\end{equation}
+    in which x and y is the current location, \(\sigma\) is a scale parameter determining the width of input, \(\mu\) is noise and delay ends up in ms. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary, and could for instance depend on the transition cell scale. In this model, inputs would be distributed in a rectangular, even grid across the environment.
+    
+    Each of these inputs synapsed on each transition cell, with weights initialized randomly from a uniform distribution, between 0 and some maximum, \(w_{max}\). The transition cell had a voltage parameter which triggered spikes if it surpassed a treshhold, or updated according to \ref{key2}. \begin{equation} \label{key2} v(t+1) =  \begin{cases} 0, & \text{if } v(t) > \text{threshold}\\ v(t) - e^{-(v(t) - threshold) / \tau} + \sum_{0}^{i} i, & \text{otherwise} \end{cases} \end{equation}
+    The STDP learning rule was implemented by separating potentiation and depression: upon transition cell firing, potentiation for weight \(i\) would increment dependent on presynaptic activity (\ref{key3}).  \begin{equation} \label{key3} w_i = clip(w_i + a^{pre}_i \cdot \nu, 0, w_{max})\end{equation} in which \(a^{pre}_i\) is a variable incremented when input \(i\) fires, and decays with time. \(\nu\) is here a learning rate, which can be constant or modulated by animal velocity. 
+    Similarly, upon presynaptic input from input \(i\), weights are depressed if the input arrives after transition cell spike. Regardless of transition cell activity, the input weight would alse increase according to a baseline parameter. Both of these rules are captured in equation \ref{key4} \begin{equation} \label{key4} w_i = clip(w_i + (a^{post}_i + \alpha \cdot (w_{max}-w_i)) \cdot \nu, 0, w_{max})\end{equation} where \(a^{post}_i\) is a symmetric parameter to \(a^{pre}_i\), but which decrements upon post synaptic firing and decays at a separate rate. The baseline weight increase operates with rate \(\alpha\).
+
+    Transition cells then interacted by activating inhibitory neurons which inhibit all transition cells for a time, typically by reducing their voltage by a large, constant amount, but which was small enough so the voltage returns to zero by the next theta. The number of transition cells was arbitrary, but typical values chosen were 13, 23 or 37.
+
     In this model, all synapses were given a delay, but the feedforward nature of inputs to transition cells made the delay here redundant.
 
     \subsection{Randomly spaced inputs}
-    This network structure had similar structure and learning rule to the network in the section above. In these networks, however, there is some randomness in determining which area an input neuron responded to. This was implemented in three categories: one, the inputs were first arranged in a grid, and then randomly jittered slightly in some random direction. Two, the inputs were distributed in a blue noise like pattern, to ensure a relatively even, although not regular, distribution of spatial firing. Three, the inputs were distributed in a white noise like pattern, in which one input neuron would respond to areas independently of other areas.
-    While inputs responding to areas in a uniformly random, independent manner would be the easiest, from the perspective of BVC-to-transition cell inputs, it brings the possible disadvantage that some areas will be less covered, so a transition cell that's supposed to fire in some region according to its grid might not receive any input there at all.
-    Inputs that were regular, but jittered, were generated by first generating regularly spaced inputs, and adding some normally distributed noise with variance \(\sigma_j\), \[noise \sim N(0, \sigma_j)\]
+    This network structure had similar structure and learning rule to the network in the section above. In these networks, however, there was some randomness in determining which area an input neuron responded to. This was specifically done to investigate if rectangular inputs were a necessary component
+    
+    This was implemented in two categories, in addition to the rectangular grid given in the previous section: One, the inputs were distributed in a blue noise like pattern, to ensure a relatively even, although not regular, distribution of spatial firing. Two, the inputs were distributed in a white noise like pattern, in which one input neuron would respond to areas independently of other areas.
+    Considering the multi-compartment dendrite model mentioned previously, a white noise pattern might be most natural, because it means that each input receptive field can be placed independently of other fields. However, it has the disadvantage that some regions in the environment will be more or less covered, so a transition cell that's supposed to fire in some region according to its grid might not receive any dendritic input there at all. Blue noise, which broadly speaking places the location of each spatial input as far away from other inputs as possible, with a random element, will provide approximately even coverage of the environment.
+    
     The blue noise inputs was generated by iteratively suggesting a number of uniformly distributed points, adding the point that was the furthest from all previously added points to the added points, and repeating until the desired number of added points was reached. To allow for good spreads, the number of suggested points was directly proportional the number of existing points.
-    White noise was made by generating the desired number of uniformly distributed points independently of each other.
+    White noise inputs were generated by getting the desired number of uniformly distributed points independently of each other.
 
     \subsection{Multi Compartment Model}
-    To further bridge the gap between the place-like inputs described thus far and BVCS, this network structure emulated the transition cell as a multi compartment model, in which each cell had multiple dendrites, each dendrite responsible for activity in one region of space. The way this was implemented in practice was to simulate dendrites as a separate layer, serving as an intermediary between input neurons and transition cells. In this model, input neurons were similar to the previous model, so each neuron were activated according to \ref*{key1}, but distributed according to some random process. To justify the two-layer neuron model with dendrites and soma as a multicompartment model, they had the following properties: each dendrite only synapsed onto a single transition cell bodies, dendrites were non-spiking, and the dendrite to soma connectivity was modelled as a gap junction, as in (reference). In this model, each dendrite only received input from a single input neuron, to simulate the place-oriented dendrite. Each dendrite had a voltage-parameter that would increment by a factor \(w\) when receiving inputs, and decaying to 0 over time. Then, the grid cell's voltage was determined by the following formula: \[ v_{soma} = \sum_{i}^{} c_i \cdot tanh(v_i)\] Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not. \(c_i\) is the dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules \ref*{key3} and \ref*{key4} is here learning over conductances instead of synapse weights, but is otherwise similar.
+    A multi compartment model was briefly justified earlier, as a way to include non-linear dendritic computations which were interesting for BVC-inputs. The most natural way to implement this in the simulation software used here was as a separate, non-spiking layer between the input-layer and the transition cell layer, and simulate the synapses from dendrites to transition cells as gap junctions. Although this was thought to take BVCs as inputs, an intermediary step would be to keep place-like inputs, but see how transition cells develop with inputs from the non-spiking dendrites.
+
+    To justify the two-layer neuron model with dendrites and soma as a multicompartment model, they had the following properties: each dendrite only synapsed onto a single transition cell bodies, dendrites were non-spiking, and the dendrite to soma connectivity was modelled as a gap junction, as in (reference). In this model, each dendrite only received input from a single input neuron, to simulate the place-oriented dendrite. Each dendrite had a voltage-parameter that would increment by a factor \(w\) when receiving inputs, and decaying to 0 over time. Then, the grid cell's voltage was determined by the following formula: \[ v_{soma} = \sum_{i}^{} c_i \cdot tanh(v_i)\] Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not. \(c_i\) is the dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules \ref*{key3} and \ref*{key4} is here learning over conductances instead of synapse weights, but is otherwise identical.
+
+    With this network structure, simulation times were significantly higher than with direct connection between input cells and transition cells, because the number of dendrites was the product of the number of input cells and the number of transition cells. This limited the amount of time spent on this and subsequent models.
 
     \subsection{Boundary vector cell inputs}
-    This network structure was designed to be as biologically plausible as possible, but it builds directly on the past sections. As in the gap junction networks, this one has \textit{maybe actually commence this one before continuing, lol}
+    This network structure was designed to be as biologically plausible as possible, but it builds directly on the past sections. Similarly to the model described above, inputs would synapse on an intermediary layer of dendrites, which would activate according to a softmax - function, which in turn would influence the spiking of the transition cell. Each dendrite would receive some subset of BVC-inputs, and the softmax function would be tuned so receiving only one or a few inputs would not ellicit any dendrite activity.
+
+    From observations with different input distributions, there were reasons to think dendrites would respond to single locations, and in which the collective dendritic tree would respond evenly across the environment, such as with regular or blue noise-based input distribution. One way to do this would be by having dendrites receive a superfluous number of BVCs, and during exploration associate to some number of these so the dendrite would only respond to some location, while having dendrites avoiding to associate to the same area. However, this was not pursued further due to significant complications.
+    
+    Instead, a simplified version was used, in which BVCs responded preferentially to one of only two directions: north and east, with a series of different distances. Then, each dendrite received a pair of inputs, one from north and one from east, and the BVCs were carefully paired to give the dendritic tree an evenly spaced, rectangular input field. The activation function for a BVC was simply the distance to the wall in the preferred direction:
+    \[insert function here\]
+    Dendrites would only activate if they received inputs from both presynaptic BVCs in short succession. Despite this being absurdly simplified, justified by being a proof of concept of BVC-inputs, this model did not yield gridlike transition cells, so further exploration stopped here.
 
     \subsection{Simulation software} All models and implementations can be found on github(Insert link here?), and while the simulation data is not available on github due to storage capacity, it is available (somewhere else?). All simulations were implemented in python, using the brian2-library for its flexibility and easy implementation \parencite{Brian2}. 
     
@@ -222,16 +256,15 @@ sorting = ynt
 
     Phase distribution was only evaluated for cells with positive gridness and an orientation between \(-5\degree\) and \(5\degree\), as this seemed to be dominant for most simulations. In simulations with multiple cells passing these criteria, one cell was chosen at random as a basis for comparison. All other cells would be evaluated relative to this basis by doing a cross correlation, and finding the maximal value. To find all positions relative to the rhombus, the phase-difference was unsheared, so the rhombus would be a rectangle. Then, phase differences could be reduced to the within the rectangle by a modulo-operation, and sheared again to be placed within the rhombus.
     
-    Temporal stability was estimated by getting the variance in pixel-values across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values. 
+    Temporal stability was estimated by getting the variance in pixel-values in spike plots across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values. This approach was enabled by the sampling scheme, in which each location in the environment was sampled equally at even time points. Shuffling the spike plots represented the expected temporal stability if there would be no correlation from one timepoint to the next, while a lower variance would imply a positive correlation of firing fields from one time to the next. [add a figure to show this, as well as other features?]
 
 
     \section{Results}
 
-    This study investigated the activity patterns of transition cells with different network models. The model quality was assessed by the mean grid-scores of the transition cells' firing fields in space, because the hexagonal pattern captured in this score reflects a highly efficient transition cell under the TSS-model. One caveat of the grid score is that it is highly sensitive to shearing and rectangular patterns, so transition cells with distinct periodic firing fields, but without strict hexagonality, can have highly negative grid scores. As such, even if the grid score is used repeatedly here, it is not regarded as a perfect scoring metric.
+    \subsection{Rectangular inputs: a standard model}
+    A few models were tested in this work. In most of these, overall network structure was kept the same, varying instead on certain parameters that were perceived as critical: the distribution of inputs, inhibition delay, the number of transition cells in a network and the role of noise in the spatial inputs. In addition to these variants, this section will show results from a multi-compartment model with non-spiking dendrites, both with place-like inputs and boundary vector cell inputs. Most hyperparameters were not tested, or not tested thoroughly, for reasons related to time constraints. In that light, this section will describe typical parameters of one model, and some of the considerations made in setting some of the parameters. This set of typical parameters ends up making out a standard model, which will be used as a baseline for comparison in the rest of the article. This model was chosen as the base model for comparison because it is closest to previous simulations of the models run in this work.
 
-    \subsection{Model parameters and variations}
-    A few models were tested in this work. In most of these, overall network structure was kept the same, varying instead on certain parameters that were perceived as critical: the distribution of inputs, inhibition delay, the number of transition cells in a network and the role of noise in the spatial inputs. In addition to these variants, this section will show results from a multi-compartment model with non-spiking dendrites, both with place-like inputs and boundary vector cell inputs. Most hyperparameters were not tested, or not tested thoroughly, for reasons related to time constraints. In that light, this section will describe typical parameters of a basic model, and some of the considerations made in setting some of the parameters. This set of typical parameters ends up making out a standard model, which will be used as a baseline for comparison in the rest of the article.
-    Table 3.1 shows a typical set of hyperparameters, partially chosen to be biologically plausible, but some sets of parameters were calibrated in order to achieve a wanted dynamic. Since the input was phase-coded relative to theta, weights and spiking threshold were set so the first transition cell would spike typically about halfway between the first input and the phase-delay cutoff. This was thought to encourage even center- surround fields under a STDP learning rule. Inhibitory delay was set to give a brief window for other cells to fire, and is probably shorter than expected biologically [source?]. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out, according to equations \ref{key3} and \ref{key4}. This model also assumed zero noise in the phase delay.
+    Table \ref{param_table} shows a typical set of hyperparameters, partially chosen to be biologically plausible, but some sets of parameters were calibrated in order to achieve a wanted dynamic. Since the input was phase-coded relative to theta, weights and spiking threshold were set so the first transition cell would spike typically about halfway between the first input and the phase-delay cutoff. This was thought to encourage even center- surround fields under a STDP learning rule. Inhibitory delay was set to give a brief window for other cells to fire, and is probably shorter than expected biologically [source?]. The apost, apre and baseline was set up to work in conjunction so potentiation and depression would approximately balance each other out, according to equations \ref{key3} and \ref{key4}. This model also assumed zero noise in the phase delay for simplicity, but different levels of noise was tested in different models.
 
     \begin{table}[H]
         \caption{Example parameters for simulations. The parameters are partially chosen for biological plausibility, and partly adapted to achieve desired firing dynamics.}
@@ -265,69 +298,53 @@ sorting = ynt
         \label{param_table}
     \end{table}
 
-    The trajectories tested were simulated (as described in method), and all simulations used a 1m x 1m square environment. Data from simulations was sampled by freezing learning and testing activity in each area in a 48x48 grid within the environment.
-    Figure \ref{model_comparison} shows an overview of five central activity variables in the transition cells after learning for each model type. The five variables are grid score, the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns. 
-
+    The simulations were run on a simulated trajectory, as described in the methods, using a one meter by one meter square environment. While weights and parameters were stored mid-simulations, data was also extracted from each model by sampling each position in a grid after freezing learning. For a network with parameters from table \ref{param_table}, typical spike plots are shown in figure \ref{reg_spike}. 
+    
+    
     \begin{figure}[htbp]
         \centering
-        
+        \includegraphics[width = \linewidth]{reg/spike.png}
+        \caption{Sampled activity from seven transition cells in the same network throughout a simulation. Each plot represents activity in the same 1 x 1 m environment, subdivided into a 48 x 48 grid in which each position was sampled for a single theta cycle. Learning was disabled during sampling. Bright spots in the plots represent locations in which a transition cell was active, and each plot is smoothed with a gaussian filter. This sampling method is used for all models, although the number of samplings per position depended on noise levels.}
+        \label{reg_spike}
+    \end{figure}
+    
+    Clearly, transition cells typically develop center-surround fields quickly, evidenced already after 5 minutes of exploration from completely random initial patterns. Looking at the temporal development of spike plots, while it seems like firing fields are somewhat stable in time, the development of hexagonal gridness is gradual.
+
+    Five primary variables were quantified about transition cell activity, all using these spike plots. The primary one is gridness score, which quantifies the degree to which the firing fields are hexagonal. One caveat of the grid score is that it is highly sensitive to shearing and rectangular patterns, so transition cells with distinct periodic firing fields, but without strict hexagonality, can have highly negative grid scores.
+    
+    The three primary variables for looking at grid cell populations was also used for these transition cells: grid spacing, orientation and phases. 
+    
+    Finally, a measure of temporal stability says something about whether the network converges to some state or is shifting. 
+
+    \subsection{Gridness scores in the different models}
+
+    Figure \ref{model_comparison} shows an overview of five central activity variables in the transition cells after learning for each model type. The five variables are grid score, the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns. 
+    
+    \begin{figure}[htbp]
+        \centering  
         \begin{minipage}[b]{1\textwidth}
             \centering
             \subcaption{}
             \includegraphics[width=\textwidth]{model_comparison/model_comparison_gscores.png}
         \end{minipage}
-        \begin{minipage}[b]{1\textwidth}
-            \centering
-            \subcaption{}
-            \includegraphics[width =\textwidth]{model_comparison/model_comparison_sigmas.png} 
-        \end{minipage}
         \begin{minipage}[t]{1\textwidth}
-            \centering
-            \subcaption{}
-            \hspace*{0.02\textwidth}
             \foreach \filename in {
-                model_comparison/model_comparison_orientation_regular.png,
-                model_comparison/model_comparison_orientation_blue_noise.png,
-                model_comparison/model_comparison_orientation_white_noise.png,
-                model_comparison/model_comparison_orientation_37grid.png,
-                model_comparison/model_comparison_orientation_23grid.png,
-                model_comparison/model_comparison_orientation_no_delay.png,
-                model_comparison/model_comparison_orientation_1ms_noise.png,
-                model_comparison/model_comparison_orientation_2ms_noise.png,
-                model_comparison/model_comparison_orientation_4ms_noise.png,
-                model_comparison/model_comparison_orientation_GJ.png}
+            model_comparison/line_plot0.png,
+            model_comparison/line_plot1.png,
+            model_comparison/line_plot2.png,
+            model_comparison/line_plot3.png}
             {
-            \begin{subfigure}{0.077\textwidth}
-                \includegraphics[width=\textwidth]{\filename}
+            \begin{subfigure}{0.5\textwidth}
+                \subcaption{}
+                \hspace*{0.02\textwidth}
+                \includegraphics[width=0.95\textwidth]{\filename}
             \end{subfigure}
             }
         \end{minipage}
-        \begin{minipage}[t]{1\textwidth}
-            \centering
-            \subcaption{}
-            \hspace*{0.02\textwidth}
-            \foreach \filename in {
-                model_comparison/model_comparison_phase_regular.png,
-                model_comparison/model_comparison_phase_blue_noise.png,
-                model_comparison/model_comparison_phase_white_noise.png,
-                model_comparison/model_comparison_phase_37grid.png,
-                model_comparison/model_comparison_phase_23grid.png,
-                model_comparison/model_comparison_phase_no_delay.png,
-                model_comparison/model_comparison_phase_1ms_noise.png,
-                model_comparison/model_comparison_phase_2ms_noise.png,
-                model_comparison/model_comparison_phase_4ms_noise.png,
-                model_comparison/model_comparison_phase_GJ.png}
-            {
-            \begin{subfigure}{0.077\textwidth}
-                \includegraphics[width=\textwidth]{\filename}
-            \end{subfigure}
-            }
-        \end{minipage}% 
-        
-        \caption{Grid score, spacing, orientation, phase distribution and temporal stability in transition cells after 95 minutes simulation time. Each column represents some network structure or hyperparameter setting. (a) Gridness across models. Each dot represents the mean gridness score in one simulation, sorted by modeltype. While receiving blue noise-distributed inputs produces comparable gridness to regular inputs, white noise inputs scores significantly worse. Networks with 13 or 23 transition cells, as well as moderate noise levels also score highly, and having non-spiking dendritic input, instead of spiking, is also scoring highly. Meanwhile, 37 transition cells, no inhibitory delay and high levels of noise disrupt gridness. (b) The grid spacing across cells is typically between 10.5 and 12 cm for each simulation. This is not impacted by input distribution or number of transition cells, but noise seems increase spacing (10.8 cm mean to 11.8 cm mean), and the high input noise produces significantly higher spacing. (c) Generally, transition cells seem to prefer a \(0\degree\) wall angle offset. This seems to be more typical in highly performing models, but also in models with low amounts of noise. (d) The phase distribution seems to be uniformly distributed. Transition cells were filtered by positive gridness and wall angle offset between \(-5\degree\) and \(5\degree\). Within a simulation, one cell was chosen as a reference cell, and each dot is the relative phase of other transition cells.}
-        
-        \label{model_comparison}
+        \caption{Gridness scores for ten model types. (a) Each scatter point represents mean gridness in one simulation after 95 minutes simulation time. Bars are means across all simulations for one type. (b-e) Loosely grouping the model types into four or five main categories. Colors are maintained from (a). (b) The multi-compartment (MC) model shares important parameters with the standard model; they both have networks of 13 transition cells, no input noise and rectangularly spaced inputs. The standard model seems to outperform the MC Model, but both show clear gridness. (c) Models receiving inputs from a blue noise distribution have approximately equal gridness to the standard model, while transition cell networks receiving white-noise inputs do not seem to have the same development. (d) Transition cells exhibit clear gridness both with minimal inhibitory delay and with different network sizes. While a network of 23 transition cells see the same gridness as the standard model, 37 transition cells have a somewhat reduced gridness. Without inhibitory delay, gridness is also reduced, and less stable. (e) While simulations with normally distributed input noise and std 1 or 2 ms have gridness comparable to the noiseless standard model, a std of 4 ms in input noise is not as robust.}
     \end{figure}
+
+    
 
     For most simulations, there was a slight preference for a \(0\degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between \(-5\degree\) and \(5 \degree\)). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
 
@@ -340,11 +357,32 @@ sorting = ynt
 
     \begin{figure}[H]
         \centering
-        \begin{minipage}[b]{\linewidth}
-        \includegraphics[width=\linewidth]{low-high_gscores.png}
+        \begin{minipage}[b]{0.395\textwidth}
+            \begin{minipage}[b]{\textwidth}
+                \subcaption{}
+                \includegraphics[width = 0.9\linewidth]{reg/gscore_line.png}
+            \end{minipage}
+            \begin{minipage}[b]{\textwidth}
+                \subcaption{}
+                \includegraphics[width = 0.9\linewidth]{reg/sigma.png}
+            \end{minipage}
+            \begin{minipage}[b]{\textwidth}
+                \begin{subfigure}{0.47\textwidth}
+                    \subcaption{}
+                    \includegraphics[width=0.9\linewidth]{reg/temp_stab.png}
+                \end{subfigure}
+                \begin{subfigure}{0.47\textwidth}
+                    \subcaption{}
+                    \includegraphics[width=0.9\linewidth]{reg/orientation.png}
+                \end{subfigure}
+            \end{minipage}
+        \end{minipage}
+        \begin{minipage}[b]{0.56\textwidth}
+            \subcaption{}
+            \includegraphics[width = 0.95\linewidth]{reg/distribution.png}
+        \end{minipage}
         \caption{Temporal development of firing fields in transition cells with regularly spaced inputs and parameters as in table \ref{param_table}. Each column represents one cell, and cells were grouped in pairs depending on gridness score. The two leftmost cells have low gridness, the two central cells middling gridness, and the two on the right have a high gridness score. The rows show activity at 0, 5, 10, 40 and 95 minutes of simulation time. Gridness score reflects the tendency of \(60\degree\) periodicity and lack of \(30\degree\) or \(90\degree\) periodicitiy. The learning rule in these networks encourages transition cells to maximize the number of isolated firing fields, which leads to numerous hexagonal activity patterns (columns 5 and 6) but also to some rectangular or sheared grids (column 1-4)} 
         \label{low-high_gscores}
-        \end{minipage}
     \end{figure}
 
     \subsection{Multiple grid cells and delay}
@@ -422,7 +460,60 @@ sorting = ynt
     It is, however, in the spirit of the TSS to assume that the dendrites of a transition cell serves some computational purpose, and does this well.
 
 
+    \begin{figure}[htbp]
+        \begin{minipage}[b]{1\textwidth}
+            \centering
+            \subcaption{}
+            \includegraphics[width =\textwidth]{model_comparison/model_comparison_sigmas.png} 
+        \end{minipage}
+        \begin{minipage}[t]{1\textwidth}
+            \centering
+            \subcaption{}
+            \hspace*{0.02\textwidth}
+            \foreach \filename in {
+                model_comparison/model_comparison_orientation_regular.png,
+                model_comparison/model_comparison_orientation_blue_noise.png,
+                model_comparison/model_comparison_orientation_white_noise.png,
+                model_comparison/model_comparison_orientation_37grid.png,
+                model_comparison/model_comparison_orientation_23grid.png,
+                model_comparison/model_comparison_orientation_no_delay.png,
+                model_comparison/model_comparison_orientation_1ms_noise.png,
+                model_comparison/model_comparison_orientation_2ms_noise.png,
+                model_comparison/model_comparison_orientation_4ms_noise.png,
+                model_comparison/model_comparison_orientation_GJ.png}
+            {
+            \begin{subfigure}{0.077\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
+        \end{minipage}
+        \begin{minipage}[t]{1\textwidth}
+            \centering
+            \subcaption{}
+            \hspace*{0.02\textwidth}
+            \foreach \filename in {
+                model_comparison/model_comparison_phase_regular.png,
+                model_comparison/model_comparison_phase_blue_noise.png,
+                model_comparison/model_comparison_phase_white_noise.png,
+                model_comparison/model_comparison_phase_37grid.png,
+                model_comparison/model_comparison_phase_23grid.png,
+                model_comparison/model_comparison_phase_no_delay.png,
+                model_comparison/model_comparison_phase_1ms_noise.png,
+                model_comparison/model_comparison_phase_2ms_noise.png,
+                model_comparison/model_comparison_phase_4ms_noise.png,
+                model_comparison/model_comparison_phase_GJ.png}
+            {
+            \begin{subfigure}{0.077\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
+        \end{minipage}% 
+        
+        \caption{Grid score, spacing, orientation, phase distribution and temporal stability in transition cells after 95 minutes simulation time. Each column represents some network structure or hyperparameter setting. (a) Gridness across models. Each dot represents the mean gridness score in one simulation, sorted by modeltype. While receiving blue noise-distributed inputs produces comparable gridness to regular inputs, white noise inputs scores significantly worse. Networks with 13 or 23 transition cells, as well as moderate noise levels also score highly, and having non-spiking dendritic input, instead of spiking, is also scoring highly. Meanwhile, 37 transition cells, no inhibitory delay and high levels of noise disrupt gridness. (b) The grid spacing across cells is typically between 10.5 and 12 cm for each simulation. This is not impacted by input distribution or number of transition cells, but noise seems increase spacing (10.8 cm mean to 11.8 cm mean), and the high input noise produces significantly higher spacing. (c) Generally, transition cells seem to prefer a \(0\degree\) wall angle offset. This seems to be more typical in highly performing models, but also in models with low amounts of noise. (d) The phase distribution seems to be uniformly distributed. Transition cells were filtered by positive gridness and wall angle offset between \(-5\degree\) and \(5\degree\). Within a simulation, one cell was chosen as a reference cell, and each dot is the relative phase of other transition cells.}
+        
+        \label{model_comparison}
 
+    \end{figure}
 
     \printbibliography
 
