@@ -12,7 +12,7 @@ times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '
 # times = np.linspace(0, 100, 20, False)
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/'
-simulation = 'no_delay'
+simulation = 'GJ_model'
 sub_dirs = utils.getSortedEntries(base_path +'data/' + simulation, 'directory', True)
 
 n_groups = 1

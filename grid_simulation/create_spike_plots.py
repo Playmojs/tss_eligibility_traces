@@ -5,9 +5,9 @@ import LIF_theta_model3_NL
 import utils
 import plotter
 
-file_base = 'regular8'
+file_base = 'regular22'
 BVC = False
-root_dir = 'grid_simulation/Results/data/simspam'
+root_dir = 'grid_simulation/Results/data/no_delay'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']
@@ -28,14 +28,14 @@ print(Apost)
 
 time = 600 #time in minutes for simulation
 weights_index = int(time * 100 / save_tick)
-reps = 1
+reps = 5
 
 plt.scatter(input_positions[:, 0], input_positions[:, 1])
 plt.axis('square')
 
 # spike_trains = LIF_theta_model3_NL.gridSimulation(Ndendrites, Ng, sigma, 48, reps, input_positions, weights[weights_index, ...], True, "data/ThetaMSimuls/regular0_70minSpikes")
 
-for i in range (0, 100, 5):
+for i in range (0, 100, 20):
     with np.load(f"{root_dir}/{file_base}/{i}min_Spikes.npz", allow_pickle=True) as data:
         spike_trains2 = data['spike_train'].item()
         pos = data['positions']

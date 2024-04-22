@@ -24,15 +24,15 @@ def unsheared_modulus(points, base):
 pxs = 48
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/data/'
-simulation = 'simspam'
+simulation = 'GJ_model'
 sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
 
 n_simuls = 30
-n_groups = 3
+n_groups = 1
 Ndendrites = 24
-ng = np.array([13, 13, 13])
-orientation_app = "_reg"
-sigma = 0.108
+ng = np.array([13])
+orientation_app = ""
+sigma = 0.116
 
 hists = np.empty((n_groups, n_simuls, np.max(ng), pxs, pxs))
 
@@ -100,7 +100,7 @@ modulated_array = unsheared_modulus(phase_array.T, base_length)
 x0, x1 = 0, base_length
 y0, y1 = 0, base_length*(np.sqrt(3)/2)
 
-np.savez("grid_simulation/Results/analysis/" + simulation + "/phase_reg",
+np.savez("grid_simulation/Results/analysis/" + simulation + "/phase",
         phases = modulated_array, \
         sigma = sigma, \
         orientation_ind = orientation_app, \

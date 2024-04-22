@@ -24,8 +24,8 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['model_comparison_gscore', 'model_comparison_line_plots']
-save = True
+plots = ['model_comparison_temporal_stability', 'reg_plots']
+save = False
 models = ['simspam', 'multi-grid', 'no_delay', 'noise_sims', 'noise_sims2', 'noise_sims3', 'GJ_model']
 simuls_per_model=[3, 2, 1, 1, 1, 1, 1]
 simul_names = np.array(['Standard', 'Blue noise inputs', 'White noise inputs', '23 cells', '37 cells', 'No delay', '1 ms noise', '2 ms noise', '4 ms noise', 'MC model'], dtype = object)
@@ -462,10 +462,8 @@ if('model_comparison_line_plots' in plots):
         gscore = np.load(f"grid_simulation/Results/analysis/{model}/gscores{gscore_file_app[i]}.npz")["gscores"]
         gscores_means_container.append(np.nanmean(gscore, axis = (1,3)))
         gscores_vars_container.append(np.nanvar(gscore, axis = (1, 3)) / (ngs[i]*30)[:,np.newaxis])
-    GJ_pad = np.empty((2, 20))
-    GJ_pad[0, 2::2] = gscores_means_container[-1][0]
-    GJ_pad[1,2::2] = gscores_vars_container[-1][0]
-    gscore_line_plot(np.array([gscores_means_container[0][2], GJ_pad[0]]), np.array([gscores_vars_container[0][2], GJ_pad[1]]), times, model_groups[0], f'{output_base}{0}', True, True, [0, 0.8])
+
+    gscore_line_plot(np.array([gscores_means_container[0][2], gscores_means_container[-1][0]]), np.array([gscores_vars_container[0][2], gscores_vars_container[-1][0]]), times, model_groups[0], f'{output_base}{0}', True, True, [0, 0.8])
     gscore_line_plot(gscores_means_container[0][0:2], gscores_vars_container[0][0:2], times, model_groups[1], f'{output_base}{1}', False, False, [0, 0.8])
     gscore_line_plot(np.array([gscores_means_container[1][0], gscores_means_container[1][1], gscores_means_container[2][0]]), np.array([gscores_vars_container[1][0], gscores_vars_container[1][1], gscores_vars_container[2][0]]), times, model_groups[2], f'{output_base}{2}', False, False, [0, 0.8])
     gscore_line_plot(np.array([gscores_means_container[3][0], gscores_means_container[4][0], gscores_means_container[5][0]]), np.array([gscores_vars_container[3][0], gscores_vars_container[4][0], gscores_vars_container[5][0]]), times, model_groups[3], f'{output_base}{3}', False , False, [0, 0.8])
@@ -545,98 +543,98 @@ if('reg_plots' in plots):
         gscores[i] = np.load(f"{path}{models[model_ind]}/gscores{app[i]}.npz")["gscores"][gscore_ind[i]]
 
 
-    shape = gscores.shape
-    mean_gscores = np.nanmean(gscores, axis = (1,3))
-    var_gscores = np.nanvar(gscores, axis = (1,3)) / (shape[1] * shape[3])
-    times = np.linspace(0, 100, shape[2], endpoint=False)
-    fig_line, ax_line = plt.subplots()
+    # shape = gscores.shape
+    # mean_gscores = np.nanmean(gscores, axis = (1,3))
+    # var_gscores = np.nanvar(gscores, axis = (1,3)) / (shape[1] * shape[3])
+    # times = np.linspace(0, 100, shape[2], endpoint=False)
+    # fig_line, ax_line = plt.subplots()
     
-    for color, line_mean, line_var in zip(col_vals[col_inds], mean_gscores, var_gscores):
-        ax_line.plot(times, line_mean, linewidth = 2, c = color, zorder = 2)
-        ax_line.fill_between(times, line_mean + 2*np.sqrt(line_var), line_mean - 2*np.sqrt(line_var), alpha=0.4, interpolate=True, label = '_nolegend_', color = color, zorder = 1)
-    ax_line.set_ylim([-0.2, 0.65])
-    ax_line.set_xlim([0,95])
-    ax_line.set_xlabel("Time (minutes)", size = 20)
-    ax_line.set_ylabel("Gridness Score", size = 20)
-    ax_line.tick_params(axis='both', which='major', labelsize=20)
-    ax_line.set_xticks(times[::2])
-    plt.gcf().set_size_inches(8, 4)
+    # for color, line_mean, line_var in zip(col_vals[col_inds], mean_gscores, var_gscores):
+    #     ax_line.plot(times, line_mean, linewidth = 2, c = color, zorder = 2)
+    #     ax_line.fill_between(times, line_mean + 2*np.sqrt(line_var), line_mean - 2*np.sqrt(line_var), alpha=0.4, interpolate=True, label = '_nolegend_', color = color, zorder = 1)
+    # ax_line.set_ylim([-0.2, 0.65])
+    # ax_line.set_xlim([0,95])
+    # ax_line.set_xlabel("Time (minutes)", size = 20)
+    # ax_line.set_ylabel("Gridness Score", size = 20)
+    # ax_line.tick_params(axis='both', which='major', labelsize=20)
+    # ax_line.set_xticks(times[::2])
+    # plt.gcf().set_size_inches(8, 4)
 
-    if save:
-        fig_line.savefig("grid_simulation/Documents/Figures/reg/gscore_line", dpi = 500, bbox_inches = 'tight')  
+    # if save:
+    #     fig_line.savefig("grid_simulation/Documents/Figures/reg/gscore_line", dpi = 500, bbox_inches = 'tight')  
 
-    sigma_container = np.empty(0)
-    ind_container = np.empty(0, dtype = int)
-    n_scatters = len(model_inds) - 1
-    means = np.empty(n_scatters)
+    # sigma_container = np.empty(0)
+    # ind_container = np.empty(0, dtype = int)
+    # n_scatters = len(model_inds) - 1
+    # means = np.empty(n_scatters)
 
-    for i, model_ind in enumerate(model_inds[0:-1]):
-        with np.load('grid_simulation/Results/analysis/' + models[model_ind] + '/sigmas.npz') as data:
-            sig_gscores = data['sigma_gscores'][gscore_ind[i]]
-            sigmas = data['sigmas']
-        best_sigma = sigmas[np.argmax(sig_gscores, axis = 1)]
-        best_sigma = best_sigma[~np.isnan(best_sigma)]
-        sigma_container = np.append(sigma_container, best_sigma)
-        means[i] = np.mean(best_sigma)
-        ind_container = np.append(ind_container, np.full(len(best_sigma), int(i)))
+    # for i, model_ind in enumerate(model_inds[0:-1]):
+    #     with np.load('grid_simulation/Results/analysis/' + models[model_ind] + '/sigmas.npz') as data:
+    #         sig_gscores = data['sigma_gscores'][gscore_ind[i]]
+    #         sigmas = data['sigmas']
+    #     best_sigma = sigmas[np.argmax(sig_gscores, axis = 1)]
+    #     best_sigma = best_sigma[~np.isnan(best_sigma)]
+    #     sigma_container = np.append(sigma_container, best_sigma)
+    #     means[i] = np.mean(best_sigma)
+    #     ind_container = np.append(ind_container, np.full(len(best_sigma), int(i)))
         
-    x_vals = np.random.rand(len(sigma_container))*0.2 - 0.1 + ind_container
-    scatter_sig = sigma_container + (np.random.random(len(sigma_container)) - 0.5) * 0.01
+    # x_vals = np.random.rand(len(sigma_container))*0.2 - 0.1 + ind_container
+    # scatter_sig = sigma_container + (np.random.random(len(sigma_container)) - 0.5) * 0.01
     
-    fig_sig, ax_sig = plt.subplots()
+    # fig_sig, ax_sig = plt.subplots()
 
-    ax_sig.set_ylim([9, 14])
-    ax_sig.set_xlim([-1, 3])
-    ax_sig.scatter(x_vals, scatter_sig * 100, c =  col_vals[col_inds[ind_container]], s = 5, linewidth = 0.1)
-    ax_sig.hlines(means * 100, xmin = np.arange(n_scatters) - 0.3, xmax = np.arange(n_scatters) + 0.3, linewidth = 3, colors = darkened_colors[col_inds])
-    ax_sig.set_ylabel("Grid Spacing (cm)", size = 20)
-    ax_sig.tick_params(axis = "both", which = 'major', labelsize = 20)
-    ax_sig.set_xticks([])
+    # ax_sig.set_ylim([9, 14])
+    # ax_sig.set_xlim([-1, 3])
+    # ax_sig.scatter(x_vals, scatter_sig * 100, c =  col_vals[col_inds[ind_container]], s = 5, linewidth = 0.1)
+    # ax_sig.hlines(means * 100, xmin = np.arange(n_scatters) - 0.3, xmax = np.arange(n_scatters) + 0.3, linewidth = 3, colors = darkened_colors[col_inds])
+    # ax_sig.set_ylabel("Grid Spacing (cm)", size = 20)
+    # ax_sig.tick_params(axis = "both", which = 'major', labelsize = 20)
+    # ax_sig.set_xticks([])
     
-    plt.gcf().set_size_inches(8, 4)
-    if save:
-        fig_sig.savefig("grid_simulation/Documents/Figures/reg/sigma", dpi = 500, bbox_inches = 'tight')
+    # plt.gcf().set_size_inches(8, 4)
+    # if save:
+    #     fig_sig.savefig("grid_simulation/Documents/Figures/reg/sigma", dpi = 500, bbox_inches = 'tight')
     
-    orientations = np.load(path+'simspam/orientations_reg.npz')["orientations"]
-    thetas = np.arange(60)
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    delta_t = 30
-    thetas = np.linspace(-np.pi/6, np.pi/6, delta_t)
-    histcount, _ = np.histogram((np.ndarray.flatten(orientations) + 30) % 60, delta_t)
-    X_Y_Spline = make_interp_spline(thetas, histcount)
-    x_vals = np.linspace(-np.pi/6, np.pi/6, 6*delta_t)
-    y_vals = X_Y_Spline(x_vals)
-    ax.plot(x_vals, y_vals, linewidth = 3, color = 'black')
-    ax.set_xlim([-np.pi/6, np.pi/6])
-    ax.set_xticks(np.linspace(-np.pi/6, np.pi/6, 7))
-    ax.tick_params(axis='both', which='major', labelsize=20)
-    ax.set_yticks([])
-    ax.grid(False)
-    for i, spine in enumerate(ax.spines.values()):
-        spine.set_linewidth(0)
-    plt.gcf().set_size_inches(4, 4)
-    if save:
-        fig.savefig('grid_simulation/Documents/Figures/reg/orientation', dpi = 500, bbox_inches = 'tight', transparent = True)   
+    # orientations = np.load(path+'simspam/orientations_reg.npz')["orientations"]
+    # thetas = np.arange(60)
+    # fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    # delta_t = 30
+    # thetas = np.linspace(-np.pi/6, np.pi/6, delta_t)
+    # histcount, _ = np.histogram((np.ndarray.flatten(orientations) + 30) % 60, delta_t)
+    # X_Y_Spline = make_interp_spline(thetas, histcount)
+    # x_vals = np.linspace(-np.pi/6, np.pi/6, 6*delta_t)
+    # y_vals = X_Y_Spline(x_vals)
+    # ax.plot(x_vals, y_vals, linewidth = 3, color = 'black')
+    # ax.set_xlim([-np.pi/6, np.pi/6])
+    # ax.set_xticks(np.linspace(-np.pi/6, np.pi/6, 7))
+    # ax.tick_params(axis='both', which='major', labelsize=20)
+    # ax.set_yticks([])
+    # ax.grid(False)
+    # for i, spine in enumerate(ax.spines.values()):
+    #     spine.set_linewidth(0)
+    # plt.gcf().set_size_inches(4, 4)
+    # if save:
+    #     fig.savefig('grid_simulation/Documents/Figures/reg/orientation', dpi = 500, bbox_inches = 'tight', transparent = True)   
 
-    fig4, ax4 = plt.subplots()
-    with np.load(path+'/simspam/temporal_stability.npz') as data:
-        temporal_stability = data["temporal_stability"][2]
-        shuffled_stability = data["shuffled_stability"][2]
+    # fig4, ax4 = plt.subplots()
+    # with np.load(path+'/simspam/temporal_stability.npz') as data:
+    #     temporal_stability = data["temporal_stability"][2]
+    #     shuffled_stability = data["shuffled_stability"][2]
 
-    ax4.bar(-0.5, np.mean(shuffled_stability, axis = (-2, -1)), color = darkened_colors[0], tick_label = 'shuffled')
-    ax4.bar(0.5, np.mean(temporal_stability, axis = (-2, -1)), color = col_vals[0], tick_label = 'data')
-    ax4.set_ylabel("Mean temporal \n variance", size = 20)
-    ax4.set_yticks([])
+    # ax4.bar(-0.5, np.mean(shuffled_stability, axis = (-2, -1)), color = darkened_colors[0], tick_label = 'shuffled')
+    # ax4.bar(0.5, np.mean(temporal_stability, axis = (-2, -1)), color = col_vals[0], tick_label = 'data')
+    # ax4.set_ylabel("Mean temporal \n variance", size = 20)
+    # ax4.set_yticks([])
 
 
-    plt.gcf().set_size_inches(4, 4)
-    if save:
-        fig4.savefig("grid_simulation/Documents/Figures/reg/temp_stab", dpi = 500, bbox_inches = 'tight')
+    # plt.gcf().set_size_inches(4, 4)
+    # if save:
+    #     fig4.savefig("grid_simulation/Documents/Figures/reg/temp_stab", dpi = 500, bbox_inches = 'tight')
 
     simulation = "grid_simulation/Results/data/simspam/regular8"
     ng = 13
     pxs = 48
-    rel_times = np.array([0, 5, 20, 50, 95])
+    rel_times = np.array([95])
     rel_n = len(rel_times)
     picks = np.array([8, 10, 11, 2, 1, 0])
     n_cols = len(picks)
@@ -665,10 +663,10 @@ if('reg_plots' in plots):
     
     sim_gscores = gscores[0, 8, -1, picks]
     for col, score in enumerate(sim_gscores):
-        con = ConnectionPatch(xyA = (score, 0), xyB = (48/2, 48-1), coordsA="data", coordsB="data", axesA=ax_hist, axesB=ax_dist[3, col], color="black", arrowstyle = '->', shrinkA = 25, shrinkB = 25) 
-        ax_dist[3, col].add_artist(con)
+        con = ConnectionPatch(xyA = (score, 0), xyB = (48/2, 48-1), coordsA="data", coordsB="data", axesA=ax_hist, axesB=ax_dist[hist_y_size + 1, col], color="black", arrowstyle = '->', shrinkA = 25, shrinkB = 25) 
+        ax_dist[hist_y_size + 1, col].add_artist(con)
 
-    plt.gcf().set_size_inches(8, 10)
+    plt.gcf().set_size_inches(12, 6)
 
     if save:
         fig_dist.savefig("grid_simulation/Documents/Figures/reg/distribution", dpi = 500, bbox_inches = 'tight') 

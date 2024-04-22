@@ -4,7 +4,7 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{comment}
-\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[a4paper, total={6in, 10in}]{geometry}
 \usepackage{gensymb}
 \usepackage{graphicx}
 \usepackage{subcaption}
@@ -318,7 +318,7 @@ sorting = ynt
 
     \subsection{Gridness scores in the different models}
 
-    Figure \ref{model_comparison} shows an overview of five central activity variables in the transition cells after learning for each model type. The five variables are grid score, the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns. 
+    Figure \ref{gridness_plots} shows an overview of five central activity variables in the transition cells after learning for each model type. The five variables are grid score, the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns. 
     
     \begin{figure}[htbp]
         \centering  
@@ -342,10 +342,11 @@ sorting = ynt
             }
         \end{minipage}
         \caption{Gridness scores for ten model types. (a) Each scatter point represents mean gridness in one simulation after 95 minutes simulation time. Bars are means across all simulations for one type. (b-e) Loosely grouping the model types into four or five main categories. Colors are maintained from (a). (b) The multi-compartment (MC) model shares important parameters with the standard model; they both have networks of 13 transition cells, no input noise and rectangularly spaced inputs. The standard model seems to outperform the MC Model, but both show clear gridness. (c) Models receiving inputs from a blue noise distribution have approximately equal gridness to the standard model, while transition cell networks receiving white-noise inputs do not seem to have the same development. (d) Transition cells exhibit clear gridness both with minimal inhibitory delay and with different network sizes. While a network of 23 transition cells see the same gridness as the standard model, 37 transition cells have a somewhat reduced gridness. Without inhibitory delay, gridness is also reduced, and less stable. (e) While simulations with normally distributed input noise and std 1 or 2 ms have gridness comparable to the noiseless standard model, a std of 4 ms in input noise is not as robust.}
+        \label{gridness_plots}
     \end{figure}
-
     
-
+    
+    
     For most simulations, there was a slight preference for a \(0\degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between \(-5\degree\) and \(5 \degree\)). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
 
     Curiously, simulations without noise and linear summation of place inputs had slightly smaller fields than models with noise or multi-compartment methods (10.8 cm vs 11.8 cm). All simulations also seemed to develop fields that were stable across time, evaluated by comparing the variance in pixel-value across time, compared to shuffled data.
