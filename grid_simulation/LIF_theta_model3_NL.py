@@ -31,7 +31,7 @@ def gridSimulation(Ndendrites, Ng, sigma, pxs, repeats, input_positions, weights
     # Precalculate the entire firing of the spike generator group (to avoid having to restart runs when positions update):
     print("Precalculate spatial input:")
 
-    activity = np.round(spatialns.dist(X)/sigma*10 + (np.random.normal(0, 2,(pxs**2*repeats, Ndendrites2))), 1)
+    activity = np.round(spatialns.dist(X)/sigma*10 + (np.random.normal(0, 0,(pxs**2*repeats, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
     activation_times[activation_times<0] = 0
