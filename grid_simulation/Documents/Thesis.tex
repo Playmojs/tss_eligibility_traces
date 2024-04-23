@@ -308,17 +308,32 @@ sorting = ynt
         \label{reg_spike}
     \end{figure}
     
-    Clearly, transition cells typically develop center-surround fields quickly, evidenced already after 5 minutes of exploration from completely random initial patterns. Looking at the temporal development of spike plots, while it seems like firing fields are somewhat stable in time, the development of hexagonal gridness is gradual.
+    Clearly, transition cells typically develop center-surround fields quickly, evidenced already after 5 minutes of exploration from random initial activity patterns. Looking at the temporal development of spike plots, while it seems like firing fields are somewhat stable in time, the development of hexagonal gridness is gradual.
 
     Five primary variables were quantified about transition cell activity, all using these spike plots. The primary one is gridness score, which quantifies the degree to which the firing fields are hexagonal. One caveat of the grid score is that it is highly sensitive to shearing and rectangular patterns, so transition cells with distinct periodic firing fields, but without strict hexagonality, can have highly negative grid scores.
     
     The three primary variables for looking at grid cell populations was also used for these transition cells: grid spacing, orientation and phases. 
     
     Finally, a measure of temporal stability says something about whether the network converges to some state or is shifting. 
+    
+    The following sections will outline results according to these five parameters for ten models: A standard model with parameters outline in \ref{param_table}, two models with similar parameters but different spatial input distributions (blue noise and white noise distributions, \ref{input_distribution}), networks with more transition neurons (23 and 37), networks with no inhibitory delay and networks with different levels of input noise. 
+
+    \begin{figure}
+        \centering
+        \begin{minipage}[t]{1\textwidth}
+            \includegraphics[width=\textwidth]{distribution_plot.png}
+        \end{minipage}
+        \caption{Examples of the three kinds of input distributions, and the respective development in gridness. Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. A blue noise distribution places inputs sequentially so each is placed as far away from other inputs as possible, resulting in an even, unstructured distribution. White noise distribution places inputs randomly, and independent of all other inputs, so some locations produce more input activity than others.}
+        \label{input_distribution}
+    \end{figure}
+    
+    Input noise occurred in the phase-delay of the input. Each theta cycle, each input had an expected delay depending on its spatial relevance relative to the animal's current position. In each model, the actual delay on an input was modelled as normally distributed around this delay, with standard deviations of 1, 2 or 4 ms relative to the total 20 ms time window. [move this section?]
+
+    In addition to these models, a multi-compartment model with parameters similar to the standard model was tested as a proof of concept.
 
     \subsection{Gridness scores in the different models}
-
-    Figure \ref{gridness_plots} shows an overview of five central activity variables in the transition cells after learning for each model type. The five variables are grid score, the three grid cell variables; grid spacing, orientation and phase distribution, as well as the temporal stability of grid patterns. 
+    
+    The central question to this work was whether the network structure and learning rule described in the methods section could produce transition cells with a hexagonal firing patterns, which can be quantified by the gridness score. This gridness score was always computed on spike plots such as those shown in figure \ref{reg_spike}, sampled evenly across the environment with frozen weights. This was tracked in ten different network models, each simulated thirty times and sampled every five minutes across a 95-minute simulation. Figure \ref{gridness_plots} (a) shows final mean gridness score for each simulation, grouped by model, while figures \ref{gridness_plots} (b-e) show the temporal development of gridness scores in the ten models according to groups.
     
     \begin{figure}[htbp]
         \centering  
@@ -345,88 +360,196 @@ sorting = ynt
         \label{gridness_plots}
     \end{figure}
     
+    While the standard model as described here produced highest scores, multiple other models had comparable scores. Networks with blue noise-distributed inputs, or with 23 transition cells, or with 1 ms noise, had comparable final griness, and developed approximately equally quickly. The multi compartment model also had high gridness, but not comparble to the above-mentioned groups, which was also true for simulations with 37 transition cells, minimal inhibition delay or 2 ms noise. Finally, white noise inputs performed worse, while having some positive gridness, and 4 ms input noise did not produce stable hexagonality at all.
     
-    
-    For most simulations, there was a slight preference for a \(0\degree\) orientation, and internally these transition cells had uniformly distributed phases (25 \% of cells with positive gridness score had orientation between \(-5\degree\) and \(5 \degree\)). This was different compared to previous simulations under the TSS-model, which saw the experimentally supported \(7.5\degree\) wall angle offset. Running longer simulations did not give different results (Max simulation time 10 hours, supplementary results). 
+    Despite the differences in gridness, virtually all cells across all simulations seemed to develop clear, isolated firing fields, and fired in multiple locations across the environment. This is true when for instance looking at the firing plots of white noise inputs or minimal inhibitory delay. This reflects some inability in the learning rule to encourage tight bundling of firing fields, which is also reflected in the standard model when the baseline learning parameter is set to 0 [preliminary results, check these later](also, ref some figure here?). 
 
-    Curiously, simulations without noise and linear summation of place inputs had slightly smaller fields than models with noise or multi-compartment methods (10.8 cm vs 11.8 cm). All simulations also seemed to develop fields that were stable across time, evaluated by comparing the variance in pixel-value across time, compared to shuffled data.
+    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times (figure \ref{gscore_distribution}). Low gridness scores can be explained by grid shearing or firing fields that aren't evenly distributed across the environment, while negative scores tend to reflect rectangularity. [I should probably investigate if cells with negative scores tend to have negative scores across a simulation].
 
-    Although some similarities seemed to persist across models and hyperparameters, the mean gridness varied significantly. Comparing the structure of input patterns, while a regularly distributed blue-noise pattern scored as well as a regular distributed input pattern, white noise inputs performed significantly worse.  Using 23 transition cells also scored on level with 13 transition cells, while the gridness in a network of 37 transition cells was significantly worse. The same was true for noise level, in which moderate noise performed comparably to no noise, but sufficient noise reduced gridness. Interestingly, a network running on minimal inhibition delay (0.2 ms) produced the same gridness as a network with the standard 0.6 ms delay.
-    In part, these results might correspond to the idea that parameters are somewhat fine-tuned in the working model, so any simulation with sufficiently different parameters will suffer in performance. This might be especially true for networks that primarily differ quantitatively, such as the one with 37 transition cells. With increased levels of noise, or white noise inputs, it is possible that the basic network dynamics described above break down. With white noise inputs, for instance, transition cells might simply not receive much input in some location, which hampers the transition cells' ability to associate to a center-area. 
-
-    In all models, within-simulation variance in gridness was high, and virtually all simulations had some cells with a negative gridness score at all times (figure \ref{low-high_gscores}). This was the case despite observing that cells with negative gridness seemed to have the same temporal stability (is this true - I can quantify this, right?), as well as clearly defined center-surround areas. Highly negative scores moste likely stem from rectangular firing fields, while scores closer to zero might stem from shearing effects or other asymmetries. 
+    Interestingly, the distributions of grid scores can also reflect features of models with lower gridness scores. The models with minimal inhibitory delay seem to have a wide variety in gridness, so some cells are highly gridlike and others highly un-gridlike, while models with white noise inputs have a higher median, but rarely sees highly hexagonal cells. In the latter case, it might seem like the cells don't pack firing fields closely enough to develop high gridness, while in the former the between-transition cell competition might be too high to support large networks with high hexagonality.
 
     \begin{figure}[H]
         \centering
-        \begin{minipage}[b]{0.395\textwidth}
-            \begin{minipage}[b]{\textwidth}
-                \subcaption{}
-                \includegraphics[width = 0.9\linewidth]{reg/gscore_line.png}
-            \end{minipage}
-            \begin{minipage}[b]{\textwidth}
-                \subcaption{}
-                \includegraphics[width = 0.9\linewidth]{reg/sigma.png}
-            \end{minipage}
-            \begin{minipage}[b]{\textwidth}
-                \begin{subfigure}{0.47\textwidth}
-                    \subcaption{}
-                    \includegraphics[width=0.9\linewidth]{reg/temp_stab.png}
-                \end{subfigure}
-                \begin{subfigure}{0.47\textwidth}
-                    \subcaption{}
-                    \includegraphics[width=0.9\linewidth]{reg/orientation.png}
-                \end{subfigure}
-            \end{minipage}
-        \end{minipage}
-        \begin{minipage}[b]{0.56\textwidth}
-            \subcaption{}
+        \begin{minipage}[b]{0.95\textwidth}
             \includegraphics[width = 0.95\linewidth]{reg/distribution.png}
         \end{minipage}
-        \caption{Temporal development of firing fields in transition cells with regularly spaced inputs and parameters as in table \ref{param_table}. Each column represents one cell, and cells were grouped in pairs depending on gridness score. The two leftmost cells have low gridness, the two central cells middling gridness, and the two on the right have a high gridness score. The rows show activity at 0, 5, 10, 40 and 95 minutes of simulation time. Gridness score reflects the tendency of \(60\degree\) periodicity and lack of \(30\degree\) or \(90\degree\) periodicitiy. The learning rule in these networks encourages transition cells to maximize the number of isolated firing fields, which leads to numerous hexagonal activity patterns (columns 5 and 6) but also to some rectangular or sheared grids (column 1-4)} 
-        \label{low-high_gscores}
+        \caption{Distribution of gridness scores in the standard model. Although the mean gridness of this model is considered high (above 0.6), most simulated networks contain cells with negative or low gridness score. Negative gridness is typically produced by rectangular patterns, as shown in the two leftmost spikeplot examples. The two middle examples show activity in cells with positive, but low gridness scores. To have a gridness score above 1, the hexagonal pattern must typically span the whole environment without shearing or rectangularity.} 
+        \label{gscore_distribution}
     \end{figure}
 
-    \subsection{Multiple grid cells and delay}
-    The first question that was asked was whether the TSS model implemented in a spiking neural network could produce more than three transition cells with grid-like spatial activity patterns. As demonstrated in previous models, this would require transition cells to have partially overlapping areas of activity. This was attempted in networks of 13, 23 and 37 transition cells (figure 3.3), numbers chosen to be sufficiently far apart, and always primes to avoid any symmetry. Each of these networks had regularly distributed spatial inputs, and a quite fast-acting inhibitory control. Nonetheless, each of these networks showed a positive gridness score development over simulation time, with clear center- and surround fields in all cases. This showed that the networks could sustain multiple transition cells. Mean gridness was somewhat reduced for 37 transition cell networks, compared to networks of 13 and 23, and while this wasn't further investigated due to time constraints, larger networks will typically imply higher competition between transition cells. This reduction in gridness might not reflect an upper limit on the network size, but might rather reflect a shift in the parameter-space. 
+    \subsection{Orientation and phase distribution}
 
-    Networks with only three transition cells were also tested, with identical parameters as the ones above, which did not yield sufficient gridness. This was also not pursued further, and it was assumed that a smaller network might need lower firing thresholds to fire more readily in all locations, or that a network that allows overlaps in firing fields has a minimal size constraint.
+    According to experimental data, grid cells in a module align in orientation with a wall-angle offset of 7.5\(\degree\), which was also observed in previous simulations of the TSS-model with related learning rules. Grid cells with similar spacing and orientation have phases that are evenly distributed on the toroidal manifold the network is active on. Here, orientation was only computed for transition cells with positive gridness, and normalized to a value between 0 and 60 \(\degree\). Phase distribution was only computed on cells that aligned with the dominant orientation of that model so phase distribution could be accumulated across multiple simulations, and normalized to position within a rhombus of the environment.
+
+    In all simulations, the preferred orientation was around 0\(\degree\), which indicates that transition cells align firing fields preferentially parallel to one of the environment walls (ref figure). However, this wasn't a strong preference, at most one in four cells with positive gridness showed this directionality. Models with noise had less of an orientation preference, as was the case for models with no inhibitory delay. 
     
-    Interestingly, running simulations with minimal delay (0.2 ms) only reduced gridness by a margin (mean 0.4 compared to 0.6). These transition cells had significantly higher spread in orientation [add proportion of 0 degree wall angle offsets for both?], which indicates that while cells are able to develop gridness with minimal inhibition delay, it does not let them co-organize in a single, co-oriented module.
-
-    Although 13 transition cells was the default in most models, running larger networks allowed better analysis on within-simulation phase differences as well as structures in network activity. Regardless of network size, the cells seemed to share a 0 degree orientation preference, and cells with both positive gridness and 0 degree orientation were compared in phases. In these larger networks, that often included numerous cells, and no structure in phase differences were found. From mECII-data, population activity is expected to be toroidal, but this wasn't observed in these networks. It does not seem likely that the population activity would be toroidal at the beginning of the simulation, due to the randomly distributed weights, but the method used for analyzing structure assumes temporal continuity, as well as sufficiently large networks.
-
-    \subsection{Input distribution}
-    In most simulations, each input cell had a single preferred location in the environment, so the phase delay of the cell was directly proportional to the animal's distance to that preferred location. To test the importance of the distribution of these input cells across the environment, three distributions were mapped - a regular distribution in which the different inputs preferred locations arranged on a rectangular grid, a white noise distribution in which each input was assigned a random preferential location independent of all other inputs, and a blue noise distribution in which each input was placed as far away from other inputs as possible, but without further structure \ref{distribution_plot}. In each case, the number of inputs was the same (576).
-
-    While simulations with regular distribution and blue noise distribution were virtually inseparable in terms of transition cell activity and gridness, simulations with inputs distributed in a white noise fashion performed significantly worse. Furthermore, this model was tested with numerous hyper parameters, none of which yielded high gridness.
-
-    The similarity between a regular input distribution and a blue noise input distribution is the even input density across the environment. This means that the number of inputs is approximately the same in all positions, which preserves the desired network dynamics. Meanwhile, with an uneven density of inputs, for instance with white noise inputs, forming clean center- surround areas might be difficult (figure 3.5). It is possible that this unevenness would be mitigated by a higher number of inputs, but this wasn't heavily tested. Testing with double the input density (2304 inputs) didn't yield higher gridness scores, but then again, it also reduced scores for regular or blue-noise distributions during preliminary testing, so increasing input density might interact with other hyperparameters in unmapped ways.
-
-    Although this isn't conclusive proof that transition neurons require evenness in the spatial distribution of the inputs, it does make the case that evenness facilitates the activity patterns described in the TSS model.
-
-
     \begin{figure}[H]
-        \centering
         \begin{minipage}[t]{\linewidth}
-            \centering 
-            \subcaption{}
-            \hspace*{0.06\linewidth}\includegraphics[width=0.83\linewidth]{distribution_plot.png}
+            \begin{subfigure}{0.2\textwidth}
+                \includegraphics[width=\textwidth]{model_comparison/model_comparison_orientation_regular.png}
+            \end{subfigure}
+            \foreach \filename in {
+                model_comparison/model_comparison_orientation_blue_noise.png,
+                model_comparison/model_comparison_orientation_white_noise.png,
+                model_comparison/model_comparison_orientation_23grid.png,
+                model_comparison/model_comparison_orientation_37grid.png}
+            {
+            \begin{subfigure}{0.18\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
+            \begin{subfigure}{0.2\textwidth}
+                \includegraphics[width=\textwidth]{model_comparison/model_comparison_phase_regular.png}
+            \end{subfigure}
+            \foreach \filename in {
+                model_comparison/model_comparison_phase_blue_noise.png,
+                model_comparison/model_comparison_phase_white_noise.png,
+                model_comparison/model_comparison_phase_23grid.png,
+                model_comparison/model_comparison_phase_37grid.png}
+            {
+            \begin{subfigure}{0.18\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
+            \vspace*{0.03\linewidth}
+
+            \foreach  \filename in {
+                model_comparison/model_comparison_orientation_no_delay.png,
+                model_comparison/model_comparison_orientation_1ms_noise.png,
+                model_comparison/model_comparison_orientation_2ms_noise.png,
+                model_comparison/model_comparison_orientation_4ms_noise.png,
+                model_comparison/model_comparison_orientation_GJ.png}
+            {
+            \begin{subfigure}{0.18\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
+            \foreach  \filename in {
+                model_comparison/model_comparison_phase_no_delay.png,
+                model_comparison/model_comparison_phase_1ms_noise.png,
+                model_comparison/model_comparison_phase_2ms_noise.png,
+                model_comparison/model_comparison_phase_4ms_noise.png,
+                model_comparison/model_comparison_phase_GJ.png}
+            {
+            \begin{subfigure}{0.18\textwidth}
+                \includegraphics[width=\textwidth]{\filename}
+            \end{subfigure}
+            }
         \end{minipage}
-        \begin{minipage}[t]{\linewidth}
-            \centering
-            \subcaption{}
-            \includegraphics[width=0.9\linewidth]{gscore_line_plot.png}
-        \end{minipage}
-        \caption{Examples of the three kinds of input distributions, and the respective development in gridness. (a)Each plot shows 24x24 inputs. Regular distribution places inputs evenly across the entire environment in a rectangular way. A blue noise distribution places inputs sequentially so each is placed as far away from other inputs as possible, resulting in an even, unstructured distribution. White noise distribution places inputs randomly, and independent of all other inputs, so some locations produce more input activity than others. (b) While transition cells develop clear gridness at a relatively even rate with inputs either regularly or blue noise distributed, networks with inputs distributed in a white noise pattern do not develop the same hexagonality.} 
-        \label{distribution_plot}
+        \caption{Orientations and phases of all models. Transition cells prefer a 0 \(\degree\) orientation in most models (1st and 3rd row), exceptions being the minimal inhibitory delay model and the model with most input noise. The standard model and blue noise input distribution model seem to have the strongest preference, while either increasing network size or adding noise reduces the preference somewhat. To compute phase distributions, only transition cells with positive gridness and an orientation between -5 \(\degree\) and 5\(\degree\) were considered. Within a simulation, one of the qualifying transition cells was chosen as a reference, and the dots show the other qualifying transition cells' phase relative to their reference (rows 2 and 4). This phase was computed as the offset of the peak relative to the center in the cross correlogram between the transition cell and the reference.}
+        \label{orientation_phase_plot}
+        
     \end{figure}
 
-    \subsection{Multi-Compartment Methods}
-    One goal of this work was to investigate the nature of spatial inputs. While the section above describes how transition cells can obtain hexagonal activity with place-like inputs, previous work assumed that this input was conveyed to the transition cell through active computation in a dendritic tree. The spatial inputs given to this dendritic tree could have some other form, such as boundary vectors. To test the plausibility of this claim, this work made a network receiving direct spatial location, but instead of synapsing directly on the transition cell, it was transmitted through a non-spiking layer of dendrites. Dendritic activity would impact transition cells in ways like a gap-junction, modeling a continuously moving depolarization from the former to the latter. Nonlinear dendritic computation, in which the voltage of the dendrite was modulated both by a softmax function, and then a learned conductance, before impacting transition cell voltage, gave results comparable to the other models [figure 3.1, 3.6, see supplementary methods for a not-working model]. This indicates that dendrites can be used as units of active computation, but it depends heavily on the nonlinear dynamics of the dendrite.
+    One thought was that simulation times were too short for transition cells to develop the 7.5\(\degree\) orientation preference seen in previous simulations, but this did not seem to be the case (add some results indicating this?).
 
-    Notably, this multi-compartment model increases the computational load significantly, so this method was only attempted with the first set of parameters that gave decent results. This also impacts the upcoming section using BVCs as inputs.
+    Phase distribution can only be investigated in simulation with minimally two cells sharing orientation, preferably more, and this was more common in larger networks. From looking at the networks with 23 or 37 transition cells, the phase distributions seem somewhat even, although the central area near the top of the rhomboid seems less populated (figure ref). Notedly, computing these phases was limited by the spatial resolution of the activity sampling, leading to rounding values.
+    
+    It was briefly checked if the 37-cell networks had a toroidal structure in the population activity, which would be expected for grid cells belonging to the same module. This did not yield interesting results, and while it should be not that those methods are created for larger networks, higher temporal resolution and rate-based network activity, it seems unlikely that networks with at most a third of the cells sharing orientation would have a highly ordered population activity structure.
+
+    \subsection{Gridness spacing}
+
+    All ten models described in the previous section used, barring noise, the same threshold for which spatial inputs would activate in a given location. Given a STDP-learning rule that lets an active transition cell decorrelate from less relevant spatial inputs, it would be expected that this relevance threshold is critical for the size of transition cell firing fields. That does not, however, mean that all models would give transition cells with the same spacing.
+
+    \begin{figure}[h]
+        \centering
+        \begin{minipage}[t]{\textwidth}
+            \subcaption{}
+            \includegraphics[width = \textwidth]{model_comparison/model_comparison_sigmas.png}
+        \end{minipage}
+        \begin{minipage}[t]{\textwidth}
+            {
+                \begin{subfigure}{0.126\textwidth}
+                    \subcaption{}
+                    \includegraphics[width = \textwidth]{model_comparison/spacing_spikeplot_simspam.png}
+                \end{subfigure}
+            }
+            \hspace*{-0.01\textwidth}
+            \foreach \filename in {
+            model_comparison/spacing_spikeplot_noise_sims2.png, 
+            model_comparison/spacing_spikeplot_noise_sims.png, 
+            model_comparison/spacing_spikeplot_noise_sims3.png}
+            {
+                \hspace{0.01\textwidth}
+                \begin{subfigure}{0.26\textwidth}
+                    \subcaption{}
+                    \includegraphics[width = \textwidth]{\filename}
+                \end{subfigure}
+            }
+        \end{minipage}
+        \caption{Grid field spacing across all models. (a) Each dot represents the spacing in a single transition cell, sorted by model. Model means are horizontal lines. Notably, while mean spacing seems invariant on input distribution and network size, adding noise seems to increase mean spacing. (b - e) Spike plots of models with identical parameters apart from input noise. (b) The standard model, without input noise, has a mean spacing of about 32.5 cm. As opposed to models with noise, transition cells can fit four firing fields horizontally in a 1 x 1 environment (lower spikeplot). (c \& d) Models with 1 ms and 2 ms input noise have approximately similar mean spacing, at about 35 cm. (e) While 4 ms noise doesn't produce high gridness or clean firing fields, the average spacing is significantly larger than other models, with mean around 50 cm.}
+        \label{spacing_plot}
+    \end{figure}
+
+    Curiously, while most models had highly similar spacing, which seems independent of input distribution and size of the transition cell layer (around 10.8 cm spacings), adding noise increased spacing, and it depended on amount of noise (ref figure). This was especially true for the highest noise level tested, with spacings around 13 cm, while the 1 ms and 2 ms std models had an approximately 11.8 cm spacing preference.
+
+    \subsection{Temporal stability}
+
+    From earlier figures, it does seem like transition cells in many of the networks develop gridness over time, so the firing fields get more hexagonal over time. However, it is unclear if the fields converge on some stable configuration, or if they continuously shift throughout the simulation. Under the TSS model, transition cells with incremental, gradually improving hexagonality might be beneficial because transition cells also interconnect with place cells, so big changes in transition cell area will necessitate accurate changes in the connectivity between transition cells and place cells.
+
+    
+    \begin{figure}[h]
+        \centering
+        \begin{minipage}[t]{\textwidth}
+            \subcaption{}
+            \includegraphics[width = \textwidth]{model_comparison/model_comparison_temporal_stability.png}
+        \end{minipage}
+        \begin{minipage}[t]{\textwidth}
+            \begin{subfigure}{0.347\textwidth}
+                \subcaption{}
+                \includegraphics[width = \textwidth]{model_comparison/sum_spikeplot_multi-grid.png}
+            \end{subfigure}
+            \foreach \filename in {
+            model_comparison/sum_spikeplot_GJ_model.png, 
+            model_comparison/sum_spikeplot_noise_sims3.png}
+            {
+                \hspace*{0.01\textwidth}
+                \begin{subfigure}{0.297\textwidth}
+                    \subcaption{}
+                    \includegraphics[width = \textwidth]{\filename}
+                \end{subfigure}
+            }
+        \end{minipage}
+        \caption{Temporal stability of different models. (a) The measure used to quantify temporal variance was the mean variance in spiking activity from one sampled time to the next, normalized by the variance in the shuffled data. A one in this score would indicate that there is no linear correlation between spiking from one sample time to the next, five simulation minutes later, while values close to zero indicate a positive correlation. Input noise seems to decrease temporal stability, while inhibitory delay seems to decrease it. (b - d) The 95 minute sample activity (row 1) and summed activity over all sample times (row 2) for three different models. All three models seem to have single-time samples with clear regions of activity and inactivity. The summed activity, however, shows that transition cells in the 37 transition cell model and the multi compartment model have maintained firing fields over time, while the noise model has not. This is reflected in their relative temporal variance scores.}
+        \label{temporal_stability_plot}
+    \end{figure}
+
+    To investigate this, a measure for temporal stability was used which tracks the transition cell activity in each of the sampled locations over time (figure \ref{temporal_stability_plot} (a)). The measure is a temporal correlation, in which the variance from one sample to the next, taken five simulation minutes later, is compared to the variance with shuffled data. This shuffled variance is used as a standard for no correlation, so a variance between 0 and 1 represents a positive temporal correlation, and variances above one is a negative correlation.
+    
+    A positive correlation is clearly expected, because the input weights at one sampling time will be correlated to input weights at the next sampling. Additionally, the STDP learning rule is expected to encourage a cell to associate to some place and keep firing there. As such, the measure doesn't clearly indicate what should be understood as high temporal stability. Figures 
+    
+    \ref{temporal_stability_plot} (b - d) shows activity of two cells for three different models: the 37 transition cell model, which had the highest recorded stability, the 4 ms noise model with the lowest stability and the multi compartment model as an intermediate one. The first row in each plot shows the activity at the final sampled time, 95 minutes, while the second row shows the summarized activity over all times. The 4 ms noise model shows comparably homogenous summed activity relative to the single-time sample, which is expected of models with low temporal stability. The other two models, on the other hand, show clearly peaked summed activity. This is taken as an indication that these models, and models with comparable spatial stability, produce transition cells that maintain their firing fields over time, and can represent spatial transitions stably.
+
+
+    \subsection{Multi-Compartment Models}
+    One goal of this work was to investigate the nature of spatial inputs. While the section above describes how transition cells can obtain hexagonal activity with place cell-like inputs, previous work assumed that this input was conveyed to the transition cell soma through active computation in a dendritic tree. The spatial inputs given to this dendritic tree could have some other form, such as boundary vectors. In this work, the dendritic tree was modelled as a multi-compartment method in which dendrites acted as perceptrons, receiving some input and activating according to a softmax function to activate the transition cell body.
+
+    The only model that has been presented so far in doing this was a highly simplified version, in which the spatial input was rectangularly distributed and place cell-like, and the dendritic layer was simply conveying this information directly to the soma in a non-spiking manner, as a proof of concept. As indicated in previous sections, this model performs somewhat similarly to the other models, but lacks a little in gridness. An obstacle is that the addition of this intermediate dendrite layer increases simulation times signifcantly, so tuning parameters is slow.
+
+    Further efforts were made to move from this to a model taking boundary vector cell inputs. If dendrites should take BVC-inputs and convert them to place-like activity regions, this should be done in accordance to the previous results. Most importantly, if each dendrite responds to a single, random location independent of all other dendrites, the resulting dendritic tree might have a white-noise-like input distribution, which seems undesirable for these models.
+
+    With this in mind, the simplest BVC-model tried to replicate the rectangularly spaced inputs, so each dendrite received only two, orthogonal BVCs carefully tiled so each dendrite responds highly to a single position in a rectangular grid. Another advantage to this model is that the state of the network can be directly read out from the dendrite-to-transition cell weights, or their conductances, as it is known at simulation time which dendrite should be responsible for which place.
+    
+    
+    % To test the plausibility of this claim, this work made a network receiving direct spatial location, but instead of synapsing directly on the transition cell, it was transmitted through a non-spiking layer of dendrites. Dendritic activity would impact transition cells in ways like a gap-junction, modeling a continuously moving depolarization from the former to the latter. Nonlinear dendritic computation, in which the voltage of the dendrite was modulated both by a softmax function, and then a learned conductance, before impacting transition cell voltage, gave results comparable to the other models [figure 3.1, 3.6, see supplementary methods for a not-working model]. This indicates that dendrites can be used as units of active computation, but it depends heavily on the nonlinear dynamics of the dendrite.
+
+    % Notably, this multi-compartment model increases the computational load significantly, so this method was only attempted with the first set of parameters that gave decent results. This also impacts the upcoming section using BVCs as inputs.
 
     \section{Discussion}
+
+    \subsection{What this model shows}
+    The goal of this work was to see how biologically plausible simulations of transition cells in the TSS model match experimental observations of entorhinal grid cells. Although studies on grid cells are numerous, some key variables were emphasized. First, that the network structure and morphology is reasonably close to the observed grid cell networks in the medial entorhinal cortex (mECII), so the transition cells are interconnected via strongly inhibiting interneurons. Secondly, that the activity pattern of the transition cells fit some criteria: most importantly that their firing was sufficiently hexagonal to pass as gridcells, and then that their firing properties follow that of single grid cell modules with similar grid spacings, a 7.5 \(\degree\) wall-angle offset, and were reasonably temporally stable. On a population level, the criteria were arbitrarily large networks, uniformly distributed phases and a toroidal structure in the population activity. Finally, the spatial inputs given to grid cells should plausibly exist prior to learning a given environment, for instance driven by boundary vector cells, as opposed to place cells.
+
+    To match the TSS model, the transition cell layer would receive dense spatial inputs, and self-organize so each transition cell encodes as many spatial transitions as possible under a learning rule described in the TSS-model. This learning rule is based on two competing rules: first, that transition cells associate to central areas, where it encodes transitions from, to an annulus-shaped surrounding area where it encodes transitions to, and secondly that it tries to be active everywhere. This is a learning rule that leads, in theory, to optimally efficient transition cells.
+
+    The networks described in this model fits a majority of these requirements: the learning rule is in line with the TSS model, so the cells turn out as valid transition cells. This is coupled with networks that are reminiscent of the mECII grid cell network, which is characterized by strong lateral inhibition. It is not clear that that grid cells get spatially modulated input that is phase coded based on its relevance, but the theta-oscillations seen in the mEC shows some evidence of rhythmic activity. Importantly, the learning rule, given place-like inputs, produces transition cells with high levels of gridness, that share spacing across the population and show temporal stability. This is true for different network sizes, with 13, 23 or 37 transition cells, although gridness seems to fall for bigger networks. The network also holds up reasonably against noise, although it seems to depend on precision in the spatial inputs to a certain degree.
+    
+    It is unclear if the network sees an upper limit in size, based on the fall in gridness in 37 cell networks. Getting high gridness has often been a case of setting parameters well, and if the parameter space giving high gridness shifts from changing network size, that would not have been caught in the simulations ran here. One example of this is that the reason all simulations here uses 24x24 inputs is because early simulations gave better results for these models than for 48x48 inputs, although the latter should strictly speaking simply increase model flexibility by increasing parameter count. More on this in the next section.
+
+    Looking at single cell characteristics, there are two primary questions left open from the simulations run here: first, that very few simulations produced cells with unvaryingly high scores, instead often containing cells with 
+
+
+    \subsection{A word about parameters}
 
     \subsection{Comparison to existing grid cell models}
 

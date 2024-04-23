@@ -5,9 +5,9 @@ import LIF_theta_model3_NL
 import utils
 import plotter
 
-file_base = 'regular22'
+file_base = 'regular0'
 BVC = False
-root_dir = 'grid_simulation/Results/data/no_delay'
+root_dir = 'grid_simulation/Results/data/simspam'
 with np.load(f"{root_dir}/{file_base}.npz", allow_pickle=True) as data:
     spike_trains = data['spike_times'].item()
     Ndendrites = data['Ndendrites']
