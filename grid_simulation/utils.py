@@ -91,7 +91,7 @@ def maskArea(pxs, boundary_vecs, x_range, y_range):
     mask = mask[:, np.newaxis]
     return mask
 
-def createHexField(pxs, sigma, wall_angle_offset, shape = 'square'):
+def createHexField(pxs, sigma, wall_angle_offset, shape = 'square', apply_noise = False):
     x_vals, y_vals = np.meshgrid(
         np.arange(-1000, 2000, sigma *1000 * np.sqrt(3) / 2),
         np.arange(-1000, 2000, sigma*1000)
@@ -100,8 +100,8 @@ def createHexField(pxs, sigma, wall_angle_offset, shape = 'square'):
     x_vals[1::2] += sigma * 500 * np.sqrt(3) / 2  # Shift every other row
     
     # Flatten the grid and apply rotation
-    x_vals_flat = x_vals.flatten() + np.random.uniform(0, sigma * 500)
-    y_vals_flat = y_vals.flatten() + np.random.uniform(0, sigma * 500)
+    x_vals_flat = x_vals.flatten() + np.random.uniform(0, sigma * 500) * apply_noise
+    y_vals_flat = y_vals.flatten() + np.random.uniform(0, sigma * 500) * apply_noise
     rotated_x = (x_vals_flat * np.cos(wall_angle_offset) - y_vals_flat * np.sin(wall_angle_offset))
     rotated_y = (x_vals_flat * np.sin(wall_angle_offset) + y_vals_flat * np.cos(wall_angle_offset))
     indices = np.logical_and(np.logical_and(rotated_x > 0, rotated_x <1000), np.logical_and(rotated_y>0, rotated_y < 1000))
@@ -150,7 +150,7 @@ def normcorr2d(A, B=None):
     not specified, the function computes the normalized utocorrelation
     of A."""
 
-    if B == None:
+    if B is None:
         B = A
 
     N = A.shape[0] * A.shape[1]
@@ -300,7 +300,6 @@ def gridOrientation(Acorr, Ndendrites, sigma):
     # find all maxima in the figure
     nbr = 2 * sigma * Ndendrites
     data_max = ndimage.maximum_filter(Acorr, nbr, axes=axes)
-    # maxima = (Tmp == data_max)
 
     maxima = np.transpose(np.nonzero(Acorr==data_max))
 

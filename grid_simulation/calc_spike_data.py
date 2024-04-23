@@ -20,7 +20,7 @@ all_spikes = {}
 for i, time in enumerate(times):
     spike_trains = np.load(path + "/" + time + appendix, allow_pickle= True)["spike_train"].item()
     spike_data = {}
-    for z, spike_train in enumerate(spike_trains):
+    for z, spike_train in spike_trains.items():
         spike_data[z] = spike_train / ms
     all_spikes[time + "_minutes"] = spike_data
 np.savez_compressed("grid_simulation/Results/37grid_spike_times", spike_data = all_spikes)

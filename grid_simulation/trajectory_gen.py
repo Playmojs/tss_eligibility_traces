@@ -34,7 +34,8 @@ def generateTrajectory(dt, duration_s, output_file, boundary_shape = 'square', p
                 positions = Ag.history['pos'], \
                 vels = Ag.history['vel'], \
                 boundaries = boundary_vecs, \
-                boundary_distances = dists)
+                boundary_distances = dists, \
+                dt = dt)
     return dists
 
 def global_bvc_act(boundary_cells, NBVCs, boundary_shape, pxs):
@@ -67,13 +68,13 @@ def global_bvc_act(boundary_cells, NBVCs, boundary_shape, pxs):
 
 
 if __name__ == "__main__":
-    #generateTrajectory(0.1, 7200, "Square/7200s", "square")
-    Nthetas = 12
-    Ndists = 11
-    max_dist = np.sqrt(2)
-    Nbvcs = Nthetas*Ndists
-    boundary_cells = np.meshgrid(np.arange(0,180, int(180/Nthetas), dtype =int), np.linspace(0, max_dist, Ndists))
-    boundary_cells = np.reshape(boundary_cells, (2,-1))    
+    generateTrajectory(0.01, 7200, "Square/7200s_10ms", "square")
+    # Nthetas = 12
+    # Ndists = 11
+    # max_dist = np.sqrt(2)
+    # Nbvcs = Nthetas*Ndists
+    # boundary_cells = np.meshgrid(np.arange(0,180, int(180/Nthetas), dtype =int), np.linspace(0, max_dist, Ndists))
+    # boundary_cells = np.reshape(boundary_cells, (2,-1))    
 
-    dists = global_bvc_act(boundary_cells, Nbvcs, 'trapezoid', 25)
-    print(np.shape(dists))  
+    # dists = global_bvc_act(boundary_cells, Nbvcs, 'trapezoid', 25)
+    # print(np.shape(dists))  

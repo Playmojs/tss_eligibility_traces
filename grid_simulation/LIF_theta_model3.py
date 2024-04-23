@@ -47,8 +47,8 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     # Read file to get trajectory and speed
     rb = False
     if not rb:
-        X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_long.hdf5", "r"))
-        delta_t = 10 # Sampling frequency in the trajectory file
+        X, speed = utils.getCoords(h5py.File("grid_simulation/Trajectories/trajectory_square_2d_0.01dt_ultra.hdf5", "r"))
+        delta_t = 10 # Sampling frequency in the trajectory file, in ms
     else:
         X, speed, _, __ = utils.getTrajValues(f"grid_simulation/Trajectories/Square/7200s.npz")
         X += 0.5
