@@ -85,7 +85,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     taupost = 30*ms
     Apre = 0.01
     Apost = -0.005
-    c_max = 37 / Ndendrites2
+    c_max = 30 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
@@ -141,10 +141,10 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     grid_to_inhibit.connect()
     grid_to_inhibit.w = 1
 
-    inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/200')
+    inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/150')
     inhibit_to_grid.connect()
 
-    nu = 0.5
+    nu = 0.3
     @network_operation(dt = theta_rate*ms)
     def update_learning_rate(t):
         if stationary:
@@ -408,7 +408,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 if __name__ == '__main__':
     Ndendrites = 24
     Ng = 13
-    sigma = 0.09
+    sigma = 0.105
     stationary = False
     plot_spike_hist =  True
     plot_weights = True
