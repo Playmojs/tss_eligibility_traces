@@ -69,7 +69,7 @@ def gridSimulation(Ndendrites, Ng, sigma, baseline_effect, duration, stationary,
     end_ix = int(duration*100/(delta_t*theta_rate))
     step = int(1000 * theta_rate/delta_t)
     x = X[0:end_ix:step, :] #TODO: add stationary here
-    activity = np.round(spatialns.dist(x)/sigma*10 + (np.random.normal(0, 2,(end_ix//step, Ndendrites2))), 1)
+    activity = np.round(spatialns.dist(x)/sigma*10 + (np.random.normal(0, 0,(end_ix//step, Ndendrites2))), 1)
     act_indices = np.where(activity < filter)
     activation_times = activity[act_indices] + 100 * act_indices[0]
     activation_times[activation_times<0] = 0
