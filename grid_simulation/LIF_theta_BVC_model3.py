@@ -84,8 +84,8 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
     taupre = 8*ms
     taupost = 30*ms
     Apre = 0.01
-    Apost = -0.005
-    c_max = 30 / Ndendrites2
+    Apost = -0.006
+    c_max = 27 / Ndendrites2
 
     dendrite_eq = '''dv/dt = -v/tau_d : 1
                     dapost/dt = -apost/taupost : 1
@@ -408,7 +408,7 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, baseline_effect, dist
 if __name__ == '__main__':
     Ndendrites = 24
     Ng = 13
-    sigma = 0.105
+    sigma = 0.1
     stationary = False
     plot_spike_hist =  True
     plot_weights = True

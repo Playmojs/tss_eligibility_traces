@@ -12,16 +12,17 @@ times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '
 # times = np.linspace(0, 100, 20, False)
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/data/'
-simulation = 'GJ_model'
+simulation = 'BVC_tests'
 sub_dirs = utils.getSortedEntries(base_path + simulation, 'directory', True)
+sub_dirs = sub_dirs[-5:]
 
-n_simuls = np.array([30]) #len(sub_dirs) // n_groups
+n_simuls = np.array([5]) #len(sub_dirs) // n_groups
 n_groups = len(n_simuls)
 n_times = len(times)
 Ndendrites = 24
 ngs = np.array([13])
 
-skip_calc = False
+skip_calc = True
 include_orientation = True
 
 legends = np.empty(n_groups, dtype = object)
@@ -53,7 +54,7 @@ for j, sub_dir in enumerate(sub_dirs):
             multi_hists[j1, j2, i, z] = gauss_spike_hist
 print()
 if not skip_calc:
-    sigma = 0.116
+    sigma = 0.127
     print("Calculate auto-correlation")
     corr_gauss = utils.autoCorr(multi_hists) # Shape (n_groups, n_simuls, n_times, ng, 2*pxs - 1, 2*pxs - 1)
     print("Calculate gridness scores")

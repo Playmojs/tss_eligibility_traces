@@ -61,7 +61,6 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
     BVC_synapses.w = weights
 
     #Grid layer and inhibitory layer:
-
     tau_g = 10*ms
     tau_y = 20*ms
     grid_eq = '''v = (Igap - y)*int(not_refractory) : 1
@@ -90,10 +89,12 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
     inhibit_to_grid = Synapses(inhibit_layer, grid_layer, 'w : 1', on_pre = 'y_post += Ndendrites2/200')
     inhibit_to_grid.connect()
 
+    dendrite_act = StateMonitor(dendrite_layer, 'Ve', [5, 100, 263, 501, 169, 342, 397, 437])
+
     @network_operation(dt = repeats*pxs*100*ms)
     def printProgress(t):
         progress = t / (repeats*pxs*100*ms) 
-        sys.stdout.write(f"\rProgress: {progress} / {pxs}")
+        sys.stdout.write(f"\rProgress: {progress:.0f} / {pxs:.0f}")
         sys.stdout.flush()
 
     print("Initialize done")
@@ -103,12 +104,16 @@ def gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, pxs, re
     if save_spike_train:
         np.savez_compressed(f"grid_simulation/Results/{file_name}",  \
             spike_train = G.spike_trains(), \
-            positions = X)
+            positions = X, \
+            bvc_inds = neuron_indices, \
+            bvc_times = spike_times, \
+            dendrite_times = dendrite_act.t/ms, \
+            dendrite_acts = dendrite_act.Ve)
     print()   
     return G
 
 if __name__ == "__main__":
-    with np.load("grid_simulation/Results/test.npz", allow_pickle= True) as data:
+    with np.load("grid_simulation/Results/misc/test.npz", allow_pickle= True) as data:
         Ndendrites = data["Ndendrites"]
         sigma = data["sigma"]
         Ng = data["Ng"]
@@ -118,5 +123,4 @@ if __name__ == "__main__":
         BVC_connections = data["BVC_connections"]
         distribution = data["distribution"]
 
-
-    gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, 5, 1,BVC_connections, conductivities[-1], True, "test2")
+    gridSimulation(Ndendrites, Ng, sigma, Nthetas, Ndists, distribution, 48, 1, BVC_connections, conductivities[-1], True, "misc/BVC_test")

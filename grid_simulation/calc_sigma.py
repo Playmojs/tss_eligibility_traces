@@ -12,15 +12,16 @@ times = ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '
 # times = np.linspace(0, 100, 20, False)
 appendix = 'min_Spikes.npz'
 base_path = 'grid_simulation/Results/'
-simulation = 'GJ_model'
+simulation = 'BVC_tests'
 sub_dirs = utils.getSortedEntries(base_path +'data/' + simulation, 'directory', True)
 
+
 n_groups = 1
-n_simuls = 30 #len(sub_dirs) // n_groups
+n_simuls = 5 #len(sub_dirs) // n_groups
 n_times = len(times)
 ngs = np.array([13])
 sigma = 0.12
-sigmas = np.linspace(0.08, 0.12, 20)
+sigmas = np.linspace(0.06, 0.14, 40)
 skip_calc = False
 
 multi_hists = np.empty((n_groups, n_simuls, np.max(ngs), pxs, pxs))

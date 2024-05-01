@@ -478,10 +478,12 @@ def getBVCtoDendriteConnectivity(n_bvcs, n_dendrites2, bvc_params = [12, 11], di
         print(connections)
     return connections
 
-def getPopulationSpikePlot(file, ng, pxs, gaussian = True):
+def getPopulationSpikePlot(file, ng, pxs, gaussian = True, BVC = False):
     with np.load(file, allow_pickle = True) as data:
         spike_trains = data['spike_train'].item()
         X = data['positions']
+    if BVC:
+        X += 0.5
     hists = np.empty((ng, pxs, pxs))
     for z in range(ng):
         x = 5
