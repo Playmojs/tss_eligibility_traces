@@ -24,15 +24,17 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['reg_distribution']
+plots = ['BVC_spikeplot']
 save = True
-models = np.array(['simspam', 'multi-grid', 'no_delay', 'noise_sims2', 'noise_sims', 'noise_sims3', 'GJ_model'], dtype= object)
+models = np.array(['simspam', 'multi-grid', 'noise_sims2', 'noise_sims', 'noise_sims3', 'no_delay', 'GJ_model'], dtype= object)
+concatenate = [False, False, True, True, False, False, False]
+order = np.array([1, 2, 0, 4, 3, 5, 6, 7, 8, 9], dtype = int)
 simuls_per_model=[3, 2, 1, 1, 1, 1, 1]
-simul_names = np.array(['Standard', 'Blue noise inputs', 'White noise inputs', '23 cells', '37 cells', 'No delay', '1 ms noise', '2 ms noise', '4 ms noise', 'MC model'], dtype = object)
-gscore_file_app = ["4", "", '1', "3", "3", "", ""]
+simul_names = np.array(['Standard', 'Blue noise inputs', 'White noise inputs', '23 cells', '37 cells', '1 ms noise', '2 ms noise', '4 ms noise', 'No delay', 'MC model'], dtype = object)
+gscore_file_app = ["4", "", "3", "3", "","1", ""]
 
 cmap = plt.get_cmap('nipy_spectral')
-col_vals = np.array([cmap(0.9), cmap(0.2), cmap(0.47), cmap(0.5), cmap(0.6), cmap(0.3), cmap(0.8), cmap(0.75), cmap(0.7), cmap(0.1)], dtype = object)
+col_vals = np.array([cmap(0.9), cmap(0.2), cmap(0.32), cmap(0.45), cmap(0.55),  cmap(0.825), cmap(0.79), cmap(0.75), cmap(0.13), cmap(0.05)], dtype = object)
 darkened_colors = np.array([(max(0, c[0] - 0.35), max(0, c[1] - 0.35), max(0, c[2] - 0.35)) for c in col_vals], dtype = object)
 
 if("distribution_plot" in plots):
@@ -305,13 +307,13 @@ def make_phase_plot(file: str, color):
     
 
 if('model_comparison_phase' in plots):
-    gscore_file_app = ["_reg", "_bn", "_wn", "_23", "_37", "", "", "", "", ""]
+    phase_file_app = ["_reg", "_bn", "_wn", "_23", "_37", "", "", "", "", ""]
     output_app = ["_regular", "_blue_noise", "_white_noise", "_23grid", "_37grid", "_no_delay", "_1ms_noise", "_2ms_noise", "_4ms_noise", "_GJ"]
     iter = 0
     for i, model in enumerate(models):
         for j in range(simuls_per_model[i]):
             output = f'grid_simulation/Documents/Figures/model_comparison/model_comparison_phase{output_app[iter]}'
-            fig, ax = make_phase_plot(f'grid_simulation/Results/analysis/{model}/phase{gscore_file_app[iter]}.npz', color = col_vals[iter])
+            fig, ax = make_phase_plot(f'grid_simulation/Results/analysis/{model}/phase{phase_file_app[iter]}.npz', color = col_vals[iter])
             if iter == 0:
                 ax.set_ylabel("Phase", size = 30)
 
@@ -321,11 +323,35 @@ if('model_comparison_phase' in plots):
                 fig.savefig(output, dpi = 500, bbox_inches = 'tight', transparent = True)      
             iter += 1
 
+def make_distribution_plot(gscores, color_idx):
+    fig, ax = plt.subplots()
+    ax.hist(np.ndarray.flatten(gscores[:,-1, :]), 8, histtype = 'stepfilled', color = col_vals[color_idx], edgecolor = darkened_colors[color_idx], linewidth = 5, range= (-1.2, 1.6))
+    ax.tick_params(axis = 'both', which = 'major', labelsize = 12)
+
+    return fig, ax
+
+if('model_comparison_distribution' in plots):
+    output_app = ["regular", "_blue_noise", "_white_noise", "_23grid", "_37grid", "_1ms_noise", "_2ms_noise", "_4ms_noise","_no_delay", "_GJ"]
+    gscores_container = np.empty(0)
+    iter = 0
+
+    for model, nsimuls, concat, app in zip(models, simuls_per_model, concatenate, gscore_file_app):
+        gscores =  np.load('grid_simulation/Results/analysis/' + model + '/gscores' + app + '.npz')['gscores']
+        if concat:
+            s0, s1, s2, s3 = gscores.shape
+            gscores = np.reshape(gscores, (1, s0 * s1, s2, s3))
+        for group in gscores:
+            fig, ax = make_distribution_plot(group, order[iter])
+            ax.set_xticks([-1, -0.5, 0, 0.5, 1.0, 1.5])
+            ax.set_ylabel(simul_names[order[iter]], size = 15)
+            plt.gcf().set_size_inches(4, 2)
+            if save:               
+               fig.savefig(f'grid_simulation/Documents/Figures/model_comparison/distribution{output_app[order[iter]]}', dpi = 500, bbox_inches = 'tight', transparent = True)      
+            iter += 1
+
+            
 if ('model_comparison_gscore' in plots):
-    order = np.array([1, 2, 0, 3, 4, 5, 7, 6, 8, 9], dtype = int)
     n_col = sum(simuls_per_model)
-    concatenate = [False, False, False, True, True, False, False]
-    gscore_file_app = ["4", "", '1', "3", "3", "", ""]
     gscores_container = np.empty(0)
     ind_container = np.empty(0, dtype = int)
     means = np.empty(n_col)
@@ -360,10 +386,7 @@ if ('model_comparison_gscore' in plots):
         fig.savefig("grid_simulation/Documents/Figures/model_comparison/model_comparison_gscores", dpi = 500, bbox_inches = 'tight', transparent = True)      
 
 if ('model_comparison_sigma' in plots):
-    order = np.array([1, 2, 0, 3, 4, 5, 7, 6, 8, 9], dtype = int)
     n_cols = sum(simuls_per_model)
-    concatenate = [False, False, False, True, True, False, False]
-    sigma_file_app = ["4", "", '1', "3", "3", "", ""]
     sigma_container = np.empty(0)
     ind_container = np.empty(0, dtype = int)
     means = np.empty(n_cols)
@@ -376,10 +399,12 @@ if ('model_comparison_sigma' in plots):
             s0, s1, s2, s3 = gscores.shape
             gscores = np.reshape(gscores, (1, s0 * s1, s2, s3))
         for group in gscores:
-            best_sigma = sigmas[np.argmax(group, axis = 1)]
+            pos_gscores = np.nanmax(group, axis = 1) > 0
+            filter = np.argmax(group, axis = 1)[pos_gscores]
+            best_sigma = sigmas[filter]
             best_sigma = best_sigma[~np.isnan(best_sigma)]
             sigma_container = np.append(sigma_container, best_sigma)
-            means[order[iter]] = np.mean(best_sigma)
+            means[order[iter]] = np.median(best_sigma)
             ind_container = np.append(ind_container, np.full(len(best_sigma), order[iter]))
             iter += 1
 
@@ -388,7 +413,7 @@ if ('model_comparison_sigma' in plots):
     
     fig, ax = plt.subplots()
 
-    ax.set_ylim([21, 60])
+    ax.set_ylim([21, 70])
     ax.set_xlim([-0.7, 9.7])
     ax.scatter(scatter_ind, scatter_sig * 300, c = col_vals[ind_container], s = 5, linewidth = 0.1)
     ax.hlines(means * 300, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
@@ -402,9 +427,7 @@ if ('model_comparison_sigma' in plots):
     
 
 if ('model_comparison_temporal_stability' in plots):
-    order = np.array([2, 0, 1, 4, 3, 5, 7, 6, 8, 9], dtype = int)
     n_cols = sum(simuls_per_model)
-    concatenate = [False, False, False, True, True, False, False]
     values_container = np.empty((n_cols, 19))
     shuffle_container = np.empty((n_cols, 19))
     x_vals = np.arange(n_cols)
@@ -420,14 +443,14 @@ if ('model_comparison_temporal_stability' in plots):
             pairwise_var = np.reshape(pairwise_var, (1, s0 * s1, s2, s3))
             pairwise_shuffled_var = np.reshape(pairwise_shuffled_var, (1, s0 * s1, s2, s3))
         for temp, shuffle in zip(pairwise_var, pairwise_shuffled_var):
-            values_container[iter] = np.mean(temp, axis = (0, 2))
-            shuffle_container[iter] = np.mean(shuffle, axis = (0, 2))
+            values_container[order[iter]] = np.mean(temp, axis = (0, 2))
+            shuffle_container[order[iter]] = np.mean(shuffle, axis = (0, 2))
             iter += 1
     
     fig, ax = plt.subplots()
     bar_values = np.mean(values_container[:, 9:] / shuffle_container[:, 9:], axis = 1)
 
-    ax.bar(x_vals, bar_values[order], width = 0.4, color = col_vals, edgecolor = darkened_colors, linewidth = 2)
+    ax.bar(x_vals, bar_values, width = 0.4, color = col_vals, edgecolor = darkened_colors, linewidth = 2)
     ax.set_xticks(x_vals)
     ax.set_xticklabels(simul_names, rotation = 30, size = 12, ha = 'right')
     ax.set_ylim([0, 1.2])
@@ -445,12 +468,18 @@ def gscore_line_plot(scores, vars, times, col_inds, output_file: str, x_label = 
     for col_ind, score, var in zip(col_inds, scores, vars):
         ax.plot(times, score, linewidth = 2, c = col_vals[col_ind], zorder = 2)
         ax.fill_between(times, score + 2*np.sqrt(var), score - 2*np.sqrt(var), alpha=0.4, interpolate=True, label = '_nolegend_', color = darkened_colors[col_ind], zorder = 1)
+    ax.hlines(0, 0, 95, colors = 'Black', linestyles = 'dashed')
 
     ax.set_ylim(y_lim)
     if x_label:
-        ax.set_xlabel("Time (minutes)", size = 15)  
+        ax.set_xlabel("Time (minutes)", size = 15)
+    else:
+        ax.set_xlabel(" ", size = 15)  
     if y_label:
         ax.set_ylabel("Gridness Score", size = 18)
+    else:
+        ax.set_ylabel(" ", size = 15)
+    ax.set_xlim([0, 95])
         
     ax.tick_params(axis = 'both', which = 'major', labelsize = 12)
     ax.legend(simul_names[col_inds], loc = 'upper left', fontsize = 12)
@@ -460,9 +489,9 @@ def gscore_line_plot(scores, vars, times, col_inds, output_file: str, x_label = 
         fig.savefig(output_file, dpi = 500, bbox_inches = 'tight', transparent = True)
 
 if('model_comparison_line_plots' in plots):
-    model_groups = [[0, 9], [1, 2], [5, 4, 3], [6, 7, 8]]
+    model_groups = [[0, 9], [1, 2], [4, 3, 8], [5, 6, 7]]
     output_base = "grid_simulation/Documents/Figures/model_comparison/line_plot"
-    times = np.linspace(0, 100, 20)
+    times = np.linspace(0, 100, 20, endpoint = False)
     ngs = [np.array([13, 13, 13]), np.array([37, 23]), np.array([13]), np.array([13]), np.array([13]), np.array([13]), np.array([13])]
     gscores_means_container = []
     gscores_vars_container = []
@@ -471,10 +500,10 @@ if('model_comparison_line_plots' in plots):
         gscores_means_container.append(np.nanmean(gscore, axis = (1,3)))
         gscores_vars_container.append(np.nanvar(gscore, axis = (1, 3)) / (ngs[i]*30)[:,np.newaxis])
 
-    gscore_line_plot(np.array([gscores_means_container[0][2], gscores_means_container[-1][0]]), np.array([gscores_vars_container[0][2], gscores_vars_container[-1][0]]), times, model_groups[0], f'{output_base}{0}', True, True, [0, 0.8])
-    gscore_line_plot(gscores_means_container[0][0:2], gscores_vars_container[0][0:2], times, model_groups[1], f'{output_base}{1}', False, False, [0, 0.8])
-    gscore_line_plot(np.array([gscores_means_container[1][0], gscores_means_container[1][1], gscores_means_container[2][0]]), np.array([gscores_vars_container[1][0], gscores_vars_container[1][1], gscores_vars_container[2][0]]), times, model_groups[2], f'{output_base}{2}', False, False, [0, 0.8])
-    gscore_line_plot(np.array([gscores_means_container[3][0], gscores_means_container[4][0], gscores_means_container[5][0]]), np.array([gscores_vars_container[3][0], gscores_vars_container[4][0], gscores_vars_container[5][0]]), times, model_groups[3], f'{output_base}{3}', False , False, [0, 0.8])
+    gscore_line_plot(np.array([gscores_means_container[0][2], gscores_means_container[-1][0]]), np.array([gscores_vars_container[0][2], gscores_vars_container[-1][0]]), times, model_groups[0], f'{output_base}{0}', True, True, [-0.2, 0.8])
+    gscore_line_plot(gscores_means_container[0][0:2], gscores_vars_container[0][0:2], times, model_groups[1], f'{output_base}{1}', False, False, [-0.2, 0.8])
+    gscore_line_plot(np.array([gscores_means_container[1][0], gscores_means_container[1][1], gscores_means_container[5][0]]), np.array([gscores_vars_container[1][0], gscores_vars_container[1][1], gscores_vars_container[2][0]]), times, model_groups[2], f'{output_base}{2}', False, False, [-0.2, 0.8])
+    gscore_line_plot(np.array([gscores_means_container[2][0], gscores_means_container[3][0], gscores_means_container[4][0]]), np.array([gscores_vars_container[3][0], gscores_vars_container[4][0], gscores_vars_container[5][0]]), times, model_groups[3], f'{output_base}{3}', False , False, [-0.2, 0.8])
 
 if('low-high_gscores' in plots):
     base_path = "grid_simulation/Results/data/simspam/regular8"
@@ -542,15 +571,10 @@ if('phase_dist' in plots):
 
 if('reg_distribution' in plots):
     path = "grid_simulation/Results/analysis/"
-    model_inds = [0, 3, 4, 5]
     gscore_ind = [2, 0, 0, 0]
     col_inds = np.array([0, 6, 7, 8])
 
-    
-    app = ["4", "3", "3", ""]
-    gscores = np.empty((4, 30, 20, 13))
-    for i, model_ind in enumerate(model_inds):
-        gscores[i] = np.load(f"{path}{models[model_ind]}/gscores{app[i]}.npz")["gscores"][gscore_ind[i]]
+    gscores = np.load(f"{path}simspam/gscores4.npz")["gscores"][2]
 
     simulation = "grid_simulation/Results/data/simspam/regular8"
     ng = 13
@@ -578,7 +602,7 @@ if('reg_distribution' in plots):
             ax.remove()
 
     ax_hist = fig_dist.add_subplot(gs[0:hist_y_size, :])
-    ax_hist.hist(np.ndarray.flatten(gscores[0, :,-1, :]), 8, histtype = 'stepfilled', color = col_vals[0], edgecolor = darkened_colors[0], linewidth = 5, range= (-1.2, 1.6))
+    ax_hist.hist(np.ndarray.flatten(gscores[:,-1, :]), 8, histtype = 'stepfilled', color = col_vals[0], edgecolor = darkened_colors[0], linewidth = 5, range= (-1.2, 1.6))
     ax_hist.set_xlabel("Gridness Score", loc = "left", size = 12)
     ax_hist.set_ylabel("Cell Count", size = 15)
     ax_hist.tick_params(axis = 'both', which = 'major', labelsize = 12)
@@ -590,7 +614,7 @@ if('reg_distribution' in plots):
             ax_dist[z + hist_y_size,r].axis('off')
     
 
-    sim_gscores = gscores[0, 8, -1, picks]
+    sim_gscores = gscores[8, -1, picks]
     shrinks = [15, 7, 7, 4.5, 6, 6]
     for col, score in enumerate(sim_gscores):
         shrink = shrinks[col]
@@ -630,10 +654,10 @@ if('reg_spikeplot' in plots):
         fig.savefig("grid_simulation/Documents/Figures/reg/spike", dpi = 500, bbox_inches = 'tight') 
 
 if('spacing_spikeplots' in plots):
-    model_inds = np.array([0, 3, 4, 5])
+    model_inds = np.array([0, 2, 3, 4])
     simul_number = np.array([3, 8, 8, 8])
     cell_inds = [np.array([0, 4]), np.array([4, 5, 8, 10]), np.array([2, 11, 0, 4]), np.array([3, 4, 6, 12])]
-    titles = ["0 ms", "2 ms", "1 ms", "4 ms"]
+    titles = ["0 ms noise", "1 ms noise", "2 ms noise", "4 ms noise"]
     for model, simul, cells, title in zip(models[model_inds], simul_number, cell_inds, titles):
         time_app = "95min_spikes" if model != "noise_sims2" else "95.0min_spikes"
         hist = utils.getPopulationSpikePlot(f"grid_simulation/Results/data/{model}/regular{simul}/{time_app}.npz", 13, 48, True)
@@ -683,6 +707,110 @@ if('sum_spikeplots' in plots):
         plt.gcf().set_size_inches(4, 4)
         if save:
             fig.savefig(f"grid_simulation/Documents/Figures/model_comparison/sum_spikeplot_{model}", dpi = 500, bbox_inches = 'tight')
+
+
+if('BVC_spikeplot' in plots):
+    simul = 'orthoregular18'
+    simulation = f"grid_simulation/Results/data/BVC_tests/{simul}"
+    ng = 13
+    pxs = 48
+    rel_times = np.array([0, 5, 20, 95])
+    rel_n = len(rel_times)
+    picks = np.array([8, 10, 11, 2, 3, 7, 6])
+    n_cols = len(picks)
+    hist = np.empty((rel_n, 13, pxs, pxs))
+
+    fig, ax = plt.subplots(rel_n, n_cols)
+    for i, time in enumerate(rel_times):
+        hist[i] = utils.getPopulationSpikePlot(f"{simulation}/{time}min_Spikes.npz", 13, 48, True, True)
+        ax[i, 0].set_ylabel(f'{time} minutes', size = 12)
+
+    autocorr = utils.autoCorr(hist)
+    gscores, _ = utils.gridnessScore(autocorr, 48, 0.127) # Shape(n_groups, n_simuls, n_times, ng)
+
+    for r in range(n_cols):
+        ind = picks[r]
+        ax[-1, r].set_xlabel(f'{gscores[-1, ind]:.2f}', size = 12)
+   
+        for z in range(rel_n):
+            ax[z, r].imshow(hist[z, ind],  interpolation='none', origin = 'lower')
+            ax[z, r].set_xticks([])
+            ax[z, r].set_yticks([])
+
+    plt.gcf().set_size_inches(12, 7)
+
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/BVC_spikeplot", dpi = 500, bbox_inches = 'tight') 
+    
+
+    conductances = np.load(f'grid_simulation/Results/data/BVC_tests/{simul}.npz')['weights'][6*95]
+    conductances = np.reshape(conductances, (13, 24, 24))[picks]
+
+    fig, ax = plt.subplots(1, n_cols, squeeze = False)
+
+    for r in range(n_cols):
+        ax[0, r].imshow(conductances[r], interpolation = 'none', origin = 'lower', cmap = 'plasma')
+        ax[0, r].set_yticks([])
+        ax[0, r].set_xticks([])
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/BVC_spikeplot_weights", dpi = 500, bbox_inches = 'tight') 
+
+if ('BVC_aux' in plots):
+    with np.load('grid_simulation/Results/misc/BVC_test.npz') as data:
+        positions = data['positions']
+        input_indices = data['bvc_inds']
+        input_spikes = data['bvc_times']
+        dendrite_times = data['dendrite_times']
+        dendrite_acts = data['dendrite_acts']
+
+    BVC_picks = np.array([4, 43, 17, 34], dtype = int)
+    dendrite_picks = np.array([6, 1, 3, 4], dtype = int)
+
+    bvc_fig, bvc_ax = plt.subplots(2, 2)
+    den_fig1, den_ax1 = plt.subplots(2, 2)
+    den_fig2, den_ax2 = plt.subplots(2, 2)
+
+    pxs = 48
+    for i, (BVC_ind, dendrite_ind) in enumerate(zip(BVC_picks, dendrite_picks)):
+        i1 = i // 2
+        i2 = i % 2
+
+        spike_times = input_spikes[input_indices == BVC_ind]
+        spike_indices = np.floor(spike_times/100)
+        spike_positions = positions[np.ndarray.astype(spike_indices, int)]
+        BVC_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
+        BVC_hist = ndimage.gaussian_filter(BVC_hist, 2)
+        bvc_ax[i1, i2].imshow(BVC_hist, interpolation = 'none', origin = 'lower')
+        bvc_ax[i1, i2].set_xticks([])
+        bvc_ax[i1, i2].set_yticks([])
+        bvc_fig.suptitle('BVC activity')
+
+        dendrite_act = dendrite_acts[dendrite_ind]
+
+        dendrite_act1 = np.sum(np.reshape(dendrite_act, (len(dendrite_act)// 1000, 1000))[:, 0:100], axis = 1)
+        spike_positions = positions[dendrite_act1 > 5]
+        dendrite_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
+        dendrite_hist = ndimage.gaussian_filter(dendrite_hist, 2)
+        den_ax1[i1, i2].imshow(dendrite_hist, interpolation = 'none', origin = 'lower')
+        den_ax1[i1, i2].set_xticks([])
+        den_ax1[i1, i2].set_yticks([])
+        den_fig1.suptitle('Dendrite activity \n 10 ms')
+
+        dendrite_act2 = np.sum(np.reshape(dendrite_act, (len(dendrite_act)// 1000, 1000))[:, 0:220], axis = 1)
+        spike_positions = positions[dendrite_act2 > 40]
+        dendrite_hist, _, __ = np.histogram2d(spike_positions[:,1], spike_positions[:,0], pxs, [[-0.5,0.5],[-0.5,0.5]])
+        dendrite_hist = ndimage.gaussian_filter(dendrite_hist, 2)
+        den_ax2[i1, i2].imshow(dendrite_hist, interpolation = 'none', origin = 'lower')
+        den_ax2[i1, i2].set_xticks([])
+        den_ax2[i1, i2].set_yticks([])
+        den_fig2.suptitle('Dendrite activity \n 20 ms')
+
+    if save:
+        for fig, title in zip([bvc_fig, den_fig1, den_fig2], ['bvc_act', 'den_act1', 'den_act2']):
+            fig.set_size_inches(4, 4)
+            fig.savefig(f"grid_simulation/Documents/Figures/{title}", dpi = 500, bbox_inches = 'tight') 
+
+
 
 
 if ('yearbook_plot' in plots):
