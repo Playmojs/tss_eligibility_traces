@@ -24,7 +24,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['BVC_spikeplot']
+plots = ['distribution_plot']
 save = True
 models = np.array(['simspam', 'multi-grid', 'noise_sims2', 'noise_sims', 'noise_sims3', 'no_delay', 'GJ_model'], dtype= object)
 concatenate = [False, False, True, True, False, False, False]
