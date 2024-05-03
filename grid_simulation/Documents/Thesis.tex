@@ -214,7 +214,7 @@ sorting = ynt
             \end{subfigure}
         \end{minipage}%
         
-        \caption{The nature of phase coded spatial inputs. (a) Spatial inputs from a region surrounding the mouse will be activated each theta-cycle (10 Hz), here indicated by points within the two surrounding circles. This input is phase-coded, so cells responding to locations closest to the mouse will activate first. (b) Hypothetical raster plot showing input activity in one theta cycle. The spike time of a transition cell spike (green vertical line) determines which inputs the transition cell will associate to and dissociate from. In this case, the transition cell associates to the inputs colored red (left of the vertical line), and dissociate from the inputs colored blue (right of the vertical line). Comparing to the input's locations in (a) (color coding preserved), this becomes a center-surround learning rule. (c) Delayed inhibition (purple vertical line, rightmost) can allow multiple transition cells (green vertical lines, middle and left) to fire during the same theta-cycle.}
+        \caption{The nature of phase coded spatial inputs. (a) Spatial inputs from a region surrounding the mouse will be activated each theta-cycle (10 Hz), here indicated by points within the two surrounding circles. This input is phase-coded, so cells responding to locations closest to the mouse will activate first. (b) Hypothetical raster plot showing input activity in one theta cycle. The spike time of a transition cell (green vertical line) determines which inputs the transition cell will associate to and dissociate from. In this case, the transition cell associates to the inputs colored red (left of the vertical line), and dissociate from the inputs colored blue (right of the vertical line). Comparing to the inputs' locations in (a) (color coding preserved), this can encourage center-surround learning. (c) Delayed inhibition (purple vertical line, rightmost) can allow multiple transition cells (green vertical lines, middle and left) to fire during the same theta-cycle.}
         
         \label{mouse_plot}
     \end{figure}
@@ -227,11 +227,11 @@ sorting = ynt
     
     It should be noted here that the spiking neural network itself implies non-linear features that might have enabled such a network to produce grid-cells. One way to achieve this would be with other transition cells that are sufficiently active in location \((x_1, y_2)\) and \((x_2, y_1)\), so they inhibit the first transition cell. However, due to the fine-tuning such a network would require, this network structure was not pursued further.
 
-    An interesting alternative, which highlights an advantage of biological neurons over simplified artificial ones, appears after considering nonlinear dendritic computation on transition cells in a multi-compartment model. With this in mind, although boundary vector cells technically synapse onto transition cells directly, the simulation treats dendrites as separate units within one transition cell. Each dendrite would get inputs from some subset of BVCs, and the transition cell can associate and dissociate to all inputs on an entire dendrite. Similarly to the BVC-model \parencite{Barry2006}, each dendrite would preferably be active in only single locations in the environment. This could be achieved by for instance responding non-linearly to BVC-inputs with a soft-max activation function. In the example above, this would let the transition cell associate to dendrites responding highly to \((x_1, y_1)\) or \((x_2, y_2)\), while remaining dissociated from dendrites activated in \((x_1, y_2)\) or \((x_2, y_1)\), without sacrificing biological plausibility. This multi-compartment model is in line with the ideal model described in section \ref{Overall Method}.
+    An interesting alternative, which highlights an advantage of biological neurons over simplified artificial ones, appears after considering nonlinear dendritic computation in transition cells in a multi-compartment model. With this in mind, although boundary vector cells technically synapse onto transition cells directly, the simulation treats dendrites as separate units within one transition cell. Each dendrite would receive inputs from some subset of BVCs, and the transition cell can associate and dissociate to all inputs on an entire dendrite. Similarly to the BVC-model \parencite{Barry2006}, each dendrite would preferably be active in only single locations in the environment. This could be achieved by for instance responding non-linearly to BVC-inputs with a soft-max activation function. In the example above, this would let the transition cell associate to dendrites responding highly to \((x_1, y_1)\) or \((x_2, y_2)\), while remaining dissociated from dendrites activated in \((x_1, y_2)\) or \((x_2, y_1)\), without sacrificing biological plausibility. This multi-compartment model is in line with the ideal model described in section \ref{Overall Method}.
 
     However, to shorten simulation time and reduce complexity, this kind of network can be simplified. This can be done incrementally, in which each step reduces complexity at the cost of plausibility:
     \begin{enumerate}
-        \item The BVC-model showed that place-like activity can be produced from BVC-inputs. As such, BVC-input can be replaced by place-like inputs directly as non-spiking dendrites in the multi-compartment model. 
+        \item The BVC-model showed that place-like activity can be produced from BVC-inputs. As such, BVC-input can be replaced by place-like inputs directly, but still synapsing on non-spiking dendrites in a multi-compartment model.
         \item To reduce the number of neurons, each dendrite can connect to each grid-cell, and the dendrites can be spiking to reduce computational time for each of them. Here, the dendrites still fire in random places, according to some distribution.
         \item The dendrites can respond to places distributed in a regular, rectangular grid.
     \end{enumerate}
@@ -255,8 +255,12 @@ sorting = ynt
     
     Here, v(t) is the voltage of time, \(\tau\) is a decay parameter, \(w_{i}\) is the weight of the ith input and \(i(t-delay)\) is 1 iff input i spiked at time \(t-d\), in which \(d\) is the input delay.
 
-    The STDP learning rule was implemented by separating potentiation and depression: upon transition cell firing, potentiation for weight \(i\) would increment dependent on presynaptic activity (\ref{key3}).  \begin{equation} \label{key3} w_i = max(w_i + a^{pre}_i \cdot \nu, 0)\end{equation} in which \(a^{pre}_i\) is a variable incremented when input \(i\) fires, and decays with time. \(\nu\) is here a learning rate, which can be constant or modulated by animal velocity.
-    Similarly, upon presynaptic input from input \(i\), weights are depressed if the input arrives after transition cell spike. Regardless of transition cell activity, the input weight would alse increase according to a baseline parameter. Both of these rules are captured in equation \ref{key4} \begin{equation} \label{key4} w_i = max(w_i + (a^{post}_i + \alpha \cdot (w_{max}-w_i)) \cdot \nu, 0)\end{equation} where \(a^{post}_i\) is a symmetric parameter to \(a^{pre}_i\), but which decrements upon post synaptic firing and decays at a separate rate. \(\alpha\) determines the magnitude of baseline weight increase.
+    The STDP learning rule was implemented by separating potentiation and depression: upon transition cell firing, potentiation for weight \(i\) would increment dependent on presynaptic activity (equation \ref{key3}).  
+    \begin{equation} \label{key3} w_i = max(w_i + a^{pre}_i \cdot \nu, 0)\end{equation}. 
+    Here, \(a^{pre}_i\) is a variable incremented when input \(i\) fires, and decays with time. \(\nu\) is here a learning rate, which can be constant or modulated by animal velocity.
+    Similarly, upon presynaptic input from input \(i\), weights are depressed if the input arrives after transition cell spike. Regardless of transition cell activity, the input weight would alse increase according to a baseline parameter. Both of these rules are captured in equation \ref{key4}. 
+    \begin{equation} \label{key4} w_i = max(w_i + (a^{post}_i + \alpha \cdot (w_{max}-w_i)) \cdot \nu, 0)\end{equation} 
+    \(a^{post}_i\) is a symmetric parameter to \(a^{pre}_i\), but which decrements upon post synaptic firing and decays at a separate rate. \(\alpha\) determines the magnitude of baseline weight increase.
 
     Transition cells then interacted by activating inhibitory neurons which inhibit all transition cells for a time, working by reducing their voltage by a large, constant amount, but which was small enough so the voltage returns to zero by the next theta by equation \ref{key2}. This inhibition was global and uniform, so each transition cell inhibited all the others and itself equally. Although this inhibition was thought to work with a delay, some simulations tried running without. In these, the delay was at the simulation software's minimum, 0.2 ms. The number of transition cells in a simulation was arbitrary, but typical values chosen were 13, 23 or 37. Too large networks would require high computational resources, and using primes avoided bies from symmetry.
 
@@ -291,8 +295,8 @@ sorting = ynt
         \end{minipage}
         \hspace{0.1\textwidth}
         \begin{minipage}[t]{0.54\textwidth}
-        \caption{A multi-compartment model of the transition cell. (a) As opposed to models described in section \ref{Rect input} and \ref{Rand input}, the spiking transition layer soma does not receive spatial inputs directly - instead, spatial input synapses onto non-spiking dendrites, which conduct the voltage nonlinearly to the transition cell soma. (b) A representation of a single transition cell in the multi-compartment model. Each transition cell soma (right) receives inputs from a high number of dendrites (left). Dendrites can receive either place-like inputs or multiple BVC-inputs.}
-        \label{network_MC}
+            \caption{A multi-compartment model of the transition cell. (a) As opposed to models described in section \ref{Rect input} and \ref{Rand input}, the spiking transition layer soma does not receive spatial inputs directly - instead, spatial input synapses onto non-spiking dendrites, which conduct the voltage nonlinearly to the transition cell soma. (b) A representation of a single transition cell in the multi-compartment model. Each transition cell soma (right) receives inputs from a high number of dendrites (left). Dendrites can receive either place-like inputs or multiple BVC-inputs.}
+            \label{network_MC}
         \end{minipage}
     \end{figure}
 
@@ -356,19 +360,46 @@ sorting = ynt
     From the trajectories, spatial inputs were calculated prior to simulations, using either position- or boundary information, and added to a brian2 spikeGeneratorGroup. The network state and weights were stored frequently during simulations.
 
     \subsection{Analysis} \label{Analysis}
-    To investigate the firing properties of the network of transition cells, weights were frozen, and the activity of the network was sampled from each position in an even 48 x 48 grid across the environment. In simulations with noise, each position was sampled 5 times, while they were sampled only once without noise. This gave momentary pictures of the network state, which were subsequently stored as spike trains and then converted to histograms of spatial firing fields. Due to considerable computational time per sample, each simulation was typically sampled only every 5 minutes of simulated time.
+    To investigate the firing properties of the network of transition cells, weights were frozen, and the activity of the network was sampled from each position in an even 48 x 48 grid across the environment. In simulations with noise, each position was sampled 5 times, while they were sampled only once without noise (figure \ref{analysis_plot} (a)). This gave momentary pictures of the network state, which were subsequently stored as spike trains and then converted to histograms of spatial firing fields. Due to considerable computational time per sample, each simulation was typically sampled only every 5 minutes of simulated time.
 
+    \begin{figure}[H]
+        \centering
+        \begin{minipage}[t]{\linewidth}
+            \begin{subfigure}{0.32\linewidth}
+                \subcaption{}
+                \includegraphics[width = 0.9\linewidth]{analysis0.png}
+            \end{subfigure}
+            \begin{subfigure}{0.32\linewidth}
+                \subcaption{}
+                \includegraphics[width = 0.9\linewidth]{analysis1.png}
+            \end{subfigure}
+            \begin{subfigure}{0.32\linewidth}
+                \subcaption{}
+                \includegraphics[width = 0.9\linewidth]{analysis2.png}
+            \end{subfigure}
+        \end{minipage}
+        \begin{minipage}[t]{0.38\linewidth}
+                \subcaption{}
+                \includegraphics[width = \linewidth]{analysis3.png}
+        \end{minipage}
+        \hspace{0.01\linewidth}
+        \begin{minipage}[t]{0.59\linewidth}
+            \caption{Visualization of different steps of analysis. (a) Artificial spikeplot from some cell. Each pixel represents one sampled position, and color indicates firing rate in that position. 1) Spacing is the distance between adjacent firing fields, from center to center. 2) Orientation is the angle between a wall and a line passing through adjacent firing fields. Due to the hexagonality of grid cells, this orientation is always between 0\(\degree\) and 60\(\degree\). 3) The phase can be understood as the offset from an environment corner to the closest firing field. In practice, another cell with similar spacing and orientation is used as base of comparison, instead of the environment corner (not shown here). (b) The autocorrelogram of the firing field. For a hexagonal firing field, this will also be hexagonal. Note that orientation and spacing is preserved, as the size of the autocorrelogram is twice that of the firing field. This hexagonal shape is always centered, making computations easier. (c) To compute gridness score, an annulus is taken from the autocorrelogram, so the first ring of fields are included. A highly hexagonal cell will have a 60\(\degree\) rotational symmetry, and antisymmetry at 30\(\degree\), 90\(\degree\) or 150\(\degree\) degree rotation. (d) Hypotheical change in firing fields from one time to the next, and corresponding shuffled change. The shuffled change serves as a base of comparison for the firing field changes.}
+            \label{analysis_plot}
+        \end{minipage}
+    \end{figure}
+    
     Five primary variables were derived from each simulation: gridness score, spacing, orientation, phase distribution and temporal stability.
     
-    The measure used to evaluate the hexagonality of the transition cells was primarily the gridness score. To find this score, an annulus was extracted around the center of the autocorrelation of the spatial firing fields of a sample. The size of this annulus was estimated to find the first ring of maxima around the center. Using this annulus, gridness score was determined as \[gscore = min(a_{60\degree}, a_{120\degree}) - max(a_{30\degree}, a_{90\degree}, a_{150\degree})\] in which \(a_{n\degree}\) is the correlation between the annulus and itself rotated \(n\) degrees.
+    The measure used to evaluate the hexagonality of the transition cells was primarily the gridness score. To find this score, an annulus was extracted around the center of the autocorrelation of the spatial firing fields of a sample (figure \ref{analysis_plot} (a) and (b)). The size of this annulus was estimated to find the first ring of maxima around the center. Using this annulus, gridness score was determined as \[gscore = min(a_{60\degree}, a_{120\degree}) - max(a_{30\degree}, a_{90\degree}, a_{150\degree})\] in which \(a_{n\degree}\) is the correlation between the annulus and itself rotated \(n\) degrees.
 
-    Gridness spacing was found by evaluating the gridness score with multiple estimations of annulus size, and determining values that gave the highest score. Because of the discretization of space, multiple spacings would give similar scores, in which the mean was taken.
+    Gridness spacing was found by evaluating the gridness score with multiple estimations of annulus size, and determining values that gave the highest score (figure \ref{analysis_plot} (a) - (c)). Because of the discretization of space, multiple spacings would give similar scores, in which the mean was taken.
 
-    Orientation was determined only in cells with a positive gridness score. Orientation was determined as the angle between the horizontal line and the first maxima within the annulus, extracted similarly to in the gridness score.
+    Orientation was determined only in cells with a positive gridness score. Orientation was determined as the angle between the horizontal line and the first maxima within the annulus, extracted similarly to in the gridness score (figure \ref{analysis_plot} a - c).
 
-    Phase distribution was only evaluated for cells with positive gridness and an orientation between \(-5\degree\) and \(5\degree\), as this seemed to be dominant for most simulations. In simulations with multiple cells passing these criteria, one cell was chosen at random as a basis for comparison. All other cells would be evaluated relative to this basis by doing a cross correlation, and finding the maximal value. To find all positions relative to the rhombus, the phase-difference was unsheared, so the rhombus would be a rectangle. Then, phase differences could be reduced to the within the rectangle by a modulo-operation, and sheared again to be placed within the rhombus.
+    Phase distribution was only evaluated for cells with positive gridness and an orientation between \(-5\degree\) and \(5\degree\), as this seemed to be dominant for most simulations (figure \ref{analysis_plot} (a)). In simulations with multiple cells passing these criteria, one cell was chosen at random as a basis for comparison. All other cells would be evaluated relative to this basis by doing a cross correlation, and finding the argument of the maximal value. To find all positions relative to the rhombus, the phase-difference was unsheared, so the rhombus would be rectangular. Then, phase differences could be reduced by a module-operation so all ended up within the same rectangle, and sheared again to be placed within the rhombus.
     
-    Temporal stability was estimated by getting the variance in pixel-values in spike plots across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values. This approach was enabled by the sampling scheme, in which each location in the environment was sampled equally at even time points. Shuffling the spike plots represented the expected temporal stability if there would be no correlation from one timepoint to the next, while a lower variance would imply a positive correlation of firing fields from one time to the next. [add a figure to show this, as well as other features?]
+    Temporal stability was estimated by getting the variance in pixel-values in spike plots across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values (figure \ref{analysis_plot} (d)). This approach was enabled by the sampling scheme, in which each location in the environment was sampled equally at even time points. Shuffling the spike plots represented the expected temporal stability if there would be no correlation from one timepoint to the next, while a lower variance would imply a positive correlation of firing fields from one time to the next.
 
 
     \section{Results} \label{Results}
@@ -438,7 +469,7 @@ sorting = ynt
     
     The central question to this work was whether the network structure and learning rule described in the methods section could produce transition cells with a hexagonal firing patterns, which can be quantified by the gridness score. This gridness score was always computed on spike plots such as those shown in figure \ref{reg_spike}, sampled evenly across the environment with frozen weights. This was tracked in ten different network models, each simulated 30 times and sampled every five minutes across a 95-minute simulation. Figure \ref{gridness_plots} a shows final mean gridness scores for each simulation, grouped by model, while figures \ref{gridness_plots} (b-e) show the temporal development of gridness scores in the ten models according to groups.
     
-    \begin{figure}[htbp]
+    \begin{figure}[H]
         \centering  
         \begin{minipage}[b]{1\textwidth}
             \centering
@@ -636,7 +667,7 @@ sorting = ynt
                 \end{subfigure}
             }
         \end{minipage}
-        \caption{Temporal stability of different models. (a) The measure used to quantify temporal variance was the mean variance in spiking activity from one sampled time to the next, normalized by the variance in the shuffled data. A one in this score would indicate that there is no linear correlation between spiking from one sample time to the next, five simulation minutes later, while values close to zero indicate a positive correlation. Input noise decreases temporal stability, while inhibitory delay increases it. Larger networks also show more resistance to change. (b - d) The 95 minute sample activity (row 1) and summed activity over all sample times (row 2) for three different models. All three models have clearly defined regions of activity and inactivity in their 95th minute sample. The summed activity, however, shows that transition cells in the 37 transition cell model and the multi-compartment model have maintained firing fields over time, while the noise model has not. This is reflected in their relative temporal variance scores.}
+        \caption{Temporal stability of different models. (a) The measure used to quantify temporal variance was the mean variance in spiking activity from one sampled time to the next, normalized by the variance in the shuffled data. A one in this score would indicate that there is no linear correlation between spiking from one sample time to the next, five simulation minutes later, while values close to zero indicate a positive correlation. Input noise decreases temporal stability, while inhibitory delay increases it. Larger networks also show more resistance to change. (b - d) The 95 minute sample activity (row 1) and summed activity over all sample times (row 2) for three different models. All three models have clearly defined regions of activity and inactivity in their 95th minute sample. The summed activity, however, shows that transition cells in the 37 transition cell model and the multi-compartment model have maintained firing fields over time, while the noise model has not. This is reflected in their corresponding temporal variance scores.}
         \label{temporal_stability_plot}
     \end{figure}
 

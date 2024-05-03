@@ -110,7 +110,7 @@ def createHexField(pxs, sigma, wall_angle_offset, shape = 'square', apply_noise 
 
     grid_mesh = np.zeros((1000,1000))
     grid_mesh[rotated_x, rotated_y] = 1
-    grid_mesh = ndimage.gaussian_filter(grid_mesh, sigma*100)
+    grid_mesh = ndimage.gaussian_filter(grid_mesh, sigma*200)
 
     # Define the interpolation function
     interp_function = interpolate.interp2d(np.arange(1000), np.arange(1000), grid_mesh, kind='linear')

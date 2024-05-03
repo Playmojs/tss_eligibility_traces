@@ -59,8 +59,8 @@ if not skip_calc:
     temp_var = np.nanvar(multi_hists[:, :, 10:], axis = -4)
     shuff_var = np.nanvar(shuffled_hists[:, :, 10:], axis = -4)
     
-    temp_stability = np.nanmean(temp_var, axis = (-2, -1)) * 4
-    shuff_stability = np.nanmean(shuff_var, axis = (-2, -1)) * 4
+    temp_stability = np.nanmean(temp_var, axis = (-2, -1))
+    shuff_stability = np.nanmean(shuff_var, axis = (-2, -1))
     np.savez(f"grid_simulation/Results/analysis/{simulation}/temporal_stability", \
             temporal_stability = temp_stability, \
             shuffled_stability = shuff_stability, \
