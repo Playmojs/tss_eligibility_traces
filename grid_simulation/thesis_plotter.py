@@ -872,7 +872,7 @@ if ('analysis_plots' in plots):
     for i, hex in enumerate([hex_field, hex_field2]):
         ax4[i, 0].set_xticks([])
         ax4[i, 0].set_yticks([])
-        ax4[i, 0].set_ylabel(f"t{i + 1}", size = 12)
+        ax4[i, 0].set_ylabel(f"Time {i + 1}", size = 12)
         ax4[i, 0].imshow(hex, origin = 'lower')
 
         np.random.shuffle(inds)
@@ -889,11 +889,11 @@ if ('analysis_plots' in plots):
     mean_var = np.nanmean(np.nanvar(np.array([hex_field, hex_field2]), axis = 0))
     shuf_var = np.nanmean(np.nanvar(shuf_hex, axis = 0))
     ax_bar.bar([0, 1], [mean_var, shuf_var], width = 0.3, color = ['Dodgerblue', 'Darkorange'])
-    ax_bar.set_xlim([-0.5, 1.5])
+    ax_bar.set_xlim([-0.4, 1.4])
     ax_bar.set_xticks([0, 1])
     ax_bar.set_xticklabels(['Actual', 'Shuffled'], fontsize = 12)
     ax_bar.set_yticks([])
-    ax_bar.set_ylabel('Variance', size = 15)
+    ax_bar.set_ylabel('Variance', size = 12)
 
     fig4.set_size_inches(4, 6)
 

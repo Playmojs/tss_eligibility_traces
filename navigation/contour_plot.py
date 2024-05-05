@@ -61,7 +61,7 @@ def create_contour_mosaic():
     keys = list(symbols)
     n_keys = len(keys)
     fig, ax = plt.subplots(3, 5)
-    fig.set_facecolor("#212121")
+    # fig.set_facecolor("#212121")
     colors = ['black', 'red', 'orange']
 
     for plot in range(n_keys-1):
@@ -91,9 +91,12 @@ def create_contour_mosaic():
         print(max(act_times))
         alphas = alphas[mask]
         ax_x.scatter(coords[:,0], coords[:,1], alpha = alphas, color = np.array(colors)[color_indices])
-        ax_x.set_title("%3.0f ms" % (max(act_times)-min(act_times)), color = "#adadad")
-
-    plt.show()
+        ax_x.set_title("%3.0f ms" % (max(act_times)-min(act_times)))
+    return fig, ax
+    
 
 if __name__ == "__main__":
-    create_contour_plot(-1)
+    fig, ax = create_contour_mosaic()
+    fig.set_size_inches(12, 7)
+    fig.savefig('navigation/result_data/contour_thesis', dpi = 500, bbox_inches = 'tight')
+    plt.show()

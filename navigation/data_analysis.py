@@ -69,7 +69,17 @@ for i in range(l_var):
             nav_successes[i,j,k] = data_rec.success
             tag_successes[i,j,k] = data_rec.correct_tag
 
+#%%
+np.savez('analysis/rates_comparison', \
+          nav_successes = nav_successes, \
+          tag_successes = tag_successes, \
+          noise_levels = variances, \
+          distances = distances)
 
+#%%
+with np.load('analysis/rates_comparison.npz') as data:
+    nav_successes = data['nav_successes']
+    tag_successes = data['tag_successes']
 # %%
 mean_success = np.mean(nav_successes, axis= 2)
 print(mean_success)
@@ -97,17 +107,18 @@ print(n_tag_success)
 fig, axs = plt.subplots(2,2)
 fig.set_figwidth(12)
 fig.set_figheight(8)
-fig.set_facecolor("#212121")
+# fig.set_facecolor("#212121")
 lines = [None]*4
 labels = ["0 %", "6.25 %", "12.5 %", "18.75 %", "22.5 %", "25 %", "27.5 %"]
 variances = [0,1,2]
 distances = [0,2,4,6,8,10]
 ylabels = ["P(success)", "P(correct tag)", "P(success | correct tag)", "P(success | incorrect tag)"]
 plot_data = [mean_success.T, mean_tag_success.T, p_success_cond_tagS.T, p_success_cond_no_tagS.T]
+axs[0, 0].set_xlabel("Distance from start to goal (m)", size = 12)
 for i, ax in enumerate(axs.flatten()):
     lines[i] = ax.plot(distances,plot_data[i], '-o')
-    ax.set_xlabel("Distance from start to goal", color = "#adadad")
-    ax.set_ylabel(ylabels[i], color = "#adadad")
-    ax.tick_params(colors="#adadad")
-plt.legend(labels)
+    ax.set_ylabel(ylabels[i], size = 15)
+    ax.tick_params(axis ='both', labelsize = 12)
+axs[0, 0].legend(labels)
+
 # %%

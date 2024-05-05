@@ -9,8 +9,10 @@ grid_simulation/CUDA_test.py
 grid_simulation/Simulation_runner.py
 grid_simulation/Simulation_GJ_runner.py
 grid_simulation/Simulation_BVC_runner.py
+grid_simulation/Documents/
 !grid_simulation/Documents/Thesis.pdf
 !grid_simulation/Documents/Thesis.tex
+!grid_simulation/Documents/appendix/appendix.pdf
+!grid_simulation/Documents/appendix/appendix.tex
 !grid_simulation/Documents/Thesis.bib
 !grid_simulation/Documents/Figures/
-grid_simulation/Documents/
