@@ -104,21 +104,23 @@ print(n_tag_success)
 
 
 # %%
-fig, axs = plt.subplots(2,2)
-fig.set_figwidth(12)
-fig.set_figheight(8)
-# fig.set_facecolor("#212121")
-lines = [None]*4
 labels = ["0 %", "6.25 %", "12.5 %", "18.75 %", "22.5 %", "25 %", "27.5 %"]
-variances = [0,1,2]
-distances = [0,2,4,6,8,10]
+distances = [0,0.2,0.4,0.6,0.8,1]
 ylabels = ["P(success)", "P(correct tag)", "P(success | correct tag)", "P(success | incorrect tag)"]
 plot_data = [mean_success.T, mean_tag_success.T, p_success_cond_tagS.T, p_success_cond_no_tagS.T]
-axs[0, 0].set_xlabel("Distance from start to goal (m)", size = 12)
-for i, ax in enumerate(axs.flatten()):
-    lines[i] = ax.plot(distances,plot_data[i], '-o')
+file_names = ["ElT_MeanSuccess","ElT_MeanTagSucc","ElT_CondTagS","ElT_CondNoTags"]
+for i, (data, label, fname) in enumerate(zip(plot_data, ylabels, file_names)):
+    fig, ax = plt.subplots()
+    fig.set_figwidth(6)
+    fig.set_figheight(4)
+    ax.plot(distances,plot_data[i], '-o')
     ax.set_ylabel(ylabels[i], size = 15)
     ax.tick_params(axis ='both', labelsize = 12)
-axs[0, 0].legend(labels)
+    if (i == 0):
+        ax.set_xlabel("Distance from start to goal (m)", size = 12)
+        ax.legend(labels)
+    else:
+        ax.set_xlabel(" ", size = 12)
+    fig.savefig(f'result_data/{fname}', dpi = 500, bbox_inches = 'tight')
 
 # %%
