@@ -36,8 +36,23 @@ sorting = nyt
 
 \begin{document}
     \maketitle
+
+    \newpage
+    \section*{Aknowledgements}
+    Completing a master's thesis is a test of independence, but that doesn't mean I could have done it by myself. I want to give huge thanks to Nicolai Waniek, my supervisor, for his continued interest and constructive comments throughout the project. I also want to thank him for allowing me to work on the TSS model, and for creating such an interesting model to start with. Next, I would like to thank Benjamin Dunn for cosupervising, providing constructive feedback, and to his group for letting me join their group meetings. Finally, thanks also goes to the Kavli Institute, both for the interesting work they do and for letting me have an office in their building.
+
     \newpage
     \tableofcontents
+
+    \newpage
+    \section*{Summary}
+    In the Transition Scale Space model, entorhinal grid cells are interpreted as highly effective transition cells, responsible for accelerating retrieval of place-sequences during navigation. Previous simulations have shown that transition cells can develop hexagonal firing fields in populations of three cells, but not more. In this work, transition cell learning was simulated in spiking neural networks using theta-phase coded inputs and delayed lateral inhibition. This produced high levels of hexagonality in populations of 13 and 23 transition cells. There is also a suggestion on how boundary vector inputs can replace place inputs, using dendritic computation in a multicompartment model, which predicts that dendrites respond to single places in an even distribution across space. This is still a work in progress. There are also unanswered questions with regards to the structure of the population activity. Lastly, a pathfinding method compatible with TSS without backpropagation is presented. In sum, this is a work in favor of the biological plausibility of the TSS model, using computational resources available in biological neural networks.
+
+    \newpage
+    \section*{Sammendrag}
+    Transition Scale Spacemodellen forklarer gitterceller i entorhinal cortex som overgangsceller, som aksellererer produksjon av stedcellesekvenser ved navigasjon. I tidligere simuleringer utviklet overgangsceller heksagonalitet i nettverk på tre celler. I dette arbeidet ble overgangsceller simulert i nevrale nettverk i kontinuerlig tid, der lokasjonsinformasjon ble gitt i fasekoder og forsinket lateral inhibering mellom overgangscellene. Dette ga høy heksagonalitet i nettverk på 13 og 23 gitterceller. I tillegg presenteres en flerseksjonsmodell av overgangsceller med dendrittiske beregninger for å erstatte stedbasert lokasjonsinformasjon med grensevektor informasjon. Resultater tyder på at overgangscelledendritter bør respondere til enkeltsteder, men jevnt fordelt i miljøet. Arbeid etterlater også åpne spørsmål om populasjonsaktivitet i overgangscellenettverk. Til slutt presenteres også en modell for produksjon av stedcellesekvenser uten å bruke bakoverpropagering. Totalt utgjør dette verket et argument i favør mulig biologisk implementasjon av TSS-modellen.  
+
+
     \newpage
     \section{Introduction}
     \subsection{Animal Navigation} \label{Animal Navigation}
@@ -168,7 +183,8 @@ sorting = nyt
     Second, the way the structure of spatial input affects gridness is also explored. This is both to see if using rectangularly spaced inputs is necessary to produce gridness, and to evaluate the possibility of vector-based inputs such as BVCs, instead of place-like inputs.
 
     With a simple STDP- based learning rule, along with a baseline weight modulation, transition cells developed high gridness levels in larger networks than previously observed, and in with multiple network structures. This is an argument that cells can learn spatial transitions effectively under biologically plausible conditions. However, gridness did not occur in models with BVC-inputs, and it is unclear if this is because of the overall model design or the choice of hyperparameters.
-        
+    
+    \newpage
     \section{Methods} \label{Methods}
     \subsection{Overall model design} \label{Overall Method}
     The purpose of this thesis is to test gridness in transition neurons as described by the TSS-model with biologically plausible spatial inputs and conditions (continuous time). To achieve this, transition cells were simulated in a spiking neural network, which are artificial neural networks with certain properties:
@@ -384,7 +400,7 @@ sorting = nyt
         \end{minipage}
         \hspace{0.01\linewidth}
         \begin{minipage}[t]{0.59\linewidth}
-            \caption{Visualization of different steps of analysis. (a) Artificial spikeplot from some cell. Each pixel represents one sampled position, and color indicates firing rate in that position. 1) Spacing is the distance between adjacent firing fields, from center to center. 2) Orientation is the angle between a wall and a line passing through adjacent firing fields. Due to the hexagonality of grid cells, this orientation is always between 0\(\degree\) and 60\(\degree\). 3) The phase can be understood as the offset from an environment corner to the closest firing field. In practice, another cell with similar spacing and orientation is used as base of comparison, instead of the environment corner (not shown here). (b) The autocorrelogram of the firing field. For a hexagonal firing field, this will also be hexagonal. Note that orientation and spacing is preserved, as the size of the autocorrelogram is twice that of the firing field. This hexagonal shape is always centered, making computations easier. (c) To compute gridness score, an annulus is taken from the autocorrelogram, so the first ring of fields are included. A highly hexagonal cell will have a 60\(\degree\) rotational symmetry, and antisymmetry at 30\(\degree\), 90\(\degree\) or 150\(\degree\) degree rotation. (d) Hypotheical firing fields at two times, and shuffled fields. The mean variance of the two fields is compared to the shuffled variance.}
+            \caption{Visualization of different steps of analysis. (a) Artificial spikeplot from some cell. Each pixel represents one sampled position, and color indicates firing rate in that position. 1) Spacing is the distance between adjacent firing fields, from center to center. 2) Orientation is the angle between a wall and a line passing through adjacent firing fields. Due to the hexagonality of grid cells, this orientation is always between 0\(\degree\) and 60\(\degree\). 3) The phase can be understood as the offset from an environment corner to the closest firing field. In practice, another cell with similar spacing and orientation is used as base of comparison, instead of the environment corner (not shown here). (b) The autocorrelogram of the firing field. For a hexagonal firing field, this will also be hexagonal. Note that orientation and spacing is preserved, as the size of the autocorrelogram is twice that of the firing field. This hexagonal shape is always centered, making computations easier. (c) To compute gridness score, an annulus is taken from the autocorrelogram, so the first ring of fields are included. A highly hexagonal cell will have a 60\(\degree\) rotational symmetry, and antisymmetry at 30\(\degree\), 90\(\degree\) or 150\(\degree\) degree rotation. (d) Hypotheical firing fields at two times, and shuffled fields. The mean variance of the two fields is compared to the shuffled variance to measure temporal stability.}
             \label{analysis_plot}
         \end{minipage}
     \end{figure}
@@ -401,7 +417,7 @@ sorting = nyt
     
     Temporal stability was estimated by getting the variance in pixel-values in spike plots across time for each cell in the latter half of a simulation, and comparing the mean variances to the mean variance of shuffled pixel values (figure \ref{analysis_plot} (d)). This approach was enabled by the sampling scheme, in which each location in the environment was sampled equally at even time points. Shuffling the spike plots represented the expected temporal stability if there would be no correlation from one timepoint to the next, while a lower variance would imply a positive correlation of firing fields from one time to the next.
 
-
+    \newpage
     \section{Results} \label{Results}
 
     \subsection{Defining Typical Parameters: a Standard Model} \label{Standard model}
@@ -721,8 +737,7 @@ sorting = nyt
         \label{BVC_spikeplot}
     \end{figure}
 
-    
-
+    \newpage
     \section{Discussion} \label{Discussion}
 
     \subsection{What this model shows} \label{TheseResults}
@@ -792,6 +807,7 @@ sorting = nyt
     Some further challenges underlie the model relying on an expansive dendritic tree as a hidden layer between vectorized inputs and grid-like transition cells. Not only is the number of dendrites quite high compared to both stellate and pyramidal principal mECII cells \parencite{Klink1997}, but if each dendrite should correspond to one location, the required number of dendrites required would need to scale linearly with the number of places visited. If inspiration is again taken from what is known of hippocampal place cells, some kind of context modulation or remapping might help explain this, but significant work is required to highlight how this would work. With BVC-input, the same dendrite would in principle respond to the same place in multiple environments, as long as the boundary information is similar, so each dendrite could be reused across contexts as long as conductances could be modulated across environments. Prior to exploring this in the engineer-like simulations like this work has done, this question should be investigated in a theoretical framework.
     It is, however, in the spirit of the TSS to assume that the dendrites of a transition cell serves some computational purpose, and does this well.
 
+    \newpage
     \section{Conclusion}
     In the process of exploring areas of biological implausibility in the Transition Scale Space model, this work has demonstrated the power of biological neurons integrating continuous time and space. A criticism of the TSS model was that its simulations were implemented with for instance instant inhibition and backpropagation-based navigation, which require computational resources that might not be available in the brain. Results from this work indicates that transition cells can be learnt from boundary vector cell activation using phase-coded activity, delayed inhibition and dendritic computation, resources that have established roles in the brain but not used in perceptron in today's artificial neural networks. In parallel work, changing delay was tested as a potential alternative to the backpropagation used in Dijkstra's algorithm. 
     
