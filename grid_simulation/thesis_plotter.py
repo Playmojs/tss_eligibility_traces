@@ -25,7 +25,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ['analysis_plots']
+plots = ["TSS_transitions"]
 save = True
 models = np.array(['simspam', 'multi-grid', 'noise_sims2', 'noise_sims', 'noise_sims3', 'no_delay', 'GJ_model'], dtype= object)
 concatenate = [False, False, True, True, False, False, False]
@@ -56,6 +56,38 @@ if("distribution_plot" in plots):
     plt.gcf().set_size_inches(8, 2.67)
     if save:
         fig.savefig("grid_simulation/Documents/Figures/distribution_plot", dpi = 500, bbox_inches = 'tight')
+
+if("TSS_transitions" in plots):
+    arrow_xs = np.array([1, np.sqrt(2)/2, 0, -np.sqrt(2)/2, - 1, -np.sqrt(2)/2, 0, np.sqrt(2)/2])
+    arrow_ys = np.array([0, np.sqrt(2)/2, 1, np.sqrt(2)/2, 0, -np.sqrt(2)/2, -1, -np.sqrt(2)/2])
+    
+    fig, ax = plt.subplots()
+    im = plt.imread('grid_simulation/Results/misc/mouse.png')
+    ax.imshow(im, zorder = 5)
+
+    inner_circle = plt.Circle((400, 400), 500, fill = False, zorder = 0, linewidth = 1.5)
+    outer_circle = plt.Circle((400, 400), 1000, fill = False, zorder = 0, linewidth = 1.5)
+    ax.add_patch(inner_circle)
+    ax.add_patch(outer_circle)
+
+    for xs, ys in zip(arrow_xs, arrow_ys):
+        x_base = xs * 450 + 400
+        y_base = ys * 450 + 400
+        x_tip = xs * 800 + 400
+        y_tip = ys * 800 + 400
+        ax.arrow(x_base, y_base, x_tip - x_base, y_tip - y_base, length_includes_head = True, width = 40)
+
+    ax.axis('square')
+    lim_lo = -620
+    lim_hi = 1420
+    ax.set_xlim([lim_lo,lim_hi])
+    ax.set_ylim([lim_lo,lim_hi])
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    [x.set_linewidth(0) for x in ax.spines.values()]
+
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/TSS_transitions", dpi = 500, bbox_inches = 'tight')
 
 
 if("input_plot" in plots):
@@ -810,6 +842,60 @@ if ('BVC_aux' in plots):
         for fig, title in zip([bvc_fig, den_fig1, den_fig2], ['bvc_act', 'den_act1', 'den_act2']):
             fig.set_size_inches(4, 4)
             fig.savefig(f"grid_simulation/Documents/Figures/{title}", dpi = 500, bbox_inches = 'tight') 
+
+if ('all_spike' in plots):
+    file_ns = ['regular0', 'noisy_blue0', 'noisy_white0', 'regular15', 'regular0', 'regular0', 'regular0', 'regular0', 'regular0', 'regular0']
+
+    fig, axs = plt.subplots(nrows = 2, ncols = 5)
+    fig.set_size_inches(12, 5)
+    iter = 0
+    ngs = [13, 13, 13, 23, 37, 13, 13, 13, 13, 13]
+    pxs = 48
+    for i, model in enumerate (models):
+        for j in range(simuls_per_model[i]):
+            if model == 'noise_sims2':
+                time = '95.0'
+            else:
+                time = '95'
+            ng = ngs[iter]
+            ax = axs[iter // 5, iter % 5]
+            hists = utils.getPopulationSpikePlot(f"grid_simulation/Results/data/{model}/{file_ns[iter]}/{time}min_spikes.npz", ng, pxs, True)
+            ax.imshow(hists[0], interpolation = 'none', origin = 'lower')
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_title(simul_names[iter], size = 12)
+            iter += 1
+    if save:
+        fig.savefig('grid_simulation/Documents/Figures/all_spikes', dpi = 500, bbox_inches = 'tight')
+
+if ('gscore_flucts' in plots):
+    n_col = sum(simuls_per_model)
+    counts = np.empty((2, 10))
+    ind_container = np.empty(0, dtype = int)
+    means = np.empty(n_col)
+    iter = 0
+
+    for model, nsimuls, concat, app in zip(models, simuls_per_model, concatenate, gscore_file_app):
+        gscores =  np.load('grid_simulation/Results/analysis/' + model + '/gscores' + app + '.npz')['gscores']
+        if concat:
+            s0, s1, s2, s3 = gscores.shape
+            gscores = np.reshape(gscores, (1, s0 * s1, s2, s3))
+        for group in gscores:
+            negative_scores_filter = group < 0
+            counts[0, order[iter]] = np.sum(negative_scores_filter[:, -1])
+            all_negative = np.all(negative_scores_filter[:, 10:], axis = 1) 
+            counts[1, order[iter]] = np.sum(all_negative)
+            iter += 1
+    fig, ax = plt.subplots()
+    ax.bar(np.arange(10), counts[1] / counts[0], width = 0.3, color = col_vals)
+    ax.set_xticks(np.arange(10))
+    ax.set_xticklabels(simul_names, rotation = 30, size = 12, ha = 'right')
+    ax.set_ylim([0, 0.45])
+    ax.set_xlim([-0.5, 9.5])
+    ax.set_ylabel("Proportion all negative", size = 12)
+    fig.set_size_inches(12, 3)
+    if save:
+        fig.savefig("grid_simulation/Documents/Figures/model_comparison/gscore_fluct", dpi = 500, bbox_inches = 'tight')
 
 if ('analysis_plots' in plots):
     pxs = 48
