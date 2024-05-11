@@ -268,7 +268,7 @@ sorting = nyt
     Here, \(d\) is the phase-coded spike time relative to theta (in milliseconds), \(x\) and \(y\) is the current location in kartesian coordinates, \(\sigma\) is a scale parameter determining the width of input and \(\mu\) is a noise term. Typically, there was a cutoff at 20 ms, so only reasonably active inputs would activate, but this cutoff was arbitrary, and could for instance depend on the transition cell scale. In this model, inputs would be distributed in a rectangular, even grid across the environment.
     
     Each of these inputs synapsed on each transition cell, with weights initialized randomly from a uniform distribution, between 0 and some maximum, \(w_{max}\). The transition cell was modelled as an LIF-neuron, with a voltage parameter which triggered spikes if it surpassed a threshold, or updated according to equation \ref{key2}.
-    \begin{equation} \label{key2} v(t+1) =  \begin{cases} 0, & \text{if } v(t) > \text{threshold or refractory}\\ v(t) - e^{-(v(t)) / \tau} + \sum_{0}^{i} (w_{i} \cdot i(t-d)), & \text{otherwise} \end{cases} \end{equation}
+    \begin{equation} \label{key2} v(t+1) =  \begin{cases} 0 & \text{if } v(t) > \text{threshold or refractory}\\ v(t) - e^{-(v(t)) / \tau} + \sum_{0}^{i} (w_{i} \cdot i(t-d)) & \text{otherwise} \end{cases} \end{equation}
     
     Here, v(t) is the voltage of time, \(\tau\) is a decay parameter, \(w_{i}\) is the weight of the ith input and \(i(t-delay)\) is 1 if input i spiked at time \(t-d\), in which \(d\) is the input delay, and 0 otherwise.
 
@@ -328,17 +328,24 @@ sorting = nyt
     \end{figure}
 
     To justify the two-layer neuron model with dendrites and soma as a multi-compartment model, the dendrites had the following properties: they only synapsed onto a single transition cell body, were non-spiking, and the dendrite-to-soma connectivity was modelled as a gap junction, as in \parencite{Alabi2022}. In this model, each dendrite only received input from a single input neuron, to simulate the place-oriented dendrite. Each dendrite had a voltage-parameter that would increment by a factor \(w\) when receiving inputs, and decaying to 0 over time (equation \ref{key5}):
-        \begin{equation}\label{key5} v_{den}(t + 1) = v_{den}(t) + e^{-(v_{den}(t))/\tau} + \sum_{0}^{i} (w \cdot i(t-delay)) \end{equation}
+        \begin{equation}\label{key5} v_{den}(t + 1) = v_{den}(t) + e^{-(v_{den}(t))/\tau_{den}} + \sum_{0}^{i} (w \cdot i(t-delay)) \end{equation}
     
-    This resembles \ref{key2}, but does not have the option of setting voltage to 0 above some threshold, as the dendrite is non-spiking. In terms of inputs, with place-based inputs, each dendrite would only receive input from one input neuron. The weight \(w\) would be a hyperparameter, not changing during a simulation, and was equal for all dendrites.
-    
-    Based on this, the grid cell's voltage was determined by the following equation \ref{key6}. 
-        \begin{equation}\label{key6} v_{soma}(t + 1) = \begin{cases} 0, & \text{if } v_{soma}(t) > \text{threshold or refractory}\\
-        \sum_{i}^{} c_i \cdot tanh(v_i), & \text{otherwise} \end{cases}\end{equation} 
-        
-    Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not, dependent only on its internal voltage-parameter. \(v_i\) is the voltage of dendrite \(i\), \(c_i\) is the corresponding dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules \ref*{key3} and \ref*{key4} is here learning over conductances (\(v_i\)) instead of synapse weights, but is otherwise identical.
+    This resembles equation \ref{key2}, but does not set voltage to 0 above some threshold, as the dendrite is non-spiking. In terms of inputs, with place-based inputs, each dendrite would only receive input from one input neuron. The weight \(w\) would be a hyperparameter, not changing during a simulation, and was equal for all dendrites.
 
-    With this network structure, simulation times were significantly higher than with direct connection between input cells and transition cells, because the number of dendrites was the product of the number of input cells and the number of transition cells. This limited the amount of time spent on this and subsequent models.
+    Based on this, the grid cell's voltage was determined by the following equation \ref{key6}.
+
+    \begin{equation}\label{key6} v_{soma}(t + 1) = \begin{cases} 0 & \text{if } v_{soma}(t) > \text{threshold or refractory}\\
+        z + \sum_{i}^{} c_i \cdot tanh(v_i) & \text{otherwise} \end{cases}\end{equation} 
+        
+    Here, the nonlinear function \(tanh(v_i)\) gives the dendrite a softmax-like behavior, so the dendrite at anytime is either activated or not, dependent only on its internal voltage-parameter. \(v_i\) is the voltage of dendrite \(i\), \(c_i\) is the corresponding dendrite conductance, reflecting how effectively the dendrite's voltage affects the grid cell voltage. The learning rules from equation \ref*{key3} and \ref*{key4} is here learning over conductances (\(v_i\)) instead of synapse weights, but is otherwise identical.
+        
+    Inhibitory neurons synapsed on the transition cell soma, and not the dendrites, in line with experimental observations \parencite{Buetfering2014}. As opposed to LIF models, modelling inhibition as an instant reduction in somatic voltage would not work with equation \ref{key6}, as it would be overwritten next timestep. Instead \(z\) represents an internal inhibition parameter. This parameter is decremented upon receiving inhibitory inputs, and decays to 0 over time (equation \ref{key10}).
+
+    \begin{equation}\label{key10} y(t + 1) = y(t) + e^{-y/\tau_y} + a(t) \end{equation}
+
+    \(\tau_y\) is a decay parameter, typically 20 ms, and \(a(t)\) is some constant value (typically around -2.5 v) if inhibition activated at time \(t\), 0 otherwise.
+
+    With this network structure, simulation times were significantly higher than with direct connection between input cells and transition cells, because the number of dendrites was the product of the number of input cells and the number of transition cells, leading to an increase in parameters. This limited the amount of time spent on this and subsequent models.
 
     \subsection{Boundary vector cell inputs} \label{BVC Model}
     The multicompartment model described above was modified so a dendrite received a set of BVCs as inputs instead of place-like cells. The softmax function was tuned so receiving only one or a few BVC-input would not ellicit any dendrite activity.
@@ -499,7 +506,7 @@ sorting = nyt
     \begin{figure}[H]
         \centering
         \includegraphics[width = \linewidth]{all_spikes.png}
-        \caption{Spike histograms sampled after 95 minutes simulated time for all ten models compared in this work. Notice that although not all models are equally gridlike, all show clearly isolated firing fields, as predicted from a STDP center-surround learning rule.}
+        \caption{Example spike histograms sampled after 95 minutes simulated time for all ten models compared in this work. Notice that although not all models are equally gridlike, all show clearly isolated firing fields, as predicted from a STDP center-surround learning rule.}
         \label{all_spikes}
     \end{figure}
 
@@ -570,7 +577,7 @@ sorting = nyt
             \subcaption{}
             \includegraphics[width=\textwidth]{model_comparison/gscore_fluct.png}
         \end{minipage}
-        \caption{Distribution of gridness scores in the different models. (a) Standard model gridness distribution with spike plot examples. Although the mean gridness of this model is considered high (above 0.6), most simulated networks contain cells with negative or low gridness score. Negative gridness is typically produced by rectangular patterns, as shown in the two leftmost spikeplot examples. The two middle examples show activity in cells with positive, but low gridness scores. To have a gridness score above 1, the hexagonal pattern must typically span the whole environment without shearing or rectangularity. (b) Gridness score distributions for the remaining nine models. (c) Proportion of cells with negative final gridness score that also had negative gscore in all samples for the second half of the simulation. For most models, negative gridness was not maintained across the entire simulation.} 
+        \caption{Distribution of gridness scores in the different models. (a) Standard model gridness distribution with spike plot examples. Although the mean gridness of this model is considered high (above 0.6), most simulated networks contain cells with negative or low gridness score. Negative gridness is typically produced by rectangular patterns, as shown in the two leftmost spikeplot examples. The two middle examples show activity in cells with positive, but low gridness scores. To have a gridness score above 1, the hexagonal pattern must typically span the whole environment without shearing or rectangularity. (b) Gridness score distributions for the remaining nine models. (c) Proportion of cells with negative final gridness score that also had negative gscore in all samples from the second half of the simulation. For most models, negative gridness was not maintained across the entire simulation.}
         \label{gscore_distribution}
     \end{figure}
 
