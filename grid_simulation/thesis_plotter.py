@@ -25,7 +25,7 @@ def getFilteredInputSpikes(time_window):
         filtered_ids[i] = id[filters[i]]
     return filtered_data, filtered_ids
 
-plots = ["TSS_transitions"]
+plots = ['model_comparison_phase']
 save = True
 models = np.array(['simspam', 'multi-grid', 'noise_sims2', 'noise_sims', 'noise_sims3', 'no_delay', 'GJ_model'], dtype= object)
 concatenate = [False, False, True, True, False, False, False]
@@ -341,7 +341,7 @@ def make_phase_plot(file: str, color):
 
 if('model_comparison_phase' in plots):
     phase_file_app = ["_reg", "_bn", "_wn", "_23", "_37", "", "", "", "", ""]
-    output_app = ["_regular", "_blue_noise", "_white_noise", "_23grid", "_37grid", "_no_delay", "_1ms_noise", "_2ms_noise", "_4ms_noise", "_GJ"]
+    output_app = ["_regular", "_blue_noise", "_white_noise", "_23grid", "_37grid", "_1ms_noise", "_2ms_noise", "_4ms_noise", "_no_delay", "_GJ"]
     iter = 0
     for i, model in enumerate(models):
         for j in range(simuls_per_model[i]):
@@ -388,6 +388,7 @@ if ('model_comparison_gscore' in plots):
     gscores_container = np.empty(0)
     ind_container = np.empty(0, dtype = int)
     means = np.empty(n_col)
+    std_devs = np.empty(n_col)
     iter = 0
 
     for model, nsimuls, concat, app in zip(models, simuls_per_model, concatenate, gscore_file_app):
@@ -400,15 +401,22 @@ if ('model_comparison_gscore' in plots):
             data = data[~np.isnan(data)]
             gscores_container = np.append(gscores_container, data)
             means[order[iter]] = np.mean(data)
+            std_devs[order[iter]] = np.sqrt(np.var(data)/data.size)
             ind_container = np.append(ind_container, np.full(data.size, int(order[iter])))
             iter += 1
-        
+    
+    print(means)
     scatter_ind = ind_container + (np.random.random(len(ind_container)) - 0.5) * 0.2
     fig, ax = plt.subplots()
 
     ax.scatter(scatter_ind, gscores_container, c = col_vals[ind_container], s = 7)
+
+    ax.errorbar(np.arange(n_col), means, yerr = std_devs, fmt = 'none', elinewidth  = 2, capsize = 5, color = 'black')
+
     ax.hlines(means, xmin = np.arange(n_col) - 0.3, xmax = np.arange(n_col) + 0.3, linewidth = 3, colors = darkened_colors)
     ax.hlines(0, xmin = -1, xmax = 11, colors = 'black')
+
+
     ax.set_xlim([-0.7, 9.7])
     ax.set_ylabel("Mean gridness score", size = 15)
     ax.set_xticks(np.arange(10))
@@ -423,6 +431,7 @@ if ('model_comparison_sigma' in plots):
     sigma_container = np.empty(0)
     ind_container = np.empty(0, dtype = int)
     means = np.empty(n_cols)
+    std_devs = np.empty(n_cols)
     iter = 0
     
     for model, ngroup, concat in zip(models, simuls_per_model, concatenate):
@@ -438,18 +447,23 @@ if ('model_comparison_sigma' in plots):
             best_sigma = best_sigma[~np.isnan(best_sigma)]
             sigma_container = np.append(sigma_container, best_sigma)
             means[order[iter]] = np.median(best_sigma)
+            std_devs[order[iter]] = np.sqrt(np.var(best_sigma) / best_sigma.size)
             ind_container = np.append(ind_container, np.full(len(best_sigma), order[iter]))
             iter += 1
 
     scatter_ind = ind_container + (np.random.random(len(ind_container)) - 0.5) * 0.2
     scatter_sig = sigma_container + (np.random.random(len(ind_container)) - 0.5) * 0.01
-    
+    print(means * 300)
     fig, ax = plt.subplots()
+
+    ax.scatter(scatter_ind, scatter_sig * 300, c = col_vals[ind_container], s = 5, linewidth = 0.1)
+
+
+    ax.errorbar(np.arange(n_col), means * 300, yerr = 300*std_devs, fmt = 'none', elinewidth  = 2, capsize = 5, color = 'black')
+    ax.hlines(means * 300, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
 
     ax.set_ylim([21, 70])
     ax.set_xlim([-0.7, 9.7])
-    ax.scatter(scatter_ind, scatter_sig * 300, c = col_vals[ind_container], s = 5, linewidth = 0.1)
-    ax.hlines(means * 300, xmin = np.arange(n_cols) - 0.3, xmax = np.arange(n_cols) + 0.3, linewidth = 3, colors = darkened_colors)
     ax.set_ylabel("Grid Spacing (cm)", size = 15)
     ax.set_xticks(np.arange(10))
     ax.set_xticklabels(simul_names, rotation = 30, size = 12, ha = 'right')
@@ -464,6 +478,8 @@ if ('model_comparison_temporal_stability' in plots):
     values_container = np.empty((n_cols, 19))
     shuffle_container = np.empty((n_cols, 19))
     x_vals = np.arange(n_cols)
+    bar_values = np.empty(n_cols)
+    std_devs = np.empty(n_cols)
     
     iter = 0
     
@@ -476,14 +492,18 @@ if ('model_comparison_temporal_stability' in plots):
             pairwise_var = np.reshape(pairwise_var, (1, s0 * s1, s2, s3))
             pairwise_shuffled_var = np.reshape(pairwise_shuffled_var, (1, s0 * s1, s2, s3))
         for temp, shuffle in zip(pairwise_var, pairwise_shuffled_var):
-            values_container[order[iter]] = np.mean(temp, axis = (0, 2))
-            shuffle_container[order[iter]] = np.mean(shuffle, axis = (0, 2))
+            bar_values[order[iter]] = np.nanmean((temp/shuffle)[:, 9:])
+
+            std_devs[order[iter]] = np.sqrt(np.nanvar((temp/shuffle)[:, 9:])/temp[:, 9:].size)
+
             iter += 1
     
     fig, ax = plt.subplots()
-    bar_values = np.mean(values_container[:, 9:] / shuffle_container[:, 9:], axis = 1)
 
     ax.bar(x_vals, bar_values, width = 0.4, color = col_vals, edgecolor = darkened_colors, linewidth = 2)
+
+    ax.errorbar(x_vals, bar_values, yerr = std_devs, fmt = 'none', elinewidth  = 2, capsize = 5, color = 'black')
+
     ax.set_xticks(x_vals)
     ax.set_xticklabels(simul_names, rotation = 30, size = 12, ha = 'right')
     ax.set_ylim([0, 1.2])
@@ -711,8 +731,8 @@ if('sum_spikeplots' in plots):
     path = "grid_simulation/Results/analysis/"
     pxs = 48 
 
-    true_inds = [4, 9, 8]
-    model_inds = [1, 6, 5]
+    true_inds = [4, 1, 7]
+    model_inds = [1, 0, 4]
     simuls = [3, 15, 23]
     ngs = [37, 13, 13]
     all_cells = [np.array([0, 3]), np.array([12, 3]), np.array([1, 6])]
@@ -887,12 +907,12 @@ if ('gscore_flucts' in plots):
             counts[1, order[iter]] = np.sum(all_negative)
             iter += 1
     fig, ax = plt.subplots()
-    ax.bar(np.arange(10), counts[1] / counts[0], width = 0.3, color = col_vals)
+    ax.bar(np.arange(10), counts[1] / counts[0], width = 0.3, color = col_vals, edgecolor = darkened_colors, linewidth = 2)
     ax.set_xticks(np.arange(10))
     ax.set_xticklabels(simul_names, rotation = 30, size = 12, ha = 'right')
     ax.set_ylim([0, 0.45])
     ax.set_xlim([-0.5, 9.5])
-    ax.set_ylabel("Proportion all negative", size = 12)
+    ax.set_ylabel("Proportion staying \n negative", size = 12)
     fig.set_size_inches(12, 3)
     if save:
         fig.savefig("grid_simulation/Documents/Figures/model_comparison/gscore_fluct", dpi = 500, bbox_inches = 'tight')
